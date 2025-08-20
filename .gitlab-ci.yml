@@ -1,0 +1,131 @@
+stages:
+  - build
+  - publish
+  - docker
+
+variables:
+  NODE_ENV: production
+  # Ensure pnpm store is local to enable caching
+  PNPM_STORE_DIR: .pnpm-store
+  # Increase memory during builds
+  NODE_OPTIONS: --max_old_space_size=4096
+
+.default_pnpm_setup: &default_pnpm_setup
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .pnpm-store/
+      - .nx/cache/
+  before_script:
+    - corepack enable
+    - pnpm --version
+    - pnpm config set store-dir $PNPM_STORE_DIR
+    - pnpm install --frozen-lockfile --prefer-offline
+
+build:react-kit:
+  stage: build
+  needs: []
+  <<: *default_pnpm_setup
+  script:
+    - pnpm nx build @k3mart-js/react-kit
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - libs/react-kit/dist/
+  rules:
+    - changes:
+        - libs/react-kit/**/*
+        - package.json
+        - pnpm-lock.yaml
+        - nx.json
+        - tsconfig*.json
+
+build:storybook:
+  stage: build
+  needs: []
+  <<: *default_pnpm_setup
+  script:
+    - pnpm nx run @k3mart-js/react-kit:build-storybook
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - libs/react-kit/storybook-static/
+  rules:
+    - changes:
+        - libs/react-kit/**/*
+        - package.json
+        - pnpm-lock.yaml
+        - nx.json
+        - tsconfig*.json
+
+publish:react-kit:
+  stage: publish
+  needs:
+    - job: build:react-kit
+      artifacts: true
+  before_script:
+    - corepack enable
+    - pnpm --version
+    - pnpm install --frozen-lockfile --prefer-offline
+    # Configure NPM to publish to GitLab's Package Registry for this project
+    - mkdir -p libs/react-kit
+    - echo "@k3mart-js:registry=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/npm/" > libs/react-kit/.npmrc
+    - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> libs/react-kit/.npmrc
+  script:
+    - cd libs/react-kit
+    # Optionally ensure we publish the built package (dist) references are valid
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        VERSION="${CI_COMMIT_TAG#v}"
+        echo "Setting package version to $VERSION from tag $CI_COMMIT_TAG"
+        npm version "$VERSION" --no-git-tag-version
+      fi
+    - npm publish
+  rules:
+    # Publish on git tags or when explicitly requested
+    - if: $CI_COMMIT_TAG
+    - if: $PUBLISH_REACT_KIT == "true"
+
+# Build and push a Docker image serving Storybook static files via Nginx
+storybook:docker-image:
+  stage: docker
+  needs:
+    - job: build:storybook
+      artifacts: true
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+    - export IMAGE_NAME="$CI_REGISTRY_IMAGE/react-kit-storybook"
+    # Ensure the build output exists at libs/react-kit/storybook-static
+    - |
+      if [ ! -f libs/react-kit/storybook-static/index.html ]; then
+        echo "storyboard-static not found in libs/react-kit; trying dist locations..."
+        CANDIDATE_DIR=$(find dist -type f -name index.html -path "*storybook*" -printf '%h' -quit 2>/dev/null || true)
+        if [ -n "$CANDIDATE_DIR" ]; then
+          echo "Copying $CANDIDATE_DIR -> libs/react-kit/storybook-static"
+          rm -rf libs/react-kit/storybook-static
+          mkdir -p libs/react-kit/storybook-static
+          cp -r "$CANDIDATE_DIR/"* libs/react-kit/storybook-static/
+        fi
+      fi
+      test -f libs/react-kit/storybook-static/index.html || { echo "Storybook static output not found"; exit 1; }
+    - docker build -f libs/react-kit/Dockerfile.storybook -t "$IMAGE_NAME:$CI_COMMIT_SHORT_SHA" libs/react-kit
+    - docker push "$IMAGE_NAME:$CI_COMMIT_SHORT_SHA"
+    # Tag latest on default branch
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        docker tag "$IMAGE_NAME:$CI_COMMIT_SHORT_SHA" "$IMAGE_NAME:latest"
+        docker push "$IMAGE_NAME:latest"
+      fi
+    # Tag with git tag when present
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        docker tag "$IMAGE_NAME:$CI_COMMIT_SHORT_SHA" "$IMAGE_NAME:$CI_COMMIT_TAG"
+        docker push "$IMAGE_NAME:$CI_COMMIT_TAG"
+      fi
+  rules:
+    - changes:
+        - libs/react-kit/**/*
+        - package.json
+        - pnpm-lock.yaml
+        - nx.json
+        - tsconfig*.json
