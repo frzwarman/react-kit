@@ -35,18 +35,13 @@ build:react-kit:
   needs: []
   <<: *default_pnpm_setup
   script:
-    - pnpm nx build @k3mart-js/react-kit
+    - pnpm nx build @k3-universe/react-kit
   artifacts:
     expire_in: 1 week
     paths:
       - libs/react-kit/dist/
   rules:
-    - changes:
-        - libs/react-kit/**/*
-        - package.json
-        - pnpm-lock.yaml
-        - nx.json
-        - tsconfig*.json
+    - if: '$CI_COMMIT_TAG'
 
 build:storybook:
   stage: build
@@ -55,7 +50,7 @@ build:storybook:
   needs: []
   <<: *default_pnpm_setup
   script:
-    - pnpm nx run @k3mart-js/react-kit:build-storybook
+    - pnpm nx run @k3-universe/react-kit:build-storybook
   artifacts:
     expire_in: 1 week
     paths:
@@ -68,42 +63,29 @@ build:storybook:
         - nx.json
         - tsconfig*.json
 
-publish:react-kit:
+release:react-kit:
   stage: publish
   tags:
     - k3-runner-1
   needs:
     - job: build:react-kit
       artifacts: true
-  before_script:
-    - export PNPM_HOME="$CI_PROJECT_DIR/.pnpm-home"
-    - export PATH="$PNPM_HOME:$PATH"
-    - |
-      if ! command -v pnpm >/dev/null 2>&1; then
-        echo "Installing pnpm to $PNPM_HOME"
-        curl -fsSL https://get.pnpm.io/install.sh | env PNPM_HOME="$PNPM_HOME" PNPM_VERSION=9.12.0 sh -
-      fi
-    - pnpm --version
-    - pnpm config set store-dir $PNPM_STORE_DIR
-    - pnpm install --frozen-lockfile --prefer-offline
-    # Configure NPM to publish to GitLab's Package Registry for this project
-    - mkdir -p libs/react-kit
-    - echo "@k3mart-js:registry=${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/npm/" > libs/react-kit/.npmrc
-    - echo "//${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken=${CI_JOB_TOKEN}" >> libs/react-kit/.npmrc
+  <<: *default_pnpm_setup
   script:
+    # Auth for npmjs.com (expects NPM_TOKEN in CI/CD variables)
+    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+    # Publish only on tag pipelines; set version from tag and publish package in libs/react-kit
     - cd libs/react-kit
-    # Optionally ensure we publish the built package (dist) references are valid
     - |
       if [ -n "$CI_COMMIT_TAG" ]; then
         VERSION="${CI_COMMIT_TAG#v}"
         echo "Setting package version to $VERSION from tag $CI_COMMIT_TAG"
         npm version "$VERSION" --no-git-tag-version
       fi
+    - test -f dist/index.js || { echo "dist not found; did build stage run?"; exit 1; }
     - npm publish
   rules:
-    # Publish on git tags or when explicitly requested
-    - if: $CI_COMMIT_TAG
-    - if: $PUBLISH_REACT_KIT == "true"
+    - if: '$CI_COMMIT_TAG'
 
 # Build and push a Docker image serving Storybook static files via Nginx
 storybook:docker-image:
