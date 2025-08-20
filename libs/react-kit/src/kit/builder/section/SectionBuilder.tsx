@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { cn } from '../../../shadcn/lib/utils';
-import { FormSection } from '../form/components/FormSection';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../shadcn/ui/card';
+import { Separator } from '../../../shadcn/ui/separator';
 import type { SectionBuilderProps, SectionLeaf, SectionNode } from './types';
 
 // Tailwind-safe literal class maps (1-12)
@@ -176,15 +177,71 @@ function SectionNodeRenderer({ node, renderLeaf }: { node: SectionNode; renderLe
   const layout = node.layout ?? 'grid';
   const containerClass = layout === 'grid' ? gridClasses(node.grid) : flexClasses(node.flex);
 
+  // Local presentational container replacing FormBuilderSection
+  const SectionContainer = ({ children }: { children: React.ReactNode }) => {
+    const title = node.title;
+    const description = node.subtitle;
+    const variant = node.variant ?? 'card';
+    const className = node.className;
+    const headerClassName = node.headerClassName;
+    const contentClassName = node.contentClassName;
+
+    const renderHeader = () => {
+      if (!title && !description) return null;
+      return (
+        <div className={cn('space-y-1', headerClassName)}>
+          {title && <h3 className="text-lg font-medium leading-none">{title}</h3>}
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        </div>
+      );
+    };
+
+    const renderContent = () => (
+      <div className={cn('space-y-4', contentClassName)}>
+        {children}
+      </div>
+    );
+
+    switch (variant) {
+      case 'card':
+        return (
+          <Card className={className}>
+            {(title || description) && (
+              <CardHeader>
+                {title && <CardTitle>{title}</CardTitle>}
+                {description && <CardDescription>{description}</CardDescription>}
+              </CardHeader>
+            )}
+            <CardContent className={cn(!title && !description && 'pt-6')}>
+              {renderContent()}
+            </CardContent>
+          </Card>
+        );
+      case 'separator':
+        return (
+          <div className={cn('space-y-6', className)}>
+            {(title || description) && (
+              <>
+                {renderHeader()}
+                <Separator />
+              </>
+            )}
+            {renderContent()}
+          </div>
+        );
+      case 'plain':
+      default:
+        return (
+          <div className={cn('space-y-6', className)}>
+            {renderHeader()}
+            {renderContent()}
+          </div>
+        );
+    }
+  };
+
   return (
-    <FormSection
-      title={node.title}
-      description={node.subtitle}
-      variant={node.variant ?? 'card'}
-      className={node.className}
-      headerClassName={node.headerClassName}
-      contentClassName={node.contentClassName}
-    >
+    <SectionContainer>
       <div className={containerClass}>
         {(node.children ?? []).map((child) => {
           if (isLeaf(child)) {
@@ -198,7 +255,7 @@ function SectionNodeRenderer({ node, renderLeaf }: { node: SectionNode; renderLe
           );
         })}
       </div>
-    </FormSection>
+    </SectionContainer>
   );
 }
 

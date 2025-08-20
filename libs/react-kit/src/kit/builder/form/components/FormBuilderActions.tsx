@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '../../../../shadcn/ui/button';
 import { cn } from '../../../../shadcn/lib/utils';
 
-export interface FormActionsProps {
+export interface FormBuilderActionsProps {
   onSubmit?: () => void;
   onCancel?: () => void;
   onReset?: () => void;
@@ -19,7 +19,7 @@ export interface FormActionsProps {
   resetButtonProps?: React.ComponentProps<typeof Button>;
 }
 
-export function FormActions({
+export function FormBuilderActions({
   onSubmit,
   onCancel,
   onReset,
@@ -34,7 +34,7 @@ export function FormActions({
   submitButtonProps,
   cancelButtonProps,
   resetButtonProps,
-}: FormActionsProps) {
+}: FormBuilderActionsProps) {
   return (
     <div className={cn('flex items-center justify-end space-x-4', className)}>
       {customActions}

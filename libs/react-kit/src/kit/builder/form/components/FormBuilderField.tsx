@@ -14,7 +14,7 @@ import { FormBuilderFieldConfig } from './FormBuilder';
 import { Autocomplete } from '../../../components/autocomplete/Autocomplete';
 import type { AutocompleteOption } from '../../../components/autocomplete/types';
 
-export interface FormFieldProps {
+export interface FormBuilderFieldProps {
   field: FormBuilderFieldConfig;
   control: Control<any>;
   onChange?: (value: any) => void;
@@ -22,7 +22,7 @@ export interface FormFieldProps {
   parentPath?: string;
 }
 
-export function FormField({ field, control, onChange, onFieldChange, parentPath }: FormFieldProps) {
+export function FormBuilderField({ field, control, onChange, onFieldChange, parentPath }: FormBuilderFieldProps) {
   const fieldPath = parentPath ? `${parentPath}.${field.name}` : field.name;
   const NULL_SENTINEL = '__NULL__';
 
@@ -213,7 +213,7 @@ export function FormField({ field, control, onChange, onFieldChange, parentPath 
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             {field.fields.map(subField => (
-              <FormField
+              <FormBuilderField
                 key={subField.name}
                 field={subField}
                 control={control}
@@ -306,7 +306,7 @@ export function FormField({ field, control, onChange, onFieldChange, parentPath 
                 <CardContent>
                   {field.fields && field.fields.length === 1 ? (
                     // Single field array
-                    <FormField
+                    <FormBuilderField
                       field={{
                         ...field.fields[0],
                         name: field.fields[0].name,
@@ -320,7 +320,7 @@ export function FormField({ field, control, onChange, onFieldChange, parentPath 
                     // Object array
                     <div className="grid gap-4 md:grid-cols-2">
                       {field.fields.map(subField => (
-                        <FormField
+                        <FormBuilderField
                           key={subField.name}
                           field={subField}
                           control={control}
@@ -392,4 +392,4 @@ export function FormField({ field, control, onChange, onFieldChange, parentPath 
   );
 }
 
-export default FormField;
+export default FormBuilderField;

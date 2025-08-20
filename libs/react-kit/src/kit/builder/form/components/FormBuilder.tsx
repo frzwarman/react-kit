@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from '../../../../shadcn/lib/utils';
 import { Button } from '../../../../shadcn/ui/button';
-import { FormField } from './FormField';
+import { FormBuilderField } from './FormBuilderField';
 import SectionBuilder from '../../section/SectionBuilder';
 import type { SectionLayout, SectionGridOptions, SectionFlexOptions, SectionNode } from '../../section/types';
 import { AutocompleteFetcher, AutocompleteOption } from '../../../components/autocomplete/types';
@@ -405,7 +405,7 @@ export function FormBuilder({
               span: { base: 1, md: spanMd },
               hidden: field.hidden,
               content: (
-                <FormField
+                <FormBuilderField
                   key={field.name}
                   field={{ ...field, disabled: field.disabled || fieldState.disabled }}
                   control={control}
