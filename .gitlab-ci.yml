@@ -28,18 +28,58 @@ variables:
     - pnpm config set store-dir $PNPM_STORE_DIR
     - pnpm install --frozen-lockfile --prefer-offline
 
-build:react-kit:
+detect:affected:
   stage: build
   tags:
     - k3-runner-1
   needs: []
   <<: *default_pnpm_setup
+  variables:
+    GIT_DEPTH: 0
   script:
-    - pnpm nx build @k3-universe/react-kit
+    - |
+      # Determine previous tag (if any) and compute Nx affected
+      CURRENT_TAG="$CI_COMMIT_TAG"
+      echo "Current tag: $CURRENT_TAG"
+      PREV_TAG=$(git describe --tags --abbrev=0 "${CURRENT_TAG}^" 2>/dev/null || true)
+      if [ -z "$PREV_TAG" ]; then
+        BASE=$(git rev-list --max-parents=0 HEAD)
+      else
+        BASE="$PREV_TAG"
+      fi
+      HEAD="$CI_COMMIT_SHA"
+      echo "Using base=$BASE head=$HEAD"
+      AFFECTED=$(pnpm nx print-affected --target=build --base="$BASE" --head="$HEAD" --select=projects || true)
+      # normalize to single-line space-separated list
+      AFFECTED=$(echo "$AFFECTED" | tr '\n' ' ' | xargs)
+      echo "AFFECTED_PROJECTS=$AFFECTED" | tee affected.env
+      echo "NX_BASE=$BASE" >> affected.env
+      echo "NX_HEAD=$HEAD" >> affected.env
+  artifacts:
+    reports:
+      dotenv: affected.env
+  rules:
+    - if: '$CI_COMMIT_TAG'
+
+build:affected:
+  stage: build
+  tags:
+    - k3-runner-1
+  needs:
+    - job: detect:affected
+  <<: *default_pnpm_setup
+  script:
+    - |
+      if [ -z "$AFFECTED_PROJECTS" ]; then
+        echo "No affected projects to build"; exit 0;
+      fi
+      echo "Building: $AFFECTED_PROJECTS"
+      PROJECTS_CSV=$(echo "$AFFECTED_PROJECTS" | tr ' ' ',')
+      pnpm nx run-many -t build --projects="$PROJECTS_CSV" --parallel=1
   artifacts:
     expire_in: 1 week
     paths:
-      - libs/react-kit/dist/
+      - libs/**/dist/
   rules:
     - if: '$CI_COMMIT_TAG'
 
@@ -63,27 +103,38 @@ build:storybook:
         - nx.json
         - tsconfig*.json
 
-release:react-kit:
+release:affected:
   stage: publish
   tags:
     - k3-runner-1
   needs:
-    - job: build:react-kit
+    - job: build:affected
       artifacts: true
+    - job: detect:affected
   <<: *default_pnpm_setup
+  variables:
+    GIT_DEPTH: 0
   script:
-    # Auth for npmjs.com (expects NPM_TOKEN in CI/CD variables)
     - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-    # Publish only on tag pipelines; set version from tag and publish package in libs/react-kit
-    - cd libs/react-kit
+    - VERSION="${CI_COMMIT_TAG#v}"
     - |
-      if [ -n "$CI_COMMIT_TAG" ]; then
-        VERSION="${CI_COMMIT_TAG#v}"
-        echo "Setting package version to $VERSION from tag $CI_COMMIT_TAG"
-        npm version "$VERSION" --no-git-tag-version
+      if [ -z "$AFFECTED_PROJECTS" ]; then
+        echo "No affected projects to release"; exit 0;
       fi
-    - test -f dist/index.js || { echo "dist not found; did build stage run?"; exit 1; }
-    - npm publish
+      echo "Releasing version $VERSION for: $AFFECTED_PROJECTS"
+      for PROJ in $AFFECTED_PROJECTS; do
+        echo "Resolving root for $PROJ"
+        ROOT=$(pnpm nx show project "$PROJ" --json | node -e "let s='';process.stdin.on('data',c=>s+=c);process.stdin.on('end',()=>console.log(JSON.parse(s).root));")
+        if [ -z "$ROOT" ] || [ ! -d "$ROOT" ]; then
+          echo "Failed to resolve root for $PROJ"; exit 1;
+        fi
+        echo "Publishing $PROJ from $ROOT"
+        cd "$ROOT"
+        npm version "$VERSION" --no-git-tag-version
+        test -f dist/index.js || { echo "dist not found for $PROJ"; exit 1; }
+        npm publish
+        cd "$CI_PROJECT_DIR"
+      done
   rules:
     - if: '$CI_COMMIT_TAG'
 
