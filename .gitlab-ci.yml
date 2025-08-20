@@ -24,6 +24,8 @@ variables:
 
 build:react-kit:
   stage: build
+  tags:
+    - k3-runner-1
   needs: []
   <<: *default_pnpm_setup
   script:
@@ -42,6 +44,8 @@ build:react-kit:
 
 build:storybook:
   stage: build
+  tags:
+    - k3-runner-1
   needs: []
   <<: *default_pnpm_setup
   script:
@@ -60,6 +64,8 @@ build:storybook:
 
 publish:react-kit:
   stage: publish
+  tags:
+    - k3-runner-1
   needs:
     - job: build:react-kit
       artifacts: true
@@ -89,6 +95,8 @@ publish:react-kit:
 # Build and push a Docker image serving Storybook static files via Nginx
 storybook:docker-image:
   stage: docker
+  tags:
+    - k3-runner-1
   needs:
     - job: build:storybook
       artifacts: true
