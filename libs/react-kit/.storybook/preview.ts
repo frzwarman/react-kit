@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 import React from 'react';
 import type { Preview, Decorator } from '@storybook/react';
-import '../src/index.css';
+import '../src/kit/themes/base.css';
 
 declare global {
   interface Window {
