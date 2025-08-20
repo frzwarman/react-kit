@@ -17,7 +17,13 @@ variables:
       - .pnpm-store/
       - .nx/cache/
   before_script:
-    - corepack enable
+    - export PNPM_HOME="$CI_PROJECT_DIR/.pnpm-home"
+    - export PATH="$PNPM_HOME:$PATH"
+    - |
+      if ! command -v pnpm >/dev/null 2>&1; then
+        echo "Installing pnpm to $PNPM_HOME"
+        curl -fsSL https://get.pnpm.io/install.sh | env PNPM_HOME="$PNPM_HOME" PNPM_VERSION=9.12.0 sh -
+      fi
     - pnpm --version
     - pnpm config set store-dir $PNPM_STORE_DIR
     - pnpm install --frozen-lockfile --prefer-offline
@@ -70,8 +76,15 @@ publish:react-kit:
     - job: build:react-kit
       artifacts: true
   before_script:
-    - corepack enable
+    - export PNPM_HOME="$CI_PROJECT_DIR/.pnpm-home"
+    - export PATH="$PNPM_HOME:$PATH"
+    - |
+      if ! command -v pnpm >/dev/null 2>&1; then
+        echo "Installing pnpm to $PNPM_HOME"
+        curl -fsSL https://get.pnpm.io/install.sh | env PNPM_HOME="$PNPM_HOME" PNPM_VERSION=9.12.0 sh -
+      fi
     - pnpm --version
+    - pnpm config set store-dir $PNPM_STORE_DIR
     - pnpm install --frozen-lockfile --prefer-offline
     # Configure NPM to publish to GitLab's Package Registry for this project
     - mkdir -p libs/react-kit
