@@ -4,7 +4,14 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/k3mart-ui-storybook"
+      "path": "./libs/react-kit"
     }
-  ]
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "node10",
+      "customConditions": null
+    }
+  }
 }

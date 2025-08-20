@@ -1,0 +1,11 @@
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  * {
+    @apply border-[oklch(var(--border))];
+  }
+  body {
+    @apply bg-[oklch(var(--background))] text-[oklch(var(--foreground))];
+    letter-spacing: var(--tracking-normal);
+  }
+}
