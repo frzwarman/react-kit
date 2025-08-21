@@ -92,5 +92,13 @@
         "unitTestRunner": "vitest"
       }
     }
+  },
+  "release": {
+    "projects": [
+      "@k3-universe/react-kit"
+    ],
+    "changelog": {
+      "automaticFromRef": true
+    }
   }
 }
