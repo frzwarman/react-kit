@@ -93,6 +93,19 @@ export const createField = {
     ...options,
   }),
 
+  switch: (
+    name: string,
+    label: string,
+    options: Partial<FormBuilderFieldConfig> = {},
+  ): FormBuilderFieldConfig => ({
+    name,
+    label,
+    type: 'switch',
+    required: false,
+    defaultValue: false,
+    ...options,
+  }),
+
   radio: (
     name: string,
     label: string,

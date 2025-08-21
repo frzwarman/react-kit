@@ -59,6 +59,10 @@ export const SimpleExample: Story = {
           defaultValue: false,
           gridCols: 2,
         }),
+        createField.switch('contactPermission', 'Allow contact by phone', {
+          defaultValue: false,
+          gridCols: 2,
+        }),
       ]),
     ];
   

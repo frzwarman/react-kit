@@ -22,6 +22,7 @@ export interface FormBuilderFieldConfig {
     | 'select'
     | 'autocomplete'
     | 'checkbox'
+    | 'switch'
     | 'radio'
     | 'date'
     | 'file'
@@ -161,6 +162,7 @@ export function FormBuilder({
             baseSchema = z.union([z.string(), z.number()]).nullable();
             break;
           case 'checkbox':
+          case 'switch':
             baseSchema = z.boolean();
             break;
           case 'date':
@@ -203,6 +205,7 @@ export function FormBuilder({
           fieldSchema = z.union([z.string(), z.number(), z.object()]).nullable();
           break;
         case 'checkbox':
+        case 'switch':
           fieldSchema = z.boolean();
           break;
         case 'date':

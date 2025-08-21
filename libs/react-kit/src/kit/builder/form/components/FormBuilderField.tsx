@@ -6,6 +6,7 @@ import { Input } from '../../../../shadcn/ui/input';
 import { Textarea } from '../../../../shadcn/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../shadcn/ui/select';
 import { Checkbox } from '../../../../shadcn/ui/checkbox';
+import { Switch } from '../../../../shadcn/ui/switch';
 import { RadioGroup, RadioGroupItem } from '../../../../shadcn/ui/radio-group';
 import { Label } from '../../../../shadcn/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../../shadcn/ui/card';
@@ -166,6 +167,56 @@ export function FormBuilderField({ field, control, onChange, onFieldChange, pare
         return (
           <div className="flex items-center space-x-2">
             <Checkbox
+              id={fieldPath}
+              checked={controllerField.value || false}
+              onCheckedChange={handleChange}
+              disabled={field.disabled}
+              className={cn(error && 'border-destructive', field.className)}
+            />
+            <Label htmlFor={fieldPath} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              {field.label}
+              {field.required && <span className="text-destructive ml-1">*</span>}
+            </Label>
+          </div>
+        );
+      }
+
+      case 'switch': {
+        const placement = field.labelPlacement ?? 'inline';
+        if (placement === 'stacked') {
+          const labelId = `${fieldPath}-label`;
+          return (
+            <div className="space-y-2">
+              <Label id={labelId} className="text-sm font-medium">
+                {field.label}
+                {field.required && <span className="text-destructive ml-1">*</span>}
+              </Label>
+              <Switch
+                aria-labelledby={labelId}
+                id={fieldPath}
+                checked={controllerField.value || false}
+                onCheckedChange={handleChange}
+                disabled={field.disabled}
+                className={cn(error && 'border-destructive', field.className)}
+              />
+            </div>
+          );
+        }
+        if (placement === 'hidden') {
+          return (
+            <Switch
+              id={fieldPath}
+              checked={controllerField.value || false}
+              onCheckedChange={handleChange}
+              disabled={field.disabled}
+              className={cn(error && 'border-destructive', field.className)}
+            />
+          );
+        }
+        // inline (default)
+        return (
+          <div className="flex items-center space-x-2">
+            <Switch
               id={fieldPath}
               checked={controllerField.value || false}
               onCheckedChange={handleChange}
@@ -394,8 +445,8 @@ export function FormBuilderField({ field, control, onChange, onFieldChange, pare
     return renderArrayField();
   }
 
-  // For checkbox, label may be inline/stacked/hidden handled inside renderBasicField
-  if (field.type === 'checkbox') {
+  // For checkbox/switch, label may be inline/stacked/hidden handled inside renderBasicField
+  if (field.type === 'checkbox' || field.type === 'switch') {
     return (
       <div className={cn('space-y-2', field.gridCols && `md:col-span-${field.gridCols}`)}>
         {renderBasicField()}

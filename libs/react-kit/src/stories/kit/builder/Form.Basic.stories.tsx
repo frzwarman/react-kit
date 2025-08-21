@@ -29,6 +29,8 @@ export const BasicUsage: Story = {
           { name: 'lastName', label: 'Last name', type: 'text', required: true },
           { name: 'email', label: 'Email', type: 'email', required: true },
           { name: 'newsletter', label: 'Subscribe to newsletter', type: 'checkbox', defaultValue: false, gridCols: 2 },
+          { name: 'darkMode', label: 'Enable dark mode', type: 'switch', defaultValue: false, gridCols: 2 },
+          { name: 'darkModeStacked', label: 'Enable dark mode (stacked)', type: 'switch', defaultValue: true, labelPlacement: 'stacked', gridCols: 2 },
         ],
       },
     ],
