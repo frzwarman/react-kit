@@ -4,7 +4,8 @@
   "license": "MIT",
   "scripts": {
     "react-kit:build": "nx build @k3-universe/react-kit",
-    "react-kit:release": "pnpm react-kit:build && nx release",
+    "react-kit:publish": "nx release",
+    "react-kit:release": "pnpm react-kit:build && pnpm react-kit:publish",
     "react-kit:storybook:run": "nx run @k3-universe/react-kit:storybook",
     "react-kit:storybook:build": "nx run @k3-universe/react-kit:build-storybook"
   },
