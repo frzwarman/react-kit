@@ -212,7 +212,7 @@ function SectionNodeRenderer({ node, renderLeaf }: { node: SectionNode; renderLe
                 {description && <CardDescription>{description}</CardDescription>}
               </CardHeader>
             )}
-            <CardContent className={cn(!title && !description && 'pt-6')}>
+            <CardContent>
               {renderContent()}
             </CardContent>
           </Card>

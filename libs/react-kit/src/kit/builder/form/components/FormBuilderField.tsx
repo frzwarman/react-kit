@@ -130,7 +130,39 @@ export function FormBuilderField({ field, control, onChange, onFieldChange, pare
         );
       }
 
-      case 'checkbox':
+      case 'checkbox': {
+        const placement = field.labelPlacement ?? 'inline';
+        if (placement === 'stacked') {
+          const labelId = `${fieldPath}-label`;
+          return (
+            <div className="space-y-2">
+              <Label id={labelId} className="text-sm font-medium">
+                {field.label}
+                {field.required && <span className="text-destructive ml-1">*</span>}
+              </Label>
+              <Checkbox
+                aria-labelledby={labelId}
+                id={fieldPath}
+                checked={controllerField.value || false}
+                onCheckedChange={handleChange}
+                disabled={field.disabled}
+                className={cn(error && 'border-destructive', field.className)}
+              />
+            </div>
+          );
+        }
+        if (placement === 'hidden') {
+          return (
+            <Checkbox
+              id={fieldPath}
+              checked={controllerField.value || false}
+              onCheckedChange={handleChange}
+              disabled={field.disabled}
+              className={cn(error && 'border-destructive', field.className)}
+            />
+          );
+        }
+        // inline (default)
         return (
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -142,9 +174,11 @@ export function FormBuilderField({ field, control, onChange, onFieldChange, pare
             />
             <Label htmlFor={fieldPath} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {field.label}
+              {field.required && <span className="text-destructive ml-1">*</span>}
             </Label>
           </div>
         );
+      }
 
       case 'radio': {
         const toUiValue = (val: unknown) => (val === null || val === undefined ? NULL_SENTINEL : String(val));
@@ -360,7 +394,7 @@ export function FormBuilderField({ field, control, onChange, onFieldChange, pare
     return renderArrayField();
   }
 
-  // For checkbox, we don't need the label wrapper since it's handled internally
+  // For checkbox, label may be inline/stacked/hidden handled inside renderBasicField
   if (field.type === 'checkbox') {
     return (
       <div className={cn('space-y-2', field.gridCols && `md:col-span-${field.gridCols}`)}>
@@ -375,6 +409,43 @@ export function FormBuilderField({ field, control, onChange, onFieldChange, pare
     );
   }
 
+  // Non-checkbox fields: support labelPlacement
+  const placement = field.labelPlacement ?? 'stacked';
+  if (placement === 'hidden') {
+    return (
+      <div className={cn('space-y-2', field.gridCols && `md:col-span-${field.gridCols}`)}>
+        {renderBasicField()}
+        {field.description && (
+          <p className="text-sm text-muted-foreground">{field.description}</p>
+        )}
+        {error && (
+          <p className="text-sm text-destructive">{error.message}</p>
+        )}
+      </div>
+    );
+  }
+
+  if (placement === 'inline') {
+    return (
+      <div className={cn('space-y-1', field.gridCols && `md:col-span-${field.gridCols}`)}>
+        <div className="flex items-center gap-2">
+          <Label htmlFor={fieldPath} className="text-sm font-medium">
+            {field.label}
+            {field.required && <span className="text-destructive ml-1">*</span>}
+          </Label>
+          {renderBasicField()}
+        </div>
+        {field.description && (
+          <p className="text-sm text-muted-foreground">{field.description}</p>
+        )}
+        {error && (
+          <p className="text-sm text-destructive">{error.message}</p>
+        )}
+      </div>
+    );
+  }
+
+  // stacked (default)
   return (
     <div className={cn('space-y-2', field.gridCols && `md:col-span-${field.gridCols}`)}>
       <Label htmlFor={fieldPath} className="text-sm font-medium">

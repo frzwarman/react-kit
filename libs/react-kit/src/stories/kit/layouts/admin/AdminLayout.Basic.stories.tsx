@@ -4,6 +4,7 @@ import AdminLayout from '../../../../kit/layouts/admin/components/AdminLayout';
 import { ThemeProvider } from '../../../../kit/providers/ThemeProvider';
 import { useAdminSidebarMenuRegistration } from '../../../../kit/layouts/admin/hooks/menu';
 import {
+  Outlet,
   RouterProvider,
   createRootRoute,
   createRoute,
@@ -43,6 +44,7 @@ function App(props: AdminLayoutStoryProps) {
       <ThemeProvider>
         <AdminLayout {...props}>
           <RegisterMenus />
+          <Outlet />
         </AdminLayout>
       </ThemeProvider>
     ),

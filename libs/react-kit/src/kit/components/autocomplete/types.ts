@@ -6,7 +6,7 @@ export type AutocompleteOption = {
 export type AutocompleteFetchParams = {
   search: string
   cursor?: string | number | null
-  page?: number
+  page: number
   pageSize: number
 }
 

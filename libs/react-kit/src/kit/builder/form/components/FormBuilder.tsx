@@ -70,6 +70,10 @@ export interface FormBuilderFieldConfig {
     value: any;
   }; // For conditional field visibility
   hidden?: boolean; // Declarative hide
+  // Label placement control across inputs
+  labelPlacement?: 'stacked' | 'inline' | 'hidden';
+  // Wrapper container className (applies to the field wrapper, not the input)
+  wrapperClassName?: string;
 }
 
 export interface FormBuilderSectionConfig {
@@ -108,6 +112,8 @@ export interface FormBuilderProps {
   actionsClassName?: string;
   showActions?: boolean;
   customActions?: React.ReactNode;
+  // UI: show a separator line above action buttons
+  showActionsSeparator?: boolean;
 }
 
 export function FormBuilder({
@@ -127,6 +133,7 @@ export function FormBuilder({
   actionsClassName,
   showActions = true,
   customActions,
+  showActionsSeparator = true,
 }: FormBuilderProps) {
   // Generate schema from field configs if not provided
   const generatedSchema = useMemo(() => {
@@ -309,18 +316,27 @@ export function FormBuilder({
 
   const { control, handleSubmit, reset, setValue, getValues, watch } = form;
 
-  // Watch all form values for dependencies
-  const watchedValues = watch();
+  // Determine if any field dependencies are declared
+  const hasDependencies = useMemo(() => {
+    return sections.some((section) =>
+      section.fields?.some((f) => Array.isArray(f.dependencies) && f.dependencies.length > 0),
+    );
+  }, [sections]);
+
+  // Only watch values when there are dependencies to respond to
+  // This prevents unnecessary re-renders that can cause focus loss
+  const emptyWatchedValues = useMemo(() => ({} as Record<string, any>), []);
+  const watchedValues = hasDependencies ? watch() : emptyWatchedValues;
 
   // Handle field dependencies
   const handleFieldDependencies = useCallback(
     (field: FormBuilderFieldConfig) => {
-      if (!field.dependencies) return {};
+      if (!hasDependencies || !field.dependencies) return {};
 
       const result: { disabled?: boolean; hidden?: boolean } = {};
 
       field.dependencies.forEach((dep) => {
-        const dependentValue = watchedValues[dep.field];
+        const dependentValue = (watchedValues as Record<string, any>)[dep.field];
         const conditionMet = dep.condition(dependentValue);
 
         switch (dep.action) {
@@ -350,7 +366,7 @@ export function FormBuilder({
 
       return result;
     },
-    [watchedValues, setValue, getValues],
+    [hasDependencies, watchedValues, setValue, getValues],
   );
 
   // Handle field change with custom onChange
@@ -387,7 +403,7 @@ export function FormBuilder({
         id: section.id ?? `section-${sectionIndex}`,
         title: section.title,
         subtitle: section.description,
-        variant: section.variant ?? 'card',
+        variant: section.variant ?? 'plain',
         className: section.className,
         layout: section.layout ?? 'grid',
         grid: section.grid ?? { cols: 1, mdCols: 2, gap: 'gap-4' },
@@ -403,6 +419,7 @@ export function FormBuilder({
             return {
               key: field.name,
               span: { base: 1, md: spanMd },
+              className: field.wrapperClassName,
               hidden: field.hidden,
               content: (
                 <FormBuilderField
@@ -430,7 +447,14 @@ export function FormBuilder({
         <SectionBuilder sections={sectionNodes} />
 
         {showActions && (
-          <div className={cn('flex flex-col sm:flex-row gap-3 pt-6 border-t', actionsClassName)}>
+          <div
+            className={cn(
+              'flex flex-col sm:flex-row gap-3',
+              showActionsSeparator && 'pt-6',
+              showActionsSeparator && 'border-t',
+              actionsClassName,
+            )}
+          >
             <Button type="submit" disabled={isSubmitting} className="sm:order-last">
               {isSubmitting ? 'Submitting...' : submitLabel}
             </Button>
@@ -442,7 +466,7 @@ export function FormBuilder({
             )}
 
             {onReset && (
-              <Button type="button" variant="ghost" onClick={handleReset} disabled={isSubmitting}>
+              <Button type="button" variant="outline" onClick={handleReset} disabled={isSubmitting}>
                 {resetLabel}
               </Button>
             )}

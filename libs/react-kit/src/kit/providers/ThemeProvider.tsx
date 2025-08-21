@@ -1,11 +1,15 @@
-import { createContext, use, useEffect, useState } from 'react';
+import { createContext, use, useEffect } from 'react';
+import {
+  ThemeProvider as NextThemesProvider,
+  useTheme as useNextThemes,
+} from 'next-themes';
 
 type Theme = 'dark' | 'light' | 'system';
 
 type ThemeProviderProps = {
   children: React.ReactNode;
-  defaultTheme?: Theme;
-  storageKey?: string;
+  defaultTheme?: Theme; // maps to next-themes defaultTheme
+  storageKey?: string; // maps to next-themes storageKey
 };
 
 type ThemeProviderState = {
@@ -26,51 +30,47 @@ export function ThemeProvider({
   storageKey = 'vite-ui-theme',
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme={defaultTheme}
+      storageKey={storageKey}
+      enableSystem
+      disableTransitionOnChange
+    >
+      <ThemeBridge {...props}>{children}</ThemeBridge>
+    </NextThemesProvider>
   );
+}
 
-  // On first mount, if there is no saved preference or it's 'system' and
-  // the app provides a concrete default (e.g., 'light'), apply it.
+function ThemeBridge({ children, ...props }: { children: React.ReactNode }) {
+  const { theme, resolvedTheme, setTheme } = useNextThemes();
+
+  // Mirror resolved theme to data-theme and color-scheme for CSS/Tailwind consumers
   useEffect(() => {
-    const stored = localStorage.getItem(storageKey) as Theme | null;
-    if ((!stored || stored === 'system') && defaultTheme !== 'system') {
-      localStorage.setItem(storageKey, defaultTheme);
-      setTheme(defaultTheme);
-    }
-  }, []);
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    const body = document.body;
+    const app = document.getElementById('app');
+    const resolved = (resolvedTheme as 'light' | 'dark') ?? 'light';
 
-  useEffect(() => {
-    const root = window.document.documentElement;
-    const body = window.document.body;
-    const app = window.document.getElementById('app');
-    root.classList.remove('light', 'dark');
-    body.classList.remove('light', 'dark');
-    app?.classList.remove('light', 'dark');
+    // data-theme + color-scheme for CSS variables and form controls
+    root.setAttribute('data-theme', resolved);
+    root.style.colorScheme = resolved;
 
-    const resolved = (() => {
-      if (theme === 'system') {
-        return window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light';
-      }
-      return theme;
-    })();
-
+    // Ensure class-based dark mode works across html, body, and #app
+    const opposite = resolved === 'dark' ? 'light' : 'dark';
+    root.classList.remove(opposite);
+    body.classList.remove(opposite);
+    app?.classList.remove(opposite);
     root.classList.add(resolved);
     body.classList.add(resolved);
     app?.classList.add(resolved);
-    root.style.colorScheme = resolved;
-    // Important for Tailwind v4 @theme dark support
-    root.setAttribute('data-theme', resolved);
-  }, [theme]);
+  }, [resolvedTheme]);
 
-  const value = {
-    theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
-    },
+  const value: ThemeProviderState = {
+    theme: (theme as Theme) ?? 'system',
+    setTheme: (t: Theme) => setTheme(t),
   };
 
   return (

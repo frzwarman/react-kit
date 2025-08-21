@@ -22,7 +22,7 @@ import {
   Circle,
 } from 'lucide-react';
 
-import { Outlet, useLocation, Link } from '@tanstack/react-router';
+import { useLocation, Link } from '@tanstack/react-router';
 import { Fragment, useState, useCallback } from 'react';
 import ThemeToggle from './ThemeToggle';
 import { useAdminSidebarMenu } from '../hooks/menu';
@@ -214,7 +214,6 @@ function AdminLayoutContent({
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4">
           {children}
-          <Outlet />
         </main>
       </SidebarInset>
       </div>

@@ -21,6 +21,6 @@ export function useAdminSidebarMenu() {
 }
 
 export function useAdminSidebarMenuRegistration() {
-  const { registerGroup, registerItem, clear } = useAdminSidebarMenu();
-  return { registerGroup, registerItem, clear };
+  const { setGroups, registerGroup, registerItem, clear } = useAdminSidebarMenu();
+  return { setGroups, registerGroup, registerItem, clear };
 }

@@ -61,9 +61,13 @@ export interface DataTableProps<TData, TValue> {
   onRefresh?: () => void | Promise<void>;
   // Row interactions
   onRowClick?: (row: TData) => void;
+  // Filters wrapper options
+  filterWrapper?: 'accordion' | 'card' | 'none';
+  filterTitle?: string;
+  filterShowActionsSeparator?: boolean;
 }
 
-export default function DataTable<TData, TValue>({
+export function DataTable<TData, TValue>({
   columns,
   data,
   loading,
@@ -92,6 +96,9 @@ export default function DataTable<TData, TValue>({
   showStandardActions,
   onRefresh,
   onRowClick,
+  filterWrapper,
+  filterTitle,
+  filterShowActionsSeparator,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
   const [internalSortingState, setInternalSortingState] = React.useState<SortingState>([]);
@@ -257,32 +264,65 @@ export default function DataTable<TData, TValue>({
     );
   };
 
+  // Defaults
+  const effectiveFilterWrapper = filterWrapper ?? 'accordion';
+  const effectiveFilterTitle = filterTitle ?? 'Filters';
+
   return (
     <div className={cn('space-y-3', className)}>
-      {formFilters && formFilters.length && (
-        <div className="rounded-md border">
-          <Accordion type="single" collapsible className="w-full" defaultValue="filters">
-            <AccordionItem value="filters">
-              <AccordionTrigger className="px-4 py-3 border-b text-md">Filters</AccordionTrigger>
-              <AccordionContent className="px-4 pb-4 pt-5">
-                <FormBuilder
-                  key={JSON.stringify(formFilterValues ?? {})}
-                  sections={formFilters as FormBuilderSectionConfig[]}
-                  defaultValues={formFilterValues}
-                  onSubmit={data => onFormFilterChange?.(data as Record<string, unknown>)}
-                  onReset={() => onFormFilterChange?.({})}
-                  showActions
-                  submitLabel="Apply"
-                  resetLabel="Clear"
-                />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
-      )}
+      {formFilters && formFilters.length ? (
+        effectiveFilterWrapper === 'accordion' ? (
+          <div className="rounded-md border">
+            <Accordion type="single" collapsible className="w-full" defaultValue="filters">
+              <AccordionItem value="filters">
+                <AccordionTrigger className="px-4 py-3 border-b text-md">{effectiveFilterTitle}</AccordionTrigger>
+                <AccordionContent className="px-4 pb-4 pt-5">
+                  <FormBuilder
+                    key={JSON.stringify(formFilterValues ?? {})}
+                    sections={formFilters as FormBuilderSectionConfig[]}
+                    defaultValues={formFilterValues}
+                    onSubmit={data => onFormFilterChange?.(data as Record<string, unknown>)}
+                    onReset={() => onFormFilterChange?.({})}
+                    showActions
+                    submitLabel="Apply"
+                    resetLabel="Clear"
+                    showActionsSeparator={filterShowActionsSeparator}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        ) : effectiveFilterWrapper === 'card' ? (
+          <div className="rounded-md border p-4">
+            <FormBuilder
+              key={JSON.stringify(formFilterValues ?? {})}
+              sections={formFilters as FormBuilderSectionConfig[]}
+              defaultValues={formFilterValues}
+              onSubmit={data => onFormFilterChange?.(data as Record<string, unknown>)}
+              onReset={() => onFormFilterChange?.({})}
+              showActions
+              submitLabel="Apply"
+              resetLabel="Clear"
+              showActionsSeparator={filterShowActionsSeparator}
+            />
+          </div>
+        ) : (
+          <FormBuilder
+            key={JSON.stringify(formFilterValues ?? {})}
+            sections={formFilters as FormBuilderSectionConfig[]}
+            defaultValues={formFilterValues}
+            onSubmit={data => onFormFilterChange?.(data as Record<string, unknown>)}
+            onReset={() => onFormFilterChange?.({})}
+            showActions
+            submitLabel="Apply"
+            resetLabel="Clear"
+            showActionsSeparator={filterShowActionsSeparator}
+          />
+        )
+      ) : null}
       {/* Actions Bar */}
       {(safeActions.length || showStandardActions || (selectable && table.getSelectedRowModel().rows.length > 0 && safeBatchActions.length)) && (
-        <div className="rounded-md border p-2">
+        <div className="rounded-md border p-2 mt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {selectable && table.getSelectedRowModel().rows.length > 0 && safeBatchActions.map((a) => renderBatchButton(a, a.key))}
