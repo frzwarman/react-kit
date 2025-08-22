@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { useForm, type Control, type FieldValues } from 'react-hook-form';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useForm, useWatch, type Control, type FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from '../../../../shadcn/lib/utils';
@@ -337,21 +337,36 @@ export function FormBuilder({
     defaultValues: generatedDefaultValues,
   });
 
-  const { control, handleSubmit, reset, setValue, getValues, watch } = form;
+  const { control, handleSubmit, reset, setValue, getValues } = form;
 
-  // Determine if any field dependencies are declared
-  const hasDependencies = useMemo(() => {
-    return sections.some((section) =>
-      section.fields?.some((f) => Array.isArray(f.dependencies) && f.dependencies.length > 0),
-    );
+  // Determine dependency fields to watch
+  const dependencyFields = useMemo(() => {
+    const set = new Set<string>();
+    sections.forEach((section) => {
+      section.fields?.forEach((f) => {
+        f.dependencies?.forEach((d) => set.add(d.field));
+      });
+    });
+    return Array.from(set);
   }, [sections]);
 
-  // Only watch values when there are dependencies to respond to
-  // This prevents unnecessary re-renders that can cause focus loss
-  const emptyWatchedValues = useMemo(() => ({} as Record<string, any>), []);
-  const watchedValues = hasDependencies ? watch() : emptyWatchedValues;
+  const hasDependencies = dependencyFields.length > 0;
+
+  // Watch only dependency fields via useWatch; create a stable object map
+  // Always call useWatch to satisfy hooks rules. Passing an empty array is safe and returns an empty array.
+  const depValuesArr = useWatch({ control, name: dependencyFields });
+  const watchedValues = useMemo(() => {
+    if (!hasDependencies) return {} as Record<string, any>;
+    const obj: Record<string, any> = {};
+    dependencyFields.forEach((n, i) => { obj[n] = (depValuesArr as any[])[i]; });
+    return obj;
+    // dependencyFields is stable from sections; depValuesArr changes only when values change
+  }, [hasDependencies, dependencyFields, depValuesArr]);
 
   // Handle field dependencies
+  // Queue dependency-driven value updates to avoid calling setValue during render
+  const pendingValueUpdatesRef = useRef<Array<{ name: string; value: any }>>([]);
+
   const handleFieldDependencies = useCallback(
     (field: FormBuilderFieldConfig) => {
       if (!hasDependencies || !field.dependencies) return {};
@@ -359,7 +374,7 @@ export function FormBuilder({
       const result: { disabled?: boolean; hidden?: boolean } = {};
 
       field.dependencies.forEach((dep) => {
-        const dependentValue = (watchedValues as Record<string, any>)[dep.field];
+        const dependentValue = watchedValues[dep.field];
         const conditionMet = dep.condition(dependentValue);
 
         switch (dep.action) {
@@ -378,9 +393,9 @@ export function FormBuilder({
           case 'setValue':
             if (conditionMet && dep.value !== undefined) {
               const currentValue = getValues(field.name);
-              // Only setValue if the value is actually different to prevent infinite loops
               if (currentValue !== dep.value) {
-                setValue(field.name, dep.value);
+                // Defer the update to an effect to prevent state changes during render
+                pendingValueUpdatesRef.current.push({ name: field.name, value: dep.value });
               }
             }
             break;
@@ -389,8 +404,23 @@ export function FormBuilder({
 
       return result;
     },
-    [hasDependencies, watchedValues, setValue, getValues],
+    [hasDependencies, watchedValues, getValues],
   );
+
+  // Flush any pending setValue updates after watchedValues change
+  useEffect(() => {
+    if (pendingValueUpdatesRef.current.length === 0) return;
+    const updatesMap = new Map<string, any>();
+    // last write wins per field
+    pendingValueUpdatesRef.current.forEach(({ name, value }) => updatesMap.set(name, value));
+    pendingValueUpdatesRef.current = [];
+    updatesMap.forEach((value, name) => {
+      const current = getValues(name);
+      if (current !== value) {
+        setValue(name, value, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+      }
+    });
+  }, [watchedValues, setValue, getValues]);
 
   // Handle field change with custom onChange
   const handleFieldChange = useCallback(
