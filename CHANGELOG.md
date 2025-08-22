@@ -1,3 +1,18 @@
+## 0.0.4 (2025-08-22)
+
+### 🚀 Features
+
+- refactor form builder fields into separate components
+- add array layout variants and custom renderer support for form builder
+
+### 🩹 Fixes
+
+- add placeholder artifacts to prevent CI upload failure when no projects are affected
+
+### ❤️ Thank You
+
+- Labib
+
 ## 0.0.3 (2025-08-21)
 
 ### 🚀 Features
