@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Control, type FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from '../../../../shadcn/lib/utils';
@@ -66,6 +66,25 @@ export interface FormBuilderFieldConfig {
   gridCols?: number;
   rows?: number; // For textarea fields
   itemType?: string; // For array fields
+  // Array field layout: default 'card'
+  arrayLayout?: 'card' | 'table' | 'custom';
+  // Custom renderer for array fields when arrayLayout === 'custom'
+  arrayRender?: (params: {
+    field: FormBuilderFieldConfig;
+    control: Control<FieldValues>;
+    fieldPath: string;
+    value: any;
+    onChange: (value: any) => void;
+    addItem: () => void;
+    removeItem: (index: number) => void;
+    disabled?: boolean;
+  }) => React.ReactNode;
+  // Optional styling for array layouts (used mainly for 'table')
+  arrayColors?: {
+    headerBgClass?: string; // e.g. 'bg-teal-700'
+    headerTextClass?: string; // e.g. 'text-white'
+    rowAltBgClass?: string; // e.g. 'bg-teal-50'
+  };
   conditional?: {
     field: string;
     value: any;
