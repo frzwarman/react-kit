@@ -63,7 +63,7 @@ export default defineConfig(() => {
       // Use Rollup multi-entry: library index + each theme CSS
       rollupOptions: {
         // External packages that should not be bundled into your library.
-        external: ['react', 'react-dom', 'react/jsx-runtime'],
+        external: ['react', 'react-dom', 'react/jsx-runtime', '@tanstack/react-router'],
         input,
         output: {
           // Preserve entry-relative paths; our CSS entries are named 'kit/themes/<name>'

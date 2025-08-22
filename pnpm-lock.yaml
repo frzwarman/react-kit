@@ -303,9 +303,15 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react:
+        specifier: ^18.0.0 || ^19.0.0
+        version: 19.0.0
       react-day-picker:
         specifier: ^9.9.0
         version: 9.9.0(react@19.0.0)
+      react-dom:
+        specifier: ^18.0.0 || ^19.0.0
+        version: 19.0.0(react@19.0.0)
       react-hook-form:
         specifier: ^7.62.0
         version: 7.62.0(react@19.0.0)
