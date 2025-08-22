@@ -16,6 +16,11 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
   })
 
   const addItem = () => {
+    // For custom layout, prefer appending an object so useFieldArray can generate stable IDs
+    if (field.arrayLayout === 'custom') {
+      append({} as never)
+      return
+    }
     if (field.fields && field.fields.length === 1) {
       const defaultValue = field.fields[0].defaultValue ?? ''
       append(defaultValue as never)
@@ -35,7 +40,7 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
   // Custom layout hook
   if (field.arrayLayout === 'custom' && typeof field.arrayRender === 'function') {
     return (
-      <>{field.arrayRender({ field, control, fieldPath, value, onChange, addItem, removeItem, disabled: field.disabled })}</>
+      <>{field.arrayRender({ field, control, fieldPath, value, onChange, addItem, removeItem, disabled: field.disabled, rows: fields })}</>
     )
   }
 

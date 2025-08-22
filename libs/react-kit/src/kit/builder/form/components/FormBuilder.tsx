@@ -78,6 +78,7 @@ export interface FormBuilderFieldConfig {
     addItem: () => void;
     removeItem: (index: number) => void;
     disabled?: boolean;
+    rows?: { id: string }[]; // useFieldArray rows for stable rendering
   }) => React.ReactNode;
   // Optional styling for array layouts (used mainly for 'table')
   arrayColors?: {
