@@ -228,7 +228,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
     );
   }
 
-  if (placement === 'inline' && field.type !== 'array') {
+  if (placement === 'inline') {
     return (
       <div className={cn('space-y-1', field.gridCols && `md:col-span-${field.gridCols}`)}>
         <div className="flex items-center gap-2">
