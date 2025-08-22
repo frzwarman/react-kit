@@ -1,3 +1,14 @@
+## 0.0.5 (2025-08-22)
+
+### 🩹 Fixes
+
+- optimize form dependency handling to prevent setValue during render
+- remove array type check in FormBuilderField inline placement condition
+
+### ❤️ Thank You
+
+- Labib
+
 ## 0.0.4 (2025-08-22)
 
 ### 🚀 Features
