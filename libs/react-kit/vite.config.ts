@@ -1,5 +1,5 @@
 /// <reference types='vitest' />
-import { defineConfig } from 'vite';
+import { defineConfig, LibraryFormats } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
@@ -50,6 +50,11 @@ export default defineConfig(() => {
     build: {
       outDir: './dist',
       emptyOutDir: true,
+      lib: {
+        entry: 'src/index.ts',
+        formats: ['es'] as LibraryFormats[],
+        fileName: () => 'index.js'
+      },
       reportCompressedSize: true,
       commonjsOptions: {
         transformMixedEsModules: true,
