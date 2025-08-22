@@ -50,6 +50,7 @@ export default defineConfig(() => {
     build: {
       outDir: './dist',
       emptyOutDir: true,
+      minify: false,
       lib: {
         entry: 'src/index.ts',
         formats: ['es'] as LibraryFormats[],
