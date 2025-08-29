@@ -1,27 +1,27 @@
-import * as React from 'react';
 import {
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  getFilteredRowModel,
   useReactTable,
   type ColumnDef,
   type ColumnFiltersState,
+  type PaginationState,
   type Table as ReactTable,
   type SortingState,
   type VisibilityState,
-  type PaginationState,
 } from '@tanstack/react-table';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../../shadcn/ui/table';
+import { Loader2, RefreshCw } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '../../../../shadcn/lib/utils';
-import { Checkbox } from '../../../../shadcn/ui/checkbox';
-import { Button } from '../../../../shadcn/ui/button';
-import { Skeleton } from '../../../../shadcn/ui/skeleton';
-import { FormBuilder, type FormBuilderSectionConfig } from '../../form/components/FormBuilder';
-import type { DataTableFiltersProp, DataTableAction, DataTableBatchAction } from '../types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../../../shadcn/ui/accordion';
-import { RefreshCw, Loader2 } from 'lucide-react';
+import { Button } from '../../../../shadcn/ui/button';
+import { Checkbox } from '../../../../shadcn/ui/checkbox';
+import { Skeleton } from '../../../../shadcn/ui/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../../shadcn/ui/table';
+import { FormBuilder, type FormBuilderSectionConfig } from '../../form/components/FormBuilder';
+import type { DataTableAction, DataTableBatchAction, DataTableFiltersProp } from '../types';
 import { DataTablePagination } from './DataTablePagination';
 import { DataTableViewOptions } from './DataTableViewOptions';
 
@@ -322,7 +322,7 @@ export function DataTable<TData, TValue>({
       ) : null}
       {/* Actions Bar */}
       {(safeActions.length || showStandardActions || (selectable && table.getSelectedRowModel().rows.length > 0 && safeBatchActions.length)) && (
-        <div className="rounded-md border p-2 mt-6">
+        <div className="rounded-md p-2 mt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {selectable && table.getSelectedRowModel().rows.length > 0 && safeBatchActions.map((a) => renderBatchButton(a, a.key))}
