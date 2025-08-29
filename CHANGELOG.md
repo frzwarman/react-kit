@@ -1,3 +1,13 @@
+## 0.0.9 (2025-08-29)
+
+### 🩹 Fixes
+
+- clean up imports and improve DataTable component structure
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+
 ## 0.0.8 (2025-08-22)
 
 This was a version bump only, there were no code changes.
