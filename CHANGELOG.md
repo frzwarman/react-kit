@@ -1,3 +1,13 @@
+## 0.0.11 (2025-09-08)
+
+### 🚀 Features
+
+- add time and datetime picker field types to form builder
+
+### ❤️ Thank You
+
+- Labib
+
 ## 0.0.10 (2025-09-08)
 
 ### 🚀 Features
