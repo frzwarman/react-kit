@@ -1,8 +1,9 @@
 import { useCallback } from 'react';
-import { Control, FieldValues, useController } from 'react-hook-form';
+import type { Control, FieldValues } from 'react-hook-form';
+import { useController } from 'react-hook-form';
 import { cn } from '../../../../shadcn/lib/utils';
 import { Label } from '../../../../shadcn/ui/label';
-import { FormBuilderFieldConfig } from './FormBuilder';
+import type { FormBuilderFieldConfig } from './FormBuilder';
 import {
   AutocompleteField,
   TextField,
@@ -13,6 +14,10 @@ import {
   SwitchField,
   RadioField,
   DateField,
+  DatePickerField,
+  DateRangePickerField,
+  MonthPickerField,
+  MonthRangePickerField,
   FileField,
   ObjectField,
   ArrayField,
@@ -41,7 +46,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
   const handleChange = useCallback((value: unknown) => {
     controllerField.onChange(value);
     onChange?.(value);
-  }, [controllerField.onChange, onChange]);
+  }, [controllerField, onChange]);
   const baseClassName = cn(
     error && 'border-destructive focus-visible:ring-destructive',
     field.className,
@@ -142,6 +147,50 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
       case 'date':
         return (
           <DateField
+            field={field}
+            control={control}
+            fieldPath={fieldPath}
+            value={controllerField.value}
+            onChange={handleChange}
+            className={baseClassName}
+          />
+        );
+      case 'date_picker':
+        return (
+          <DatePickerField
+            field={field}
+            control={control}
+            fieldPath={fieldPath}
+            value={controllerField.value}
+            onChange={handleChange}
+            className={baseClassName}
+          />
+        );
+      case 'date_range':
+        return (
+          <DateRangePickerField
+            field={field}
+            control={control}
+            fieldPath={fieldPath}
+            value={controllerField.value}
+            onChange={handleChange}
+            className={baseClassName}
+          />
+        );
+      case 'month':
+        return (
+          <MonthPickerField
+            field={field}
+            control={control}
+            fieldPath={fieldPath}
+            value={controllerField.value}
+            onChange={handleChange}
+            className={baseClassName}
+          />
+        );
+      case 'month_range':
+        return (
+          <MonthRangePickerField
             field={field}
             control={control}
             fieldPath={fieldPath}

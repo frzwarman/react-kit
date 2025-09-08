@@ -33,7 +33,11 @@ export interface FormBuilderFieldConfig {
     | 'checkbox'
     | 'switch'
     | 'radio'
-    | 'date'
+    | 'date' // native input date
+    | 'date_picker' // UI DatePicker
+    | 'date_range' // UI DateRangePicker
+    | 'month' // UI MonthPicker (single month Date)
+    | 'month_range' // UI MonthRangePicker { start: Date, end: Date }
     | 'file'
     | 'object'
     | 'array';
@@ -114,6 +118,15 @@ export interface FormBuilderFieldConfig {
   labelPlacement?: 'stacked' | 'inline' | 'hidden';
   // Wrapper container className (applies to the field wrapper, not the input)
   wrapperClassName?: string;
+  // Picker-specific optional props (passed through to components when applicable)
+  minDate?: Date;
+  maxDate?: Date;
+  disabledDates?: Array<Date | { from: Date; to: Date }>;
+  numberOfMonths?: number;
+  popoverSide?: 'top' | 'right' | 'bottom' | 'left';
+  showFooter?: boolean;
+  cancelLabel?: string;
+  applyLabel?: string;
 }
 
 export interface FormBuilderSectionConfig {
@@ -214,6 +227,21 @@ export function FormBuilder({
           case 'number':
             baseSchema = z.number();
             break;
+          case 'date_picker':
+          case 'month':
+          case 'date':
+            baseSchema = z.date();
+            break;
+          case 'date_range':
+            baseSchema = z
+              .object({ from: z.date().optional().nullable(), to: z.date().optional().nullable() })
+              .nullable();
+            break;
+          case 'month_range':
+            baseSchema = z
+              .object({ start: z.date().optional().nullable(), end: z.date().optional().nullable() })
+              .nullable();
+            break;
           case 'autocomplete': {
             const single = z
               .union([z.string(), z.number(), z.object({})])
@@ -227,9 +255,6 @@ export function FormBuilder({
           case 'checkbox':
           case 'switch':
             baseSchema = z.boolean();
-            break;
-          case 'date':
-            baseSchema = z.date();
             break;
           default:
             baseSchema = z.string();
@@ -279,6 +304,21 @@ export function FormBuilder({
         case 'number':
           fieldSchema = z.number();
           break;
+        case 'date_picker':
+        case 'month':
+        case 'date':
+          fieldSchema = z.date();
+          break;
+        case 'date_range':
+          fieldSchema = z
+            .object({ from: z.date().optional().nullable(), to: z.date().optional().nullable() })
+            .nullable();
+          break;
+        case 'month_range':
+          fieldSchema = z
+            .object({ start: z.date().optional().nullable(), end: z.date().optional().nullable() })
+            .nullable();
+          break;
         case 'autocomplete': {
           const single = z
             .union([z.string(), z.number(), z.object({})])
@@ -292,9 +332,6 @@ export function FormBuilder({
         case 'checkbox':
         case 'switch':
           fieldSchema = z.boolean();
-          break;
-        case 'date':
-          fieldSchema = z.date();
           break;
         case 'select':
         case 'radio':
@@ -425,7 +462,7 @@ export function FormBuilder({
   }, [sections, defaultValues]);
 
   const form = useForm<FieldValues>({
-    // Type cast is safe here due to dynamic schema generation vs resolver generics
+    // Dynamic schema shape: cast to any to satisfy resolver generics
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(generatedSchema as any) as unknown as import('react-hook-form').Resolver<FieldValues, any, FieldValues>,
     defaultValues: generatedDefaultValues as FieldValues,
