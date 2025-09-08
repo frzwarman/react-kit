@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { buttonVariants } from '@/shadcn/ui/button';
-import { cn } from '@/shadcn/lib/utils';
+import { buttonVariants } from '../../../shadcn/ui/button';
+import { cn } from '../../../shadcn/lib/utils';
 
 type Month = {
   number: number;

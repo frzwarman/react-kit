@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button, buttonVariants } from '@/shadcn/ui/button';
-import { cn } from '@/shadcn/lib/utils';
+import { Button, buttonVariants } from '../../../shadcn/ui/button';
+import { cn } from '../../../shadcn/lib/utils';
 
 const addMonths = (input: Date, months: number) => {
   const date = new Date(input);
