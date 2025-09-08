@@ -12,9 +12,65 @@ const meta: Meta<typeof SectionBuilder> = {
   render: (args) => <SectionBuilder {...args} />,
 };
 
-export default meta;
-
 type Story = StoryObj<typeof SectionBuilder>;
+
+export const TabsLayout: Story = {
+  name: 'Tabs layout',
+  args: {
+    sections: [
+      {
+        id: 'tabs-1',
+        title: 'Tabbed Section',
+        subtitle: 'Demonstrates tabs with nested sections',
+        variant: 'card',
+        layout: 'tabs',
+        tabsListClassName: 'w-full',
+        tabsContentClassName: 'mt-2',
+        tabs: [
+          {
+            id: 'tab-a',
+            label: 'Overview',
+            node: {
+              id: 'tab-a-node',
+              layout: 'grid',
+              grid: { cols: 1, mdCols: 12, gap: 'gap-4' },
+              children: [
+                { key: 't1', content: demoBox('Overview content A'), span: { md: 6 } },
+                { key: 't2', content: demoBox('Overview content B'), span: { md: 6 } },
+              ],
+            },
+          },
+          {
+            id: 'tab-b',
+            label: 'Details',
+            node: {
+              id: 'tab-b-node',
+              layout: 'grid',
+              grid: { cols: 1, mdCols: 12, gap: 'gap-4' },
+              children: [
+                {
+                  id: 'inner-details',
+                  title: 'Inner details section',
+                  variant: 'separator',
+                  layout: 'grid',
+                  grid: { cols: 1, mdCols: 12 },
+                  children: [
+                    { key: 'd1', content: demoBox('Detail 1'), span: { md: 4 } },
+                    { key: 'd2', content: demoBox('Detail 2'), span: { md: 4 } },
+                    { key: 'd3', content: demoBox('Detail 3'), span: { md: 4 } },
+                  ],
+                } as unknown as SectionNode,
+              ],
+            },
+          },
+        ],
+      } as unknown as SectionNode,
+    ],
+  },
+  render: (args) => <SectionBuilder {...args} />,
+};
+
+export default meta;
 
 function demoBox(text: string, className?: string) {
   return (

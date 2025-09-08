@@ -3,6 +3,7 @@ import { cn } from '../../../shadcn/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../shadcn/ui/card';
 import { Separator } from '../../../shadcn/ui/separator';
 import type { SectionBuilderProps, SectionLeaf, SectionNode } from './types';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../shadcn/ui/tabs';
 
 // Tailwind-safe literal class maps (1-12)
 const GRID_COLS = {
@@ -175,7 +176,7 @@ const SectionLeafRenderer = memo(
 function SectionNodeRenderer({ node, renderLeaf }: { node: SectionNode; renderLeaf?: (leaf: SectionLeaf) => React.ReactNode }) {
   if (node.hidden) return null;
   const layout = node.layout ?? 'grid';
-  const containerClass = layout === 'grid' ? gridClasses(node.grid) : flexClasses(node.flex);
+  const containerClass = layout === 'grid' ? gridClasses(node.grid) : layout === 'flex' ? flexClasses(node.flex) : '';
 
   // Local presentational container replacing FormBuilderSection
   const SectionContainer = ({ children }: { children: React.ReactNode }) => {
@@ -229,7 +230,6 @@ function SectionNodeRenderer({ node, renderLeaf }: { node: SectionNode; renderLe
             {renderContent()}
           </div>
         );
-      case 'plain':
       default:
         return (
           <div className={cn('space-y-6', className)}>
@@ -239,6 +239,28 @@ function SectionNodeRenderer({ node, renderLeaf }: { node: SectionNode; renderLe
         );
     }
   };
+
+  if (layout === 'tabs' && node.tabs && node.tabs.length > 0) {
+    const defaultTabId = node.defaultTabId ?? node.tabs[0]?.id;
+    return (
+      <SectionContainer>
+        <Tabs defaultValue={defaultTabId} className={cn('space-y-2')}>
+          <TabsList className={cn(node.tabsListClassName)}>
+            {node.tabs.map((tab) => (
+              <TabsTrigger key={tab.id} value={tab.id} className={cn(tab.className)}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {node.tabs.map((tab) => (
+            <TabsContent key={tab.id} value={tab.id} className={cn(node.tabsContentClassName, tab.contentClassName)}>
+              <SectionNodeRenderer node={tab.node} renderLeaf={renderLeaf} />
+            </TabsContent>
+          ))}
+        </Tabs>
+      </SectionContainer>
+    );
+  }
 
   return (
     <SectionContainer>

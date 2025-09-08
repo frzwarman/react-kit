@@ -1,6 +1,6 @@
 import type React from 'react';
 
-export type SectionLayout = 'grid' | 'flex';
+export type SectionLayout = 'grid' | 'flex' | 'tabs';
 
 export interface SectionGridOptions {
   cols?: number;
@@ -52,11 +52,25 @@ export interface SectionLeaf {
   renderKey?: string | number;
 }
 
+// Tabs layout support
+export interface SectionTab {
+  id: string;
+  label: React.ReactNode;
+  className?: string;
+  contentClassName?: string;
+  node: SectionNode; // Content of this tab as a nested section node
+}
+
 export interface SectionNode extends SectionBase {
   layout?: SectionLayout;
   grid?: SectionGridOptions;
   flex?: SectionFlexOptions;
   children?: Array<SectionNode | SectionLeaf>;
+  // Tabs layout (layout === 'tabs')
+  tabs?: SectionTab[];
+  defaultTabId?: string;
+  tabsListClassName?: string;
+  tabsContentClassName?: string;
 }
 
 export interface SectionBuilderProps {

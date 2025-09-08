@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { FormBuilder } from '../../../kit/builder/form/components/FormBuilder';
+import type { FormBuilderSectionConfig } from '../../../kit/builder/form/components/FormBuilder';
 import { createSection, createField, commonValidations, createDependency, conditions, validators } from '../../../kit/builder/form/utils';
 
 const meta: Meta<typeof FormBuilder> = {
@@ -220,4 +221,104 @@ export const ComplexExample: Story = {
       </div>
     );
   }
+};
+
+export const ComplexTabsExample: Story = {
+  name: 'Complex example (Tabs)',
+  render: () => {
+    const handleSubmit = (data: unknown) => {
+      console.log('Complex tabs form submitted:', data);
+    };
+
+    const handleFieldChange = (name: string, value: unknown, allValues: Record<string, unknown>) => {
+      console.log(`[Tabs] Field ${name} changed to:`, value);
+      console.log('[Tabs] All form values:', allValues);
+    };
+
+    const sections: FormBuilderSectionConfig[] = [
+      {
+        title: 'Profile Builder',
+        layout: 'tabs',
+        variant: 'card',
+        defaultTabId: 'basic',
+        tabsListClassName: 'w-full',
+        tabsContentClassName: 'mt-2',
+        tabs: [
+          {
+            id: 'basic',
+            label: 'Basic Info',
+            sections: [
+              createSection.card('Basic Information', [
+                createField.text('firstName', 'First Name', { required: true }),
+                createField.text('lastName', 'Last Name', { required: true }),
+                createField.email('email', 'Email Address', { required: true }),
+                createField.date('dateOfBirth', 'Date of Birth', { required: true }),
+              ], { grid: { cols: 1, mdCols: 2, gap: 'gap-4' } }),
+            ],
+          },
+          {
+            id: 'address',
+            label: 'Addresses',
+            sections: [
+              createSection.card('Address Information', [
+                createField.object('address', 'Primary Address', [
+                  createField.text('street', 'Street Address', { required: true, gridCols: 2 }),
+                  createField.text('city', 'City', { required: true }),
+                  createField.text('state', 'State/Province', { required: true }),
+                  createField.text('postalCode', 'Postal Code', { required: true }),
+                  createField.select('country', 'Country', [
+                    { label: 'United States', value: 'US' },
+                    { label: 'Canada', value: 'CA' },
+                    { label: 'United Kingdom', value: 'UK' },
+                    { label: 'Australia', value: 'AU' },
+                  ], { required: true, defaultValue: 'US' }),
+                ], { gridCols: 2 }),
+                createField.checkbox('sameAsShipping', 'Billing same as shipping', { defaultValue: true, gridCols: 2 }),
+                createField.object('billingAddress', 'Billing Address', [
+                  createField.text('street', 'Street Address', { required: true, gridCols: 2 }),
+                  createField.text('city', 'City', { required: true }),
+                  createField.text('state', 'State/Province', { required: true }),
+                  createField.text('postalCode', 'Postal Code', { required: true }),
+                  createField.select('country', 'Country', [
+                    { label: 'United States', value: 'US' },
+                    { label: 'Canada', value: 'CA' },
+                    { label: 'United Kingdom', value: 'UK' },
+                    { label: 'Australia', value: 'AU' },
+                  ], { required: true, defaultValue: 'US' }),
+                ], { gridCols: 2, dependencies: [createDependency.showWhen('sameAsShipping', conditions.isFalse())] }),
+              ]),
+            ],
+          },
+          {
+            id: 'employment',
+            label: 'Employment',
+            sections: [
+              createSection.card('Employment Information', [
+                createField.select('employmentStatus', 'Employment Status', [
+                  { label: 'Employed', value: 'employed' },
+                  { label: 'Self-employed', value: 'self_employed' },
+                  { label: 'Unemployed', value: 'unemployed' },
+                  { label: 'Student', value: 'student' },
+                ], { required: true }),
+                createField.text('company', 'Company Name', { dependencies: [createDependency.showWhen('employmentStatus', conditions.equals('employed'))] }),
+                createField.text('jobTitle', 'Job Title', { dependencies: [createDependency.showWhen('employmentStatus', conditions.equals('employed'))] }),
+                createField.text('businessName', 'Business Name', { dependencies: [createDependency.showWhen('employmentStatus', conditions.equals('self_employed'))] }),
+                createField.text('school', 'School/University', { dependencies: [createDependency.showWhen('employmentStatus', conditions.equals('student'))] }),
+              ]),
+            ],
+          },
+        ],
+      },
+    ];
+
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Professional Profile (Tabs)</h1>
+          <p className="text-gray-600 mt-2">This story shows how to organize complex forms into tabs.</p>
+        </div>
+        <FormBuilder sections={sections} onSubmit={handleSubmit} onFieldChange={handleFieldChange} className="space-y-8" />
+      </div>
+    );
+  },
 };

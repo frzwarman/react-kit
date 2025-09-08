@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { FormBuilder } from '../../../kit/builder/form/components/FormBuilder';
+import type { FormBuilderSectionConfig } from '../../../kit/builder/form/components/FormBuilder';
 import { createSection, createField, createDependency, conditions } from '../../../kit/builder/form/utils';
 
 const meta: Meta<typeof FormBuilder> = {
@@ -8,6 +9,154 @@ const meta: Meta<typeof FormBuilder> = {
   parameters: {
     controls: { expanded: true },
     backgrounds: { disable: true },
+  },
+};
+
+export const DynamicTabsExample: Story = {
+  name: 'Dynamic example (Tabs)',
+  render: () => {
+    const handleSubmit = (data: unknown) => {
+      console.log('Dynamic tabs form submitted:', data);
+    };
+
+    const handleFieldChange = (name: string, value: unknown) => {
+      console.log(`[Tabs] Field ${name} changed to:`, value);
+    };
+
+    const sections: FormBuilderSectionConfig[] = [
+      {
+        title: 'Product Builder',
+        layout: 'tabs',
+        variant: 'card',
+        defaultTabId: 'product',
+        tabsListClassName: 'w-full',
+        tabsContentClassName: 'mt-2',
+        tabs: [
+          {
+            id: 'product',
+            label: 'Product',
+            sections: [
+              createSection.card('Product Configuration', [
+                createField.select('productType', 'Product Type', [
+                  { label: 'One-time Purchase', value: 'onetime' },
+                  { label: 'Subscription', value: 'subscription' },
+                  { label: 'Bundle', value: 'bundle' },
+                  { label: 'Digital Download', value: 'digital' },
+                ], { required: true, placeholder: 'Select product type' }),
+                createField.text('productName', 'Product Name', { required: true, placeholder: 'Enter product name' }),
+                createField.number('basePrice', 'Base Price ($)', { required: true, placeholder: '29.99' }),
+                createField.select('billingCycle', 'Billing Cycle', [
+                  { label: 'Monthly', value: 'monthly' },
+                  { label: 'Quarterly', value: 'quarterly' },
+                  { label: 'Yearly', value: 'yearly' },
+                ], { required: true, placeholder: 'Select billing cycle', dependencies: [createDependency.showWhen('productType', conditions.equals('subscription'))] }),
+                createField.number('trialDays', 'Free Trial Days', { placeholder: '14', defaultValue: 0, dependencies: [createDependency.showWhen('productType', conditions.equals('subscription'))] }),
+                createField.array('bundleItems', 'Bundle Items', [
+                  createField.text('itemName', 'Item Name', { required: true, placeholder: 'Item name' }),
+                  createField.number('itemPrice', 'Item Price ($)', { required: true, placeholder: '9.99' }),
+                  createField.number('quantity', 'Quantity', { required: true, defaultValue: 1, placeholder: '1' }),
+                ], { gridCols: 2, defaultValue: [{ itemName: '', itemPrice: 0, quantity: 1 }], dependencies: [createDependency.showWhen('productType', conditions.equals('bundle'))] }),
+                createField.select('fileFormat', 'File Format', [
+                  { label: 'PDF', value: 'pdf' },
+                  { label: 'ZIP Archive', value: 'zip' },
+                  { label: 'Video (MP4)', value: 'mp4' },
+                  { label: 'Audio (MP3)', value: 'mp3' },
+                  { label: 'Software Installer', value: 'exe' },
+                ], { required: true, placeholder: 'Select file format', dependencies: [createDependency.showWhen('productType', conditions.equals('digital'))] }),
+                createField.number('fileSizeMB', 'File Size (MB)', { placeholder: '50', dependencies: [createDependency.showWhen('productType', conditions.equals('digital'))] }),
+              ]),
+            ],
+          },
+          {
+            id: 'pricing',
+            label: 'Pricing',
+            sections: [
+              createSection.card('Pricing & Discounts', [
+                createField.checkbox('hasDiscount', 'Apply Discount', { defaultValue: false, gridCols: 2 }),
+                createField.select('discountType', 'Discount Type', [
+                  { label: 'Percentage', value: 'percentage' },
+                  { label: 'Fixed Amount', value: 'fixed' },
+                  { label: 'Buy One Get One', value: 'bogo' },
+                ], { required: true, placeholder: 'Select discount type', dependencies: [createDependency.showWhen('hasDiscount', conditions.isTrue())] }),
+                createField.number('discountValue', 'Discount Value', { required: true, placeholder: '10', dependencies: [createDependency.showWhen('hasDiscount', conditions.isTrue()), createDependency.showWhen('discountType', value => value !== 'bogo')] }),
+                createField.date('discountStartDate', 'Discount Start Date', { dependencies: [createDependency.showWhen('hasDiscount', conditions.isTrue())] }),
+                createField.date('discountEndDate', 'Discount End Date', { dependencies: [createDependency.showWhen('hasDiscount', conditions.isTrue())] }),
+                createField.number('minimumQuantity', 'Minimum Quantity for Discount', { placeholder: '2', defaultValue: 1, dependencies: [createDependency.showWhen('hasDiscount', conditions.isTrue())] }),
+              ]),
+            ],
+          },
+          {
+            id: 'shipping',
+            label: 'Shipping',
+            sections: [
+              createSection.card('Shipping Configuration', [
+                createField.checkbox('requiresShipping', 'Requires Physical Shipping', { defaultValue: true, gridCols: 2, dependencies: [createDependency.setValueWhen('productType', conditions.equals('digital'), false), createDependency.disableWhen('productType', conditions.equals('digital'))] }),
+                createField.number('weight', 'Weight (lbs)', { placeholder: '1.5', dependencies: [createDependency.showWhen('requiresShipping', conditions.isTrue())] }),
+                createField.object('dimensions', 'Dimensions (inches)', [
+                  createField.number('length', 'Length', { required: true, placeholder: '10' }),
+                  createField.number('width', 'Width', { required: true, placeholder: '8' }),
+                  createField.number('height', 'Height', { required: true, placeholder: '2' }),
+                ], { dependencies: [createDependency.showWhen('requiresShipping', conditions.isTrue())] }),
+                createField.select('shippingClass', 'Shipping Class', [
+                  { label: 'Standard', value: 'standard' },
+                  { label: 'Express', value: 'express' },
+                  { label: 'Overnight', value: 'overnight' },
+                  { label: 'Fragile', value: 'fragile' },
+                  { label: 'Hazardous', value: 'hazardous' },
+                ], { required: true, defaultValue: 'standard', placeholder: 'Select shipping class', dependencies: [createDependency.showWhen('requiresShipping', conditions.isTrue())] }),
+                createField.checkbox('freeShipping', 'Offer Free Shipping', { defaultValue: false, dependencies: [createDependency.showWhen('requiresShipping', conditions.isTrue())] }),
+                createField.number('freeShippingThreshold', 'Free Shipping Threshold ($)', { placeholder: '50', dependencies: [createDependency.showWhen('requiresShipping', conditions.isTrue()), createDependency.showWhen('freeShipping', conditions.isTrue())] }),
+              ]),
+            ],
+          },
+          {
+            id: 'inventory',
+            label: 'Inventory',
+            sections: [
+              createSection.card('Inventory Management', [
+                createField.checkbox('trackInventory', 'Track Inventory', { defaultValue: true, gridCols: 2, dependencies: [createDependency.setValueWhen('productType', conditions.equals('digital'), false)] }),
+                createField.number('stockQuantity', 'Stock Quantity', { required: true, placeholder: '100', dependencies: [createDependency.showWhen('trackInventory', conditions.isTrue())] }),
+                createField.number('lowStockThreshold', 'Low Stock Alert Threshold', { placeholder: '10', dependencies: [createDependency.showWhen('trackInventory', conditions.isTrue())] }),
+                createField.checkbox('allowBackorders', 'Allow Backorders', { defaultValue: false, dependencies: [createDependency.showWhen('trackInventory', conditions.isTrue())] }),
+                createField.text('sku', 'SKU (Stock Keeping Unit)', { placeholder: 'PROD-001', dependencies: [createDependency.showWhen('trackInventory', conditions.isTrue())] }),
+                createField.text('barcode', 'Barcode', { placeholder: '123456789012', dependencies: [createDependency.showWhen('trackInventory', conditions.isTrue())] }),
+              ]),
+            ],
+          },
+          {
+            id: 'marketing',
+            label: 'Marketing',
+            sections: [
+              createSection.card('Marketing & SEO', [
+                createField.text('metaTitle', 'Meta Title', { placeholder: 'SEO-friendly title', gridCols: 2 }),
+                createField.textarea('metaDescription', 'Meta Description', { placeholder: 'SEO-friendly description (150-160 characters)', gridCols: 2 }),
+                createField.array('tags', 'Product Tags', [createField.text('tag', 'Tag', { required: true, placeholder: 'e.g., electronics, gadgets' })], { gridCols: 2, defaultValue: [{ tag: '' }] }),
+                createField.checkbox('featured', 'Featured Product', { defaultValue: false }),
+                createField.checkbox('newProduct', 'Mark as New', { defaultValue: false }),
+                createField.select('visibility', 'Product Visibility', [
+                  { label: 'Public', value: 'public' },
+                  { label: 'Private', value: 'private' },
+                  { label: 'Password Protected', value: 'password' },
+                  { label: 'Coming Soon', value: 'coming_soon' },
+                ], { required: true, defaultValue: 'public', placeholder: 'Select visibility' }),
+                createField.text('password', 'Access Password', { placeholder: 'Enter password', dependencies: [createDependency.showWhen('visibility', conditions.equals('password'))] }),
+                createField.date('launchDate', 'Launch Date', { dependencies: [createDependency.showWhen('visibility', conditions.equals('coming_soon'))] }),
+              ]),
+            ],
+          },
+        ],
+      },
+    ];
+
+    return (
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Dynamic Product Configuration (Tabs)</h1>
+          <p className="text-gray-600 mt-2">The same dynamic form organized into tabs for better navigation.</p>
+        </div>
+        <FormBuilder sections={sections} onSubmit={handleSubmit} onFieldChange={handleFieldChange} submitLabel="Save Product Configuration" resetLabel="Reset All" className="space-y-8" />
+      </div>
+    );
   },
 };
 

@@ -1,11 +1,6 @@
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import {
-  useForm,
-  useWatch,
-  type Control,
-  type FieldValues,
-} from 'react-hook-form';
+import { useForm, useWatch, type Control, type FieldValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from '../../../../shadcn/lib/utils';
@@ -65,7 +60,7 @@ export interface FormBuilderFieldConfig {
   initialSelectedOptions?: AutocompleteOption | AutocompleteOption[] | null;
   loadSelected?: (values: Array<string | number>) => Promise<AutocompleteOption[]>;
   validation?:
-    | z.ZodType<any>
+    | z.ZodType<unknown>
     | {
         pattern?: { value: RegExp; message: string };
         min?: { value: number; message: string };
@@ -73,18 +68,18 @@ export interface FormBuilderFieldConfig {
         minLength?: { value: number; message: string };
         maxLength?: { value: number; message: string };
       };
-  defaultValue?: any;
+  defaultValue?: unknown;
   fields?: FormBuilderFieldConfig[]; // For nested object/array fields
   dependencies?: {
     field: string;
-    condition: (value: any) => boolean;
+    condition: (value: unknown) => boolean;
     action: 'show' | 'hide' | 'enable' | 'disable' | 'setValue';
-    value?: any;
+    value?: unknown;
   }[];
   onChange?: (
-    value: any,
-    setValue: (field: string, value: any) => void,
-    getValues: () => any
+    value: unknown,
+    setValue: (field: string, value: unknown) => void,
+    getValues: () => Record<string, unknown>
   ) => void;
   className?: string;
   gridCols?: number;
@@ -97,8 +92,8 @@ export interface FormBuilderFieldConfig {
     field: FormBuilderFieldConfig;
     control: Control<FieldValues>;
     fieldPath: string;
-    value: any;
-    onChange: (value: any) => void;
+    value: unknown;
+    onChange: (value: unknown) => void;
     addItem: () => void;
     removeItem: (index: number) => void;
     disabled?: boolean;
@@ -112,7 +107,7 @@ export interface FormBuilderFieldConfig {
   };
   conditional?: {
     field: string;
-    value: any;
+    value: unknown;
   }; // For conditional field visibility
   hidden?: boolean; // Declarative hide
   // Label placement control across inputs
@@ -125,7 +120,7 @@ export interface FormBuilderSectionConfig {
   id?: string;
   title?: string;
   description?: string;
-  fields: FormBuilderFieldConfig[];
+  fields?: FormBuilderFieldConfig[];
   variant?: 'card' | 'separator' | 'plain';
   className?: string;
   collapsible?: boolean;
@@ -134,19 +129,30 @@ export interface FormBuilderSectionConfig {
   grid?: SectionGridOptions;
   flex?: SectionFlexOptions;
   hidden?: boolean; // Declarative hide
+  // Tabs layout support: when layout === 'tabs', provide tabs instead of direct fields
+  tabs?: Array<{
+    id: string;
+    label: React.ReactNode;
+    sections: FormBuilderSectionConfig[];
+    className?: string;
+    contentClassName?: string;
+  }>;
+  defaultTabId?: string;
+  tabsListClassName?: string;
+  tabsContentClassName?: string;
 }
 
 export interface FormBuilderProps {
   sections: FormBuilderSectionConfig[];
-  schema?: z.ZodType<any>;
-  defaultValues?: Record<string, any> | null;
-  onSubmit: (data: any) => void | Promise<void>;
+  schema?: z.ZodType<unknown>;
+  defaultValues?: Record<string, unknown> | null;
+  onSubmit: (data: unknown) => void | Promise<void>;
   onCancel?: () => void;
   onReset?: () => void;
   onFieldChange?: (
     name: string,
-    value: any,
-    allValues: Record<string, any>
+    value: unknown,
+    allValues: Record<string, unknown>
   ) => void;
   submitLabel?: string;
   cancelLabel?: string;
@@ -186,7 +192,7 @@ export function FormBuilder({
 
     const generateFieldSchema = (
       field: FormBuilderFieldConfig
-    ): z.ZodType<any> => {
+    ): z.ZodType<unknown> => {
       if (field.validation && field.validation instanceof z.ZodType) {
         return field.validation;
       }
@@ -198,7 +204,7 @@ export function FormBuilder({
         !(field.validation instanceof z.ZodType)
       ) {
         const validationObj = field.validation;
-        let baseSchema: z.ZodType<any>;
+        let baseSchema: z.ZodType<unknown>;
 
         // Determine base schema type
         switch (field.type) {
@@ -264,7 +270,7 @@ export function FormBuilder({
         return field.required ? baseSchema : baseSchema.optional();
       }
 
-      let fieldSchema: z.ZodType<any>;
+      let fieldSchema: z.ZodType<unknown>;
 
       switch (field.type) {
         case 'email':
@@ -294,14 +300,18 @@ export function FormBuilder({
         case 'radio':
           if (field.options && field.options.length > 0) {
             // Build a union of literals to allow specific values, including null if present
-            const literals = field.options.map((opt) =>
-              z.literal(opt.value as any)
+            const literals: Array<z.ZodLiteral<string | number | null>> = field.options.map((opt) =>
+              z.literal(opt.value as string | number | null)
             );
             if (literals.length === 1) {
               fieldSchema = literals[0];
             } else {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              fieldSchema = z.union(literals as any);
+              fieldSchema = z.union(
+                literals as [
+                  z.ZodLiteral<string | number | null>,
+                  ...z.ZodLiteral<string | number | null>[]
+                ]
+              );
             }
           } else {
             fieldSchema = z.string();
@@ -309,7 +319,7 @@ export function FormBuilder({
           break;
         case 'object':
           if (field.fields) {
-            const objectSchema: Record<string, z.ZodType<any>> = {};
+            const objectSchema: Record<string, z.ZodType<unknown>> = {};
             for (const subField of field.fields) {
               objectSchema[subField.name] = generateFieldSchema(subField);
             }
@@ -327,11 +337,11 @@ export function FormBuilder({
                     field.fields.reduce((acc, subField) => {
                       acc[subField.name] = generateFieldSchema(subField);
                       return acc;
-                    }, {} as Record<string, z.ZodType<any>>)
+                    }, {} as Record<string, z.ZodType<unknown>>)
                   );
             fieldSchema = z.array(arrayItemSchema);
           } else {
-            fieldSchema = z.array(z.any());
+            fieldSchema = z.array(z.unknown());
           }
           break;
         default:
@@ -341,20 +351,30 @@ export function FormBuilder({
       return field.required ? fieldSchema : fieldSchema.optional();
     };
 
-    const schemaObject: Record<string, z.ZodType<any>> = {};
+    const schemaObject: Record<string, z.ZodType<unknown>> = {};
 
-    for (const section of sections) {
-      for (const field of section.fields) {
-        schemaObject[field.name] = generateFieldSchema(field);
+    const forEachField = (secs: FormBuilderSectionConfig[]) => {
+      for (const section of secs) {
+        // Traverse tabs if present
+        if (section.tabs && section.tabs.length > 0) {
+          for (const tab of section.tabs) {
+            forEachField(tab.sections);
+          }
+        }
+        for (const field of (section.fields ?? [])) {
+          schemaObject[field.name] = generateFieldSchema(field);
+        }
       }
-    }
+    };
+
+    forEachField(sections);
 
     return z.object(schemaObject);
   }, [sections, schema]);
 
   // Generate default values from field configs
   const generatedDefaultValues = useMemo(() => {
-    const values: Record<string, any> = { ...defaultValues };
+    const values: Record<string, unknown> = { ...defaultValues };
 
     const processFields = (fields: FormBuilderFieldConfig[]) => {
       for (const field of fields) {
@@ -367,13 +387,17 @@ export function FormBuilder({
 
         if (field.type === 'object' && field.fields) {
           if (!values[field.name]) values[field.name] = {};
-          const nestedValues: Record<string, any> = {};
+          const nestedValues: Record<string, unknown> = {};
           for (const subField of field.fields) {
             if (subField.defaultValue !== undefined) {
               nestedValues[subField.name] = subField.defaultValue;
             }
           }
-          values[field.name] = { ...nestedValues, ...values[field.name] };
+          const existing =
+            values[field.name] && typeof values[field.name] === 'object'
+              ? (values[field.name] as Record<string, unknown>)
+              : {};
+          values[field.name] = { ...nestedValues, ...existing };
         }
 
         if (field.type === 'array' && field.fields) {
@@ -384,16 +408,27 @@ export function FormBuilder({
       }
     };
 
-    for (const section of sections) {
-      processFields(section.fields);
-    }
+    const forEachSection = (secs: FormBuilderSectionConfig[]) => {
+      for (const section of secs) {
+        if (section.tabs && section.tabs.length > 0) {
+          for (const tab of section.tabs) {
+            forEachSection(tab.sections);
+          }
+        }
+        processFields(section.fields ?? []);
+      }
+    };
+
+    forEachSection(sections);
 
     return values;
   }, [sections, defaultValues]);
 
-  const form = useForm<any>({
-    resolver: zodResolver(generatedSchema as any),
-    defaultValues: generatedDefaultValues,
+  const form = useForm<FieldValues>({
+    // Type cast is safe here due to dynamic schema generation vs resolver generics
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(generatedSchema as any) as unknown as import('react-hook-form').Resolver<FieldValues, any, FieldValues>,
+    defaultValues: generatedDefaultValues as FieldValues,
   });
 
   const { control, handleSubmit, reset, setValue, getValues } = form;
@@ -401,13 +436,21 @@ export function FormBuilder({
   // Determine dependency fields to watch
   const dependencyFields = useMemo(() => {
     const set = new Set<string>();
-    for (const section of sections) {
-      for (const f of section.fields) {
-        for (const d of f.dependencies || []) {
-          set.add(d.field);
+    const forEachField = (secs: FormBuilderSectionConfig[]) => {
+      for (const section of secs) {
+        if (section.tabs && section.tabs.length > 0) {
+          for (const tab of section.tabs) {
+            forEachField(tab.sections);
+          }
+        }
+        for (const f of (section.fields ?? [])) {
+          for (const d of f.dependencies || []) {
+            set.add(d.field);
+          }
         }
       }
-    }
+    };
+    forEachField(sections);
     return Array.from(set);
   }, [sections]);
 
@@ -417,10 +460,10 @@ export function FormBuilder({
   // Always call useWatch to satisfy hooks rules. Passing an empty array is safe and returns an empty array.
   const depValuesArr = useWatch({ control, name: dependencyFields });
   const watchedValues = useMemo(() => {
-    if (!hasDependencies) return {} as Record<string, any>;
-    const obj: Record<string, any> = {};
+    if (!hasDependencies) return {} as Record<string, unknown>;
+    const obj: Record<string, unknown> = {};
     dependencyFields.forEach((n, i) => {
-      obj[n] = (depValuesArr as any[])[i];
+      obj[n] = (depValuesArr as unknown[])[i];
     });
     return obj;
     // dependencyFields is stable from sections; depValuesArr changes only when values change
@@ -428,7 +471,7 @@ export function FormBuilder({
 
   // Handle field dependencies
   // Queue dependency-driven value updates to avoid calling setValue during render
-  const pendingValueUpdatesRef = useRef<Array<{ name: string; value: any }>>(
+  const pendingValueUpdatesRef = useRef<Array<{ name: string; value: unknown }>>(
     []
   );
 
@@ -478,7 +521,7 @@ export function FormBuilder({
   // Flush any pending setValue updates after watchedValues change
   useEffect(() => {
     if (pendingValueUpdatesRef.current.length === 0) return;
-    const updatesMap = new Map<string, any>();
+    const updatesMap = new Map<string, unknown>();
     // last write wins per field
     for (const { name, value } of pendingValueUpdatesRef.current) {
       updatesMap.set(name, value);
@@ -498,7 +541,7 @@ export function FormBuilder({
 
   // Handle field change with custom onChange
   const handleFieldChange = useCallback(
-    (field: FormBuilderFieldConfig, value: any) => {
+    (field: FormBuilderFieldConfig, value: unknown) => {
       if (field.onChange) {
         field.onChange(value, setValue, getValues);
       }
@@ -507,7 +550,7 @@ export function FormBuilder({
   );
 
   const handleFormSubmit = useCallback(
-    async (data: any) => {
+    async (data: unknown) => {
       try {
         await onSubmit(data);
       } catch (error) {
@@ -524,50 +567,88 @@ export function FormBuilder({
 
   // Build SectionBuilder nodes from form sections/fields
   const sectionNodes: SectionNode[] = useMemo(() => {
-    return sections.map((section, sectionIndex) => {
-      const node: SectionNode = {
+    const buildLeavesFromFields = (fields?: FormBuilderFieldConfig[]): SectionNode['children'] =>
+      (fields ?? [])
+        .map((field) => {
+          const fieldState = handleFieldDependencies(field);
+          if (field.hidden || fieldState.hidden) return null;
+
+          const spanMd = Math.max(1, Math.min(12, field.gridCols ?? 1));
+
+          return {
+            key: field.name,
+            span: { base: 1, md: spanMd },
+            className: field.wrapperClassName,
+            hidden: field.hidden,
+            content: (
+              <FormBuilderField
+                key={field.name}
+                field={{
+                  ...field,
+                  disabled: field.disabled || fieldState.disabled,
+                }}
+                control={control}
+                onChange={(value) => {
+                  handleFieldChange(field, value);
+                  onFieldChange?.(field.name, value, getValues());
+                }}
+                onFieldChange={onFieldChange}
+              />
+            ),
+          };
+        })
+        .filter(Boolean) as SectionNode['children'];
+
+    const buildSectionNode = (
+      section: FormBuilderSectionConfig,
+      sectionIndex: number,
+    ): SectionNode => {
+      const baseNode: SectionNode = {
         id: section.id ?? `section-${sectionIndex}`,
         title: section.title,
         subtitle: section.description,
         variant: section.variant ?? 'plain',
         className: section.className,
-        layout: section.layout ?? 'grid',
+        layout: section.layout ?? (section.tabs && section.tabs.length > 0 ? 'tabs' : 'grid'),
         grid: section.grid ?? { cols: 1, mdCols: 2, gap: 'gap-4' },
         flex: section.flex,
         hidden: section.hidden,
-        children: section.fields
-          .map((field) => {
-            const fieldState = handleFieldDependencies(field);
-            if (field.hidden || fieldState.hidden) return null;
-
-            const spanMd = Math.max(1, Math.min(12, field.gridCols ?? 1));
-
-            return {
-              key: field.name,
-              span: { base: 1, md: spanMd },
-              className: field.wrapperClassName,
-              hidden: field.hidden,
-              content: (
-                <FormBuilderField
-                  key={field.name}
-                  field={{
-                    ...field,
-                    disabled: field.disabled || fieldState.disabled,
-                  }}
-                  control={control}
-                  onChange={(value) => {
-                    handleFieldChange(field, value);
-                    onFieldChange?.(field.name, value, getValues());
-                  }}
-                  onFieldChange={onFieldChange}
-                />
-              ),
-            };
-          })
-          .filter(Boolean) as SectionNode['children'],
       };
-      return node;
-    });
+
+      // Tabs layout
+      if (baseNode.layout === 'tabs' && section.tabs && section.tabs.length > 0) {
+        baseNode.defaultTabId = section.defaultTabId ?? section.tabs[0]?.id;
+        baseNode.tabsListClassName = section.tabsListClassName;
+        baseNode.tabsContentClassName = section.tabsContentClassName;
+        baseNode.tabs = section.tabs.map((tab, _tabIdx) => {
+          // Each tab can contain multiple sub-sections; wrap them under a container node
+          const nestedNodes = tab.sections.map((subSection, subIdx) => buildSectionNode(subSection, subIdx));
+          const containerNode: SectionNode = {
+            id: `${baseNode.id}-tab-${tab.id}`,
+            title: undefined,
+            subtitle: undefined,
+            variant: 'plain',
+            layout: 'grid',
+            grid: section.grid ?? { cols: 1, mdCols: 2, gap: 'gap-4' },
+            children: nestedNodes,
+          } as SectionNode;
+          return {
+            id: tab.id,
+            label: tab.label,
+            className: tab.className,
+            contentClassName: tab.contentClassName,
+            node: containerNode,
+          };
+        });
+        return baseNode;
+      }
+
+      // Regular non-tab section with direct fields
+      baseNode.children = buildLeavesFromFields(section.fields);
+      return baseNode;
+    };
+
+    return sections.map((section, sectionIndex) => buildSectionNode(section, sectionIndex));
   }, [
     sections,
     control,
