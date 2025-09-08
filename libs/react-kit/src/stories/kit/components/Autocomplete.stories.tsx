@@ -96,3 +96,30 @@ export const CustomRender: Story = {
   } satisfies Partial<AutocompleteProps>,
   render: (args) => <Autocomplete {...args} />,
 };
+
+export const MultiSelectWithChips: Story = {
+  name: 'Multi select with chips',
+  args: {
+    mode: 'client',
+    options: CITY_OPTIONS,
+    multiple: true,
+    placeholder: 'Select cities...',
+    searchPlaceholder: 'Type to search cities...',
+    chipVariant: 'secondary',
+  } satisfies Partial<AutocompleteProps>,
+  render: (args) => <Autocomplete {...args} />,
+};
+
+export const TaggingNoOptions: Story = {
+  name: 'Tagging (no options)',
+  args: {
+    mode: 'client',
+    options: [],
+    multiple: true,
+    allowCustomValue: true,
+    placeholder: 'Type and press Enter to add tags',
+    searchPlaceholder: 'Type a tag and press Enter',
+    chipVariant: 'outline',
+  } satisfies Partial<AutocompleteProps>,
+  render: (args) => <Autocomplete {...args} />,
+};

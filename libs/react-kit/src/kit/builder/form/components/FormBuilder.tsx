@@ -1,13 +1,27 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useForm, useWatch, type Control, type FieldValues } from 'react-hook-form';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  useForm,
+  useWatch,
+  type Control,
+  type FieldValues,
+} from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from '../../../../shadcn/lib/utils';
 import { Button } from '../../../../shadcn/ui/button';
 import { FormBuilderField } from './FormBuilderField';
 import SectionBuilder from '../../section/SectionBuilder';
-import type { SectionLayout, SectionGridOptions, SectionFlexOptions, SectionNode } from '../../section/types';
-import { AutocompleteFetcher, AutocompleteOption } from '../../../components/autocomplete/types';
+import type {
+  SectionLayout,
+  SectionGridOptions,
+  SectionFlexOptions,
+  SectionNode,
+} from '../../section/types';
+import type {
+  AutocompleteFetcher,
+  AutocompleteOption,
+} from '../../../components/autocomplete/types';
 
 export interface FormBuilderFieldConfig {
   id?: string; // Optional ID for test fixtures
@@ -42,13 +56,23 @@ export interface FormBuilderFieldConfig {
     option: AutocompleteOption,
     selected: boolean
   ) => React.ReactNode;
-  validation?: z.ZodType<any> | {
-    pattern?: { value: RegExp; message: string };
-    min?: { value: number; message: string };
-    max?: { value: number; message: string };
-    minLength?: { value: number; message: string };
-    maxLength?: { value: number; message: string };
-  };
+  // New autocomplete features
+  multiple?: boolean;
+  allowCustomValue?: boolean;
+  chipVariant?: 'default' | 'secondary' | 'destructive' | 'outline';
+  chipClassName?: string;
+  clearable?: boolean;
+  initialSelectedOptions?: AutocompleteOption | AutocompleteOption[] | null;
+  loadSelected?: (values: Array<string | number>) => Promise<AutocompleteOption[]>;
+  validation?:
+    | z.ZodType<any>
+    | {
+        pattern?: { value: RegExp; message: string };
+        min?: { value: number; message: string };
+        max?: { value: number; message: string };
+        minLength?: { value: number; message: string };
+        maxLength?: { value: number; message: string };
+      };
   defaultValue?: any;
   fields?: FormBuilderFieldConfig[]; // For nested object/array fields
   dependencies?: {
@@ -160,13 +184,19 @@ export function FormBuilder({
   const generatedSchema = useMemo(() => {
     if (schema) return schema;
 
-    const generateFieldSchema = (field: FormBuilderFieldConfig): z.ZodType<any> => {
+    const generateFieldSchema = (
+      field: FormBuilderFieldConfig
+    ): z.ZodType<any> => {
       if (field.validation && field.validation instanceof z.ZodType) {
         return field.validation;
       }
 
       // Handle validation object format
-      if (field.validation && typeof field.validation === 'object' && !(field.validation instanceof z.ZodType)) {
+      if (
+        field.validation &&
+        typeof field.validation === 'object' &&
+        !(field.validation instanceof z.ZodType)
+      ) {
         const validationObj = field.validation;
         let baseSchema: z.ZodType<any>;
 
@@ -178,9 +208,16 @@ export function FormBuilder({
           case 'number':
             baseSchema = z.number();
             break;
-          case 'autocomplete':
-            baseSchema = z.union([z.string(), z.number()]).nullable();
+          case 'autocomplete': {
+            const single = z
+              .union([z.string(), z.number(), z.object({})])
+              .nullable();
+            const multi = z.array(
+              z.union([z.string(), z.number(), z.object({})])
+            );
+            baseSchema = field.multiple ? multi : single;
             break;
+          }
           case 'checkbox':
           case 'switch':
             baseSchema = z.boolean();
@@ -194,19 +231,34 @@ export function FormBuilder({
 
         // Apply validation constraints
         if (validationObj.pattern && baseSchema instanceof z.ZodString) {
-          baseSchema = baseSchema.regex(validationObj.pattern.value, validationObj.pattern.message);
+          baseSchema = baseSchema.regex(
+            validationObj.pattern.value,
+            validationObj.pattern.message
+          );
         }
         if (validationObj.min && baseSchema instanceof z.ZodNumber) {
-          baseSchema = baseSchema.min(validationObj.min.value, validationObj.min.message);
+          baseSchema = baseSchema.min(
+            validationObj.min.value,
+            validationObj.min.message
+          );
         }
         if (validationObj.max && baseSchema instanceof z.ZodNumber) {
-          baseSchema = baseSchema.max(validationObj.max.value, validationObj.max.message);
+          baseSchema = baseSchema.max(
+            validationObj.max.value,
+            validationObj.max.message
+          );
         }
         if (validationObj.minLength && baseSchema instanceof z.ZodString) {
-          baseSchema = baseSchema.min(validationObj.minLength.value, validationObj.minLength.message);
+          baseSchema = baseSchema.min(
+            validationObj.minLength.value,
+            validationObj.minLength.message
+          );
         }
         if (validationObj.maxLength && baseSchema instanceof z.ZodString) {
-          baseSchema = baseSchema.max(validationObj.maxLength.value, validationObj.maxLength.message);
+          baseSchema = baseSchema.max(
+            validationObj.maxLength.value,
+            validationObj.maxLength.message
+          );
         }
 
         return field.required ? baseSchema : baseSchema.optional();
@@ -221,9 +273,16 @@ export function FormBuilder({
         case 'number':
           fieldSchema = z.number();
           break;
-        case 'autocomplete':
-          fieldSchema = z.union([z.string(), z.number(), z.object()]).nullable();
+        case 'autocomplete': {
+          const single = z
+            .union([z.string(), z.number(), z.object({})])
+            .nullable();
+          const multi = z.array(
+            z.union([z.string(), z.number(), z.object({})])
+          );
+          fieldSchema = field.multiple ? multi : single;
           break;
+        }
         case 'checkbox':
         case 'switch':
           fieldSchema = z.boolean();
@@ -235,45 +294,43 @@ export function FormBuilder({
         case 'radio':
           if (field.options && field.options.length > 0) {
             // Build a union of literals to allow specific values, including null if present
-            const literals = field.options.map(opt => z.literal(opt.value as any));
+            const literals = field.options.map((opt) =>
+              z.literal(opt.value as any)
+            );
             if (literals.length === 1) {
               fieldSchema = literals[0];
-            }
-            else {
+            } else {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               fieldSchema = z.union(literals as any);
             }
-          }
-          else {
+          } else {
             fieldSchema = z.string();
           }
           break;
         case 'object':
           if (field.fields) {
             const objectSchema: Record<string, z.ZodType<any>> = {};
-            field.fields.forEach((subField) => {
+            for (const subField of field.fields) {
               objectSchema[subField.name] = generateFieldSchema(subField);
-            });
+            }
             fieldSchema = z.object(objectSchema);
-          }
-          else {
+          } else {
             fieldSchema = z.object({});
           }
           break;
         case 'array':
           if (field.fields && field.fields.length > 0) {
-            const arrayItemSchema
-              = field.fields.length === 1
+            const arrayItemSchema =
+              field.fields.length === 1
                 ? generateFieldSchema(field.fields[0])
                 : z.object(
                     field.fields.reduce((acc, subField) => {
                       acc[subField.name] = generateFieldSchema(subField);
                       return acc;
-                    }, {} as Record<string, z.ZodType<any>>),
+                    }, {} as Record<string, z.ZodType<any>>)
                   );
             fieldSchema = z.array(arrayItemSchema);
-          }
-          else {
+          } else {
             fieldSchema = z.array(z.any());
           }
           break;
@@ -286,11 +343,11 @@ export function FormBuilder({
 
     const schemaObject: Record<string, z.ZodType<any>> = {};
 
-    sections.forEach((section) => {
-      section.fields.forEach((field) => {
+    for (const section of sections) {
+      for (const field of section.fields) {
         schemaObject[field.name] = generateFieldSchema(field);
-      });
-    });
+      }
+    }
 
     return z.object(schemaObject);
   }, [sections, schema]);
@@ -300,10 +357,10 @@ export function FormBuilder({
     const values: Record<string, any> = { ...defaultValues };
 
     const processFields = (fields: FormBuilderFieldConfig[]) => {
-      fields.forEach((field) => {
+      for (const field of fields) {
         if (
-          values[field.name] === undefined
-          && field.defaultValue !== undefined
+          values[field.name] === undefined &&
+          field.defaultValue !== undefined
         ) {
           values[field.name] = field.defaultValue;
         }
@@ -311,11 +368,11 @@ export function FormBuilder({
         if (field.type === 'object' && field.fields) {
           if (!values[field.name]) values[field.name] = {};
           const nestedValues: Record<string, any> = {};
-          field.fields.forEach((subField) => {
+          for (const subField of field.fields) {
             if (subField.defaultValue !== undefined) {
               nestedValues[subField.name] = subField.defaultValue;
             }
-          });
+          }
           values[field.name] = { ...nestedValues, ...values[field.name] };
         }
 
@@ -324,10 +381,12 @@ export function FormBuilder({
             values[field.name] = field.defaultValue || [];
           }
         }
-      });
+      }
     };
 
-    sections.forEach(section => processFields(section.fields));
+    for (const section of sections) {
+      processFields(section.fields);
+    }
 
     return values;
   }, [sections, defaultValues]);
@@ -342,11 +401,13 @@ export function FormBuilder({
   // Determine dependency fields to watch
   const dependencyFields = useMemo(() => {
     const set = new Set<string>();
-    sections.forEach((section) => {
-      section.fields?.forEach((f) => {
-        f.dependencies?.forEach((d) => set.add(d.field));
-      });
-    });
+    for (const section of sections) {
+      for (const f of section.fields) {
+        for (const d of f.dependencies || []) {
+          set.add(d.field);
+        }
+      }
+    }
     return Array.from(set);
   }, [sections]);
 
@@ -358,14 +419,18 @@ export function FormBuilder({
   const watchedValues = useMemo(() => {
     if (!hasDependencies) return {} as Record<string, any>;
     const obj: Record<string, any> = {};
-    dependencyFields.forEach((n, i) => { obj[n] = (depValuesArr as any[])[i]; });
+    dependencyFields.forEach((n, i) => {
+      obj[n] = (depValuesArr as any[])[i];
+    });
     return obj;
     // dependencyFields is stable from sections; depValuesArr changes only when values change
   }, [hasDependencies, dependencyFields, depValuesArr]);
 
   // Handle field dependencies
   // Queue dependency-driven value updates to avoid calling setValue during render
-  const pendingValueUpdatesRef = useRef<Array<{ name: string; value: any }>>([]);
+  const pendingValueUpdatesRef = useRef<Array<{ name: string; value: any }>>(
+    []
+  );
 
   const handleFieldDependencies = useCallback(
     (field: FormBuilderFieldConfig) => {
@@ -373,7 +438,7 @@ export function FormBuilder({
 
       const result: { disabled?: boolean; hidden?: boolean } = {};
 
-      field.dependencies.forEach((dep) => {
+      for (const dep of field.dependencies) {
         const dependentValue = watchedValues[dep.field];
         const conditionMet = dep.condition(dependentValue);
 
@@ -395,16 +460,19 @@ export function FormBuilder({
               const currentValue = getValues(field.name);
               if (currentValue !== dep.value) {
                 // Defer the update to an effect to prevent state changes during render
-                pendingValueUpdatesRef.current.push({ name: field.name, value: dep.value });
+                pendingValueUpdatesRef.current.push({
+                  name: field.name,
+                  value: dep.value,
+                });
               }
             }
             break;
         }
-      });
+      }
 
       return result;
     },
-    [hasDependencies, watchedValues, getValues],
+    [hasDependencies, watchedValues, getValues]
   );
 
   // Flush any pending setValue updates after watchedValues change
@@ -412,15 +480,21 @@ export function FormBuilder({
     if (pendingValueUpdatesRef.current.length === 0) return;
     const updatesMap = new Map<string, any>();
     // last write wins per field
-    pendingValueUpdatesRef.current.forEach(({ name, value }) => updatesMap.set(name, value));
+    for (const { name, value } of pendingValueUpdatesRef.current) {
+      updatesMap.set(name, value);
+    }
     pendingValueUpdatesRef.current = [];
-    updatesMap.forEach((value, name) => {
+    for (const [name, value] of updatesMap) {
       const current = getValues(name);
       if (current !== value) {
-        setValue(name, value, { shouldDirty: false, shouldTouch: false, shouldValidate: false });
+        setValue(name, value, {
+          shouldDirty: false,
+          shouldTouch: false,
+          shouldValidate: false,
+        });
       }
-    });
-  }, [watchedValues, setValue, getValues]);
+    }
+  }, [setValue, getValues]);
 
   // Handle field change with custom onChange
   const handleFieldChange = useCallback(
@@ -429,19 +503,18 @@ export function FormBuilder({
         field.onChange(value, setValue, getValues);
       }
     },
-    [setValue, getValues],
+    [setValue, getValues]
   );
 
   const handleFormSubmit = useCallback(
     async (data: any) => {
       try {
         await onSubmit(data);
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Form submission error:', error);
       }
     },
-    [onSubmit],
+    [onSubmit]
   );
 
   const handleReset = useCallback(() => {
@@ -477,7 +550,10 @@ export function FormBuilder({
               content: (
                 <FormBuilderField
                   key={field.name}
-                  field={{ ...field, disabled: field.disabled || fieldState.disabled }}
+                  field={{
+                    ...field,
+                    disabled: field.disabled || fieldState.disabled,
+                  }}
                   control={control}
                   onChange={(value) => {
                     handleFieldChange(field, value);
@@ -492,11 +568,21 @@ export function FormBuilder({
       };
       return node;
     });
-  }, [sections, control, handleFieldDependencies, handleFieldChange, onFieldChange, getValues]);
+  }, [
+    sections,
+    control,
+    handleFieldDependencies,
+    handleFieldChange,
+    onFieldChange,
+    getValues,
+  ]);
 
   return (
     <div className={cn('space-y-6', className)}>
-      <form onSubmit={handleSubmit(handleFormSubmit)} className={cn('space-y-6', formClassName)}>
+      <form
+        onSubmit={handleSubmit(handleFormSubmit)}
+        className={cn('space-y-6', formClassName)}
+      >
         <SectionBuilder sections={sectionNodes} />
 
         {showActions && (
@@ -505,21 +591,35 @@ export function FormBuilder({
               'flex flex-col sm:flex-row gap-3',
               showActionsSeparator && 'pt-6',
               showActionsSeparator && 'border-t',
-              actionsClassName,
+              actionsClassName
             )}
           >
-            <Button type="submit" disabled={isSubmitting} className="sm:order-last">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="sm:order-last"
+            >
               {isSubmitting ? 'Submitting...' : submitLabel}
             </Button>
 
             {onCancel && (
-              <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                disabled={isSubmitting}
+              >
                 {cancelLabel}
               </Button>
             )}
 
             {onReset && (
-              <Button type="button" variant="outline" onClick={handleReset} disabled={isSubmitting}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleReset}
+                disabled={isSubmitting}
+              >
                 {resetLabel}
               </Button>
             )}

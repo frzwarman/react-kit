@@ -7,13 +7,41 @@ export function AutocompleteField({ field, value, onChange, className }: FieldRe
     .filter((o): o is { label: string; value: string | number } => o.value !== null && o.value !== undefined)
     .map(o => ({ label: o.label, value: o.value as string | number }))
 
+  // Shape defaultValue according to single/multiple
+  let defaultValueShaped: string | number | null | Array<string | number> | undefined = undefined
+  if (field.defaultValue !== undefined) {
+    if (field.multiple) {
+      if (Array.isArray(field.defaultValue)) {
+        defaultValueShaped = field.defaultValue.filter((v): v is string | number => typeof v === 'string' || typeof v === 'number')
+      } else if (field.defaultValue === null || field.defaultValue === undefined) {
+        defaultValueShaped = []
+      } else if (typeof field.defaultValue === 'string' || typeof field.defaultValue === 'number') {
+        defaultValueShaped = [field.defaultValue]
+      } else {
+        defaultValueShaped = []
+      }
+    } else {
+      defaultValueShaped = (typeof field.defaultValue === 'string' || typeof field.defaultValue === 'number' || field.defaultValue === null)
+        ? field.defaultValue as string | number | null
+        : null
+    }
+  }
+
   return (
     <Autocomplete
       mode={field.autocompleteMode ?? 'client'}
       options={options}
       fetcher={field.fetcher}
       pageSize={field.pageSize}
-      value={(value as string | number | null) ?? null}
+      multiple={field.multiple}
+      allowCustomValue={field.allowCustomValue}
+      chipVariant={field.chipVariant}
+      chipClassName={field.chipClassName}
+      clearable={field.clearable}
+      defaultValue={defaultValueShaped}
+      initialSelectedOptions={field.initialSelectedOptions ?? null}
+      loadSelected={field.loadSelected}
+      value={field.multiple ? ((Array.isArray(value) ? value : (value ? [value] : [])) as Array<string | number>) : ((value as string | number | null) ?? null)}
       onChange={(val) => onChange(val)}
       placeholder={field.placeholder}
       searchPlaceholder={field.searchPlaceholder}
