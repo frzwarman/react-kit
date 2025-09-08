@@ -1,3 +1,13 @@
+## 0.0.10 (2025-09-08)
+
+### 🚀 Features
+
+- implement StackDialog context, provider, hooks, and renderer
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+
 ## 0.0.9 (2025-08-29)
 
 ### 🩹 Fixes
