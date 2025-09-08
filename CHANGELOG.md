@@ -1,3 +1,13 @@
+## 0.0.12 (2025-09-08)
+
+### 🩹 Fixes
+
+- update import paths from alias to relative in MonthPicker components
+
+### ❤️ Thank You
+
+- Labib
+
 ## 0.0.11 (2025-09-08)
 
 ### 🚀 Features
