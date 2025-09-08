@@ -18,6 +18,10 @@ import {
   DateRangePickerField,
   MonthPickerField,
   MonthRangePickerField,
+  TimePickerField,
+  TimeRangePickerField,
+  DateTimePickerField,
+  DateTimeRangePickerField,
   FileField,
   ObjectField,
   ArrayField,
@@ -191,6 +195,50 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
       case 'month_range':
         return (
           <MonthRangePickerField
+            field={field}
+            control={control}
+            fieldPath={fieldPath}
+            value={controllerField.value}
+            onChange={handleChange}
+            className={baseClassName}
+          />
+        );
+      case 'time':
+        return (
+          <TimePickerField
+            field={field}
+            control={control}
+            fieldPath={fieldPath}
+            value={controllerField.value}
+            onChange={handleChange}
+            className={baseClassName}
+          />
+        );
+      case 'time_range':
+        return (
+          <TimeRangePickerField
+            field={field}
+            control={control}
+            fieldPath={fieldPath}
+            value={controllerField.value}
+            onChange={handleChange}
+            className={baseClassName}
+          />
+        );
+      case 'date_time':
+        return (
+          <DateTimePickerField
+            field={field}
+            control={control}
+            fieldPath={fieldPath}
+            value={controllerField.value}
+            onChange={handleChange}
+            className={baseClassName}
+          />
+        );
+      case 'date_time_range':
+        return (
+          <DateTimeRangePickerField
             field={field}
             control={control}
             fieldPath={fieldPath}

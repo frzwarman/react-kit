@@ -38,6 +38,10 @@ export interface FormBuilderFieldConfig {
     | 'date_range' // UI DateRangePicker
     | 'month' // UI MonthPicker (single month Date)
     | 'month_range' // UI MonthRangePicker { start: Date, end: Date }
+    | 'time' // UI TimePicker (Date with time part)
+    | 'time_range' // UI TimeRangePicker { from: Date, to: Date }
+    | 'date_time' // UI DateTimePicker (Date with date+time)
+    | 'date_time_range' // UI DateTimeRangePicker { from: Date, to: Date }
     | 'file'
     | 'object'
     | 'array';
@@ -127,6 +131,11 @@ export interface FormBuilderFieldConfig {
   showFooter?: boolean;
   cancelLabel?: string;
   applyLabel?: string;
+  // Time picker specific
+  timePrecision?: 'hour' | 'minute' | 'second';
+  hourCycle?: 12 | 24;
+  minuteStep?: number;
+  secondStep?: number;
 }
 
 export interface FormBuilderSectionConfig {
@@ -230,9 +239,13 @@ export function FormBuilder({
           case 'date_picker':
           case 'month':
           case 'date':
+          case 'time':
+          case 'date_time':
             baseSchema = z.date();
             break;
           case 'date_range':
+          case 'time_range':
+          case 'date_time_range':
             baseSchema = z
               .object({ from: z.date().optional().nullable(), to: z.date().optional().nullable() })
               .nullable();
@@ -307,9 +320,13 @@ export function FormBuilder({
         case 'date_picker':
         case 'month':
         case 'date':
+        case 'time':
+        case 'date_time':
           fieldSchema = z.date();
           break;
         case 'date_range':
+        case 'time_range':
+        case 'date_time_range':
           fieldSchema = z
             .object({ from: z.date().optional().nullable(), to: z.date().optional().nullable() })
             .nullable();
