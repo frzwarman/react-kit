@@ -6,6 +6,7 @@ export * from './kit/builder/dialog';
 export * from './kit/builder/form';
 export * from './kit/builder/section';
 export * from './kit/builder/page';
+export * from './kit/builder/stack-dialog';
 // Ensure default export for Page at root
 export { default as Page } from './kit/builder/page/Page';
 
