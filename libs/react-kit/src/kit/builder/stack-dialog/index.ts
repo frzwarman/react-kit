@@ -1,13 +1,18 @@
 export {
-  StackDialogContext as Context
+  StackDialogContext,
 } from './context'
 
 export {
-  StackDialogContextProvider as ContextProvider
+  StackDialogContextProvider as StackDialogProvider,
 } from './provider'
 
 export {
   useStackDialog
 } from './hooks'
 
-export type * from './types'
+export type {
+  StackDialogContextInstance,
+  StackDialogCreateConfig,
+  StackDialogHook,
+  StackDialogInstance
+} from './types'
