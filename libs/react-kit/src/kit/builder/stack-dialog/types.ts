@@ -20,3 +20,5 @@ export type StackDialogCreateConfig = {
   closeOnInteractOutside?: boolean,
   closeOnEscapePressed?: boolean,
 };
+
+export type StackDialogHook = Omit<StackDialogContextInstance, "activeDialogs">

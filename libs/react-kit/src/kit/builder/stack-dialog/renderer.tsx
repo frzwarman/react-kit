@@ -1,6 +1,6 @@
-import { Dialog } from '@/shadcn/ui/dialog';
-import { StackDialogInstance } from './types';
 import { DialogContent } from '@radix-ui/react-dialog';
+import { Dialog } from '../../../shadcn/ui/dialog';
+import { StackDialogInstance } from './types';
 
 export function StackDialogRenderer(props: {
   dialogs: StackDialogInstance[],
