@@ -1,3 +1,13 @@
+## 0.0.14 (2025-09-12)
+
+### 🩹 Fixes
+
+- stack dialog popup & interactibility
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+
 ## 0.0.13 (2025-09-12)
 
 ### 🚀 Features
