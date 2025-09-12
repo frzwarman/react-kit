@@ -1,12 +1,12 @@
-import { FormBuilderFieldConfig, FormBuilderSectionConfig } from '../components/FormBuilder';
+import type { FormBuilderFieldConfig, FormBuilderSectionConfig } from '../types';
 
 // Section factory functions
 export const createSection = {
   card: (
     title: string,
-    fields: FormBuilderFieldConfig[],
-    options: Partial<FormBuilderSectionConfig> = {},
-  ): FormBuilderSectionConfig => ({
+    fields: FormBuilderFieldConfig<any>[],
+    options: Partial<FormBuilderSectionConfig<any>> = {},
+  ): FormBuilderSectionConfig<any> => ({
     title,
     fields,
     variant: 'card',
@@ -15,9 +15,9 @@ export const createSection = {
 
   separator: (
     title: string,
-    fields: FormBuilderFieldConfig[],
-    options: Partial<FormBuilderSectionConfig> = {},
-  ): FormBuilderSectionConfig => ({
+    fields: FormBuilderFieldConfig<any>[],
+    options: Partial<FormBuilderSectionConfig<any>> = {},
+  ): FormBuilderSectionConfig<any> => ({
     title,
     fields,
     variant: 'separator',
@@ -25,9 +25,9 @@ export const createSection = {
   }),
 
   plain: (
-    fields: FormBuilderFieldConfig[],
-    options: Partial<FormBuilderSectionConfig> = {},
-  ): FormBuilderSectionConfig => ({
+    fields: FormBuilderFieldConfig<any>[],
+    options: Partial<FormBuilderSectionConfig<any>> = {},
+  ): FormBuilderSectionConfig<any> => ({
     fields,
     variant: 'plain',
     ...options,

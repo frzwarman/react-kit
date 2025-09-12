@@ -32,10 +32,10 @@ import type {
 } from "./types";
 import { useDebounce } from "use-debounce";
 
-export type AutocompleteProps = {
+export type AutocompleteProps<T = unknown> = {
 	mode: AutocompleteMode;
-	options?: AutocompleteOption[];
-	fetcher?: AutocompleteFetcher;
+	options?: AutocompleteOption<T>[];
+	fetcher?: AutocompleteFetcher<T>;
 	pageSize?: number;
 	/**
 	 * Value can be a single primitive or an array when `multiple` is true
@@ -46,7 +46,8 @@ export type AutocompleteProps = {
 	 */
 	onChange?: (
 		value: string | number | null | Array<string | number>,
-		option: AutocompleteOption | AutocompleteOption[] | null,
+		option: AutocompleteOption<T> | AutocompleteOption<T>[] | null,
+		raw?: T | T[] | null,
 	) => void;
 	/** Enable selecting multiple values (shows chips) */
 	multiple?: boolean;
@@ -56,7 +57,7 @@ export type AutocompleteProps = {
 	className?: string;
 	emptyText?: string;
 	renderOption?: (
-		option: AutocompleteOption,
+		option: AutocompleteOption<T>,
 		selected: boolean,
 	) => React.ReactNode;
 	searchPlaceholder?: string;
@@ -79,21 +80,21 @@ export type AutocompleteProps = {
 	 * Optional: seed selected labels for edit pages. These options are only used to populate the
 	 * internal label map so labels render correctly when values are prefilled.
 	 */
-	initialSelectedOptions?: AutocompleteOption | AutocompleteOption[] | null;
+	initialSelectedOptions?: AutocompleteOption<T> | AutocompleteOption<T>[] | null;
 	/**
 	 * Optional: load labels/options for a list of values whose labels are unknown.
 	 * Useful for edit pages in server mode when only values are available.
 	 */
-	loadSelected?: (values: Array<string | number>) => Promise<AutocompleteOption[]>;
+	loadSelected?: (values: Array<string | number>) => Promise<AutocompleteOption<T>[]>;
 };
 
 const DEFAULT_PAGE_SIZE = 20;
 
 const EMPTY_OPTIONS: AutocompleteOption[] = [];
 
-export function Autocomplete({
+export function Autocomplete<T = unknown>({
 	mode,
-	options = EMPTY_OPTIONS,
+	options = EMPTY_OPTIONS as AutocompleteOption<T>[],
 	fetcher,
 	pageSize = DEFAULT_PAGE_SIZE,
 	value: controlledValue,
@@ -113,7 +114,7 @@ export function Autocomplete({
 	clearable = true,
 	initialSelectedOptions,
 	loadSelected,
-}: AutocompleteProps) {
+}: AutocompleteProps<T>) {
 	const [open, setOpen] = useState<boolean>(!!defaultOpen);
 	const [search, setSearch] = useState("");
 	const [debouncedSearch] = useDebounce(search, 250);
@@ -135,8 +136,12 @@ export function Autocomplete({
 	// Keep a map of value -> label to ensure we can render chips/labels even if the option
 	// is not present in the current page (especially in server mode or for custom values)
 	const labelMapRef = useRef<Map<string | number, string>>(new Map());
-	const addToLabelMap = useCallback((opt: AutocompleteOption) => {
+	const rawMapRef = useRef<Map<string | number, T>>(new Map());
+	const addToLabelMap = useCallback((opt: AutocompleteOption<T>) => {
 		labelMapRef.current.set(opt.value, opt.label);
+		if (Object.prototype.hasOwnProperty.call(opt, "raw") && (opt as AutocompleteOption<T>).raw !== undefined) {
+			rawMapRef.current.set(opt.value, (opt as AutocompleteOption<T>).raw as T);
+		}
 	}, []);
 	// Tick to force re-render when labels hydrate via async
 	const [labelTick, setLabelTick] = useState(0);
@@ -149,7 +154,7 @@ export function Autocomplete({
 	);
 
 	const handleSelect = useCallback(
-		(next: AutocompleteOption) => {
+		(next: AutocompleteOption<T>) => {
 			addToLabelMap(next);
 			if (isMultiple) {
 				const prevValues = Array.isArray(value) ? value : [];
@@ -159,16 +164,18 @@ export function Autocomplete({
 					: [...prevValues, next.value];
 
 				if (controlledValue === undefined) setValue(newValues);
-				const selectedOptions: AutocompleteOption[] = newValues.map((v) => ({
+				const selectedOptions: AutocompleteOption<T>[] = newValues.map((v) => ({
 					value: v,
 					label: getLabel(v),
+					raw: rawMapRef.current.get(v),
 				}));
-				onChange?.(newValues, selectedOptions);
+				const raws = selectedOptions.map((o) => o.raw as T);
+				onChange?.(newValues, selectedOptions, raws);
 				// Keep open for multi-select
 			} else {
 				const newValue = next.value;
 				if (controlledValue === undefined) setValue(newValue);
-				onChange?.(newValue, next);
+				onChange?.(newValue, next, (next as AutocompleteOption<T>).raw as T | undefined ?? null);
 				setOpen(false);
 			}
 		},
@@ -176,7 +183,7 @@ export function Autocomplete({
 	);
 
 	// Data state (shared for both modes)
-	const [items, setItems] = useState<AutocompleteOption[]>([]);
+	const [items, setItems] = useState<AutocompleteOption<T>[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [hasMore, setHasMore] = useState(false);
 	const [nextCursor, setNextCursor] = useState<
@@ -197,7 +204,7 @@ export function Autocomplete({
 			if (!fetcher) return;
 			setLoading(true);
 			try {
-				const res: AutocompleteFetchResult = await fetcher({
+				const res: AutocompleteFetchResult<T> = await fetcher({
 					search: debouncedSearch,
 					cursor: nextCursor ?? null,
 					page,
@@ -334,24 +341,23 @@ export function Autocomplete({
 		return placeholder;
 	}, [isMultiple, mode, options, selectedOption, value, placeholder, labelTick]);
 
-
 	const selectedValues: Array<string | number> = useMemo(
 		() => (isMultiple && Array.isArray(value) ? value : []),
 		[isMultiple, value],
 	);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: labelTick intentionally triggers recompute when labelMap hydrates
-	const selectedOptionsMulti: AutocompleteOption[] = useMemo(
-		() => selectedValues.map((v) => ({ value: v, label: getLabel(v) })),
+	const selectedOptionsMulti: AutocompleteOption<T>[] = useMemo(
+		() => selectedValues.map((v) => ({ value: v, label: getLabel(v), raw: rawMapRef.current.get(v) })),
 		[getLabel, selectedValues, labelTick],
 	);
 
 	const handleClear = useCallback(() => {
 		if (isMultiple) {
 			if (controlledValue === undefined) setValue([]);
-			onChange?.([], []);
+			onChange?.([], [], []);
 		} else {
 			if (controlledValue === undefined) setValue(null);
-			onChange?.(null, null);
+			onChange?.(null, null, null);
 		}
 	}, [controlledValue, isMultiple, onChange]);
 
@@ -360,7 +366,7 @@ export function Autocomplete({
 		(text: string) => {
 			const t = text.trim();
 			if (!t) return;
-			const created: AutocompleteOption = { value: t, label: t };
+			const created: AutocompleteOption<T> = { value: t, label: t };
 			addToLabelMap(created);
 			if (isMultiple) {
 				const prevValues = Array.isArray(value) ? value : [];
@@ -370,12 +376,14 @@ export function Autocomplete({
 				const newOptions = newValues.map((v) => ({
 					value: v,
 					label: getLabel(v),
+					raw: rawMapRef.current.get(v),
 				}));
-				onChange?.(newValues, newOptions);
+				const raws = newOptions.map((o) => o.raw as T);
+				onChange?.(newValues, newOptions, raws);
 				setSearch("");
 			} else {
 				if (controlledValue === undefined) setValue(created.value);
-				onChange?.(created.value, created);
+				onChange?.(created.value, created, (created.raw as T | undefined) ?? null);
 				setSearch("");
 				setOpen(false);
 			}

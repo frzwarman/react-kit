@@ -1,4 +1,4 @@
-import { FormBuilderSectionConfig } from '../components/FormBuilder';
+import type { FormBuilderSectionConfig } from '../types';
 import { createField } from './field-factories';
 import { createSection } from './section-factories';
 import { commonValidations } from './validations';

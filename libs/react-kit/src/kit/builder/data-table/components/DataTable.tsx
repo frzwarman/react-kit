@@ -20,7 +20,7 @@ import { Button } from '../../../../shadcn/ui/button';
 import { Checkbox } from '../../../../shadcn/ui/checkbox';
 import { Skeleton } from '../../../../shadcn/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../../shadcn/ui/table';
-import { FormBuilder, type FormBuilderSectionConfig } from '../../form/components/FormBuilder';
+import { FormBuilder, type FormBuilderSectionConfig } from '../../form';
 import type { DataTableAction, DataTableBatchAction, DataTableFiltersProp } from '../types';
 import { DataTablePagination } from './DataTablePagination';
 import { DataTableViewOptions } from './DataTableViewOptions';

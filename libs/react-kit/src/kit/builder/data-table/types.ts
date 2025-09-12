@@ -1,4 +1,4 @@
-import type { FormBuilderSectionConfig } from '../form/components/FormBuilder';
+import type { FormBuilderSectionConfig } from '../form';
 
 export type DataTableFiltersProp = FormBuilderSectionConfig[];
 

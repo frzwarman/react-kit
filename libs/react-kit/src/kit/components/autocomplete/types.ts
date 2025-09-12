@@ -1,6 +1,8 @@
-export type AutocompleteOption = {
+export type AutocompleteOption<T = unknown> = {
   value: string | number
   label: string
+  /** Optional original object returned by the fetcher/static source */
+  raw?: T
 }
 
 export type AutocompleteFetchParams = {
@@ -10,15 +12,15 @@ export type AutocompleteFetchParams = {
   pageSize: number
 }
 
-export type AutocompleteFetchResult = {
-  items: AutocompleteOption[]
+export type AutocompleteFetchResult<T = unknown> = {
+  items: AutocompleteOption<T>[]
   nextCursor?: string | number | null
   hasMore: boolean
   total?: number
 }
 
-export type AutocompleteFetcher = (
+export type AutocompleteFetcher<T = unknown> = (
   params: AutocompleteFetchParams,
-) => Promise<AutocompleteFetchResult>
+) => Promise<AutocompleteFetchResult<T>>
 
 export type AutocompleteMode = 'client' | 'server'

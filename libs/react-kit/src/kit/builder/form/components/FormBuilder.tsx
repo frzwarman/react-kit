@@ -1,221 +1,22 @@
-import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useForm, useWatch, type Control, type FieldValues } from 'react-hook-form';
+import { useForm, useWatch, type FieldValues, type Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from '../../../../shadcn/lib/utils';
 import { Button } from '../../../../shadcn/ui/button';
 import { FormBuilderField } from './FormBuilderField';
 import SectionBuilder from '../../section/SectionBuilder';
+import type { SectionNode } from '../../section/types';
 import type {
-  SectionLayout,
-  SectionGridOptions,
-  SectionFlexOptions,
-  SectionNode,
-} from '../../section/types';
-import type {
-  AutocompleteFetcher,
-  AutocompleteOption,
-} from '../../../components/autocomplete/types';
-import type { Accept } from 'react-dropzone';
-import type {
-  FileRecord,
-  FileUploaderLayout,
-} from '../../../components/fileuploader/types';
+  FormBuilderProps,
+  FormBuilderFieldConfig,
+  FormBuilderSectionConfig,
+} from '../types';
 
-export interface FormBuilderFieldConfig {
-  id?: string; // Optional ID for test fixtures
-  name: string;
-  label: string;
-  type:
-    | 'text'
-    | 'email'
-    | 'password'
-    | 'number'
-    | 'textarea'
-    | 'select'
-    | 'autocomplete'
-    | 'checkbox'
-    | 'switch'
-    | 'radio'
-    | 'date' // native input date
-    | 'date_picker' // UI DatePicker
-    | 'date_range' // UI DateRangePicker
-    | 'month' // UI MonthPicker (single month Date)
-    | 'month_range' // UI MonthRangePicker { start: Date, end: Date }
-    | 'time' // UI TimePicker (Date with time part)
-    | 'time_range' // UI TimeRangePicker { from: Date, to: Date }
-    | 'date_time' // UI DateTimePicker (Date with date+time)
-    | 'date_time_range' // UI DateTimeRangePicker { from: Date, to: Date }
-    | 'file'
-    | 'object'
-    | 'array';
-  placeholder?: string;
-  description?: string;
-  required?: boolean;
-  disabled?: boolean;
-  options?: { label: string; value: string | number | null }[];
-  // Autocomplete specific (client/server)
-  autocompleteMode?: 'client' | 'server';
-  fetcher?: AutocompleteFetcher;
-  pageSize?: number;
-  searchPlaceholder?: string;
-  renderOption?: (
-    option: AutocompleteOption,
-    selected: boolean
-  ) => React.ReactNode;
-  // New autocomplete features
-  multiple?: boolean;
-  allowCustomValue?: boolean;
-  chipVariant?: 'default' | 'secondary' | 'destructive' | 'outline';
-  chipClassName?: string;
-  clearable?: boolean;
-  initialSelectedOptions?: AutocompleteOption | AutocompleteOption[] | null;
-  loadSelected?: (values: Array<string | number>) => Promise<AutocompleteOption[]>;
-  validation?:
-    | z.ZodType<unknown>
-    | {
-        pattern?: { value: RegExp; message: string };
-        min?: { value: number; message: string };
-        max?: { value: number; message: string };
-        minLength?: { value: number; message: string };
-        maxLength?: { value: number; message: string };
-        // For array-like fields (e.g., file uploader)
-        minItems?: { value: number; message: string };
-        maxItems?: { value: number; message: string };
-      };
-  defaultValue?: unknown;
-  fields?: FormBuilderFieldConfig[]; // For nested object/array fields
-  dependencies?: {
-    field: string;
-    condition: (value: unknown) => boolean;
-    action: 'show' | 'hide' | 'enable' | 'disable' | 'setValue';
-    value?: unknown;
-  }[];
-  onChange?: (
-    value: unknown,
-    setValue: (field: string, value: unknown) => void,
-    getValues: () => Record<string, unknown>
-  ) => void;
-  className?: string;
-  gridCols?: number;
-  rows?: number; // For textarea fields
-  itemType?: string; // For array fields
-  // Array field layout: default 'card'
-  arrayLayout?: 'card' | 'table' | 'custom';
-  // Custom renderer for array fields when arrayLayout === 'custom'
-  arrayRender?: (params: {
-    field: FormBuilderFieldConfig;
-    control: Control<FieldValues>;
-    fieldPath: string;
-    value: unknown;
-    onChange: (value: unknown) => void;
-    addItem: () => void;
-    removeItem: (index: number) => void;
-    disabled?: boolean;
-    rows?: { id: string }[]; // useFieldArray rows for stable rendering
-  }) => React.ReactNode;
-  // Optional styling for array layouts (used mainly for 'table')
-  arrayColors?: {
-    headerBgClass?: string; // e.g. 'bg-teal-700'
-    headerTextClass?: string; // e.g. 'text-white'
-    rowAltBgClass?: string; // e.g. 'bg-teal-50'
-  };
-  conditional?: {
-    field: string;
-    value: unknown;
-  }; // For conditional field visibility
-  hidden?: boolean; // Declarative hide
-  // Label placement control across inputs
-  labelPlacement?: 'stacked' | 'inline' | 'hidden';
-  // Wrapper container className (applies to the field wrapper, not the input)
-  wrapperClassName?: string;
-  // Picker-specific optional props (passed through to components when applicable)
-  minDate?: Date;
-  maxDate?: Date;
-  disabledDates?: Array<Date | { from: Date; to: Date }>;
-  numberOfMonths?: number;
-  popoverSide?: 'top' | 'right' | 'bottom' | 'left';
-  showFooter?: boolean;
-  cancelLabel?: string;
-  applyLabel?: string;
-  // Time picker specific
-  timePrecision?: 'hour' | 'minute' | 'second';
-  hourCycle?: 12 | 24;
-  minuteStep?: number;
-  secondStep?: number;
-  // File uploader specific options
-  fileMultiple?: boolean;
-  fileMaxFiles?: number;
-  fileAccept?: Accept;
-  fileLayout?: FileUploaderLayout;
-  fileWithDownload?: boolean;
-  fileUploader?: (
-    file: File,
-    onProgress: (pct: number) => void,
-  ) => Promise<Partial<FileRecord>>;
-  fileOnUploadSuccess?: (file: FileRecord) => void;
-  fileOnUploadError?: (file: FileRecord, error: unknown) => void;
-  fileOnRemove?: (file: FileRecord) => void | Promise<void>;
-  fileOnRetry?: (file: FileRecord) => void;
-  fileOnRetryAll?: (files: FileRecord[]) => void;
-}
-
-export interface FormBuilderSectionConfig {
-  id?: string;
-  title?: string;
-  description?: string;
-  fields?: FormBuilderFieldConfig[];
-  variant?: 'card' | 'separator' | 'plain';
-  className?: string;
-  collapsible?: boolean;
-  defaultCollapsed?: boolean;
-  layout?: SectionLayout;
-  grid?: SectionGridOptions;
-  flex?: SectionFlexOptions;
-  hidden?: boolean; // Declarative hide
-  // Tabs layout support: when layout === 'tabs', provide tabs instead of direct fields
-  tabs?: Array<{
-    id: string;
-    label: React.ReactNode;
-    sections: FormBuilderSectionConfig[];
-    className?: string;
-    contentClassName?: string;
-  }>;
-  defaultTabId?: string;
-  tabsListClassName?: string;
-  tabsContentClassName?: string;
-}
-
-export interface FormBuilderProps {
-  sections: FormBuilderSectionConfig[];
-  schema?: z.ZodType<unknown>;
-  defaultValues?: Record<string, unknown> | null;
-  onSubmit: (data: unknown) => void | Promise<void>;
-  onCancel?: () => void;
-  onReset?: () => void;
-  onFieldChange?: (
-    name: string,
-    value: unknown,
-    allValues: Record<string, unknown>
-  ) => void;
-  submitLabel?: string;
-  cancelLabel?: string;
-  resetLabel?: string;
-  isSubmitting?: boolean;
-  className?: string;
-  formClassName?: string;
-  actionsClassName?: string;
-  showActions?: boolean;
-  customActions?: React.ReactNode;
-  // UI: show a separator line above action buttons
-  showActionsSeparator?: boolean;
-}
-
-export function FormBuilder({
+export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
   sections,
   schema,
-  defaultValues = {},
+  defaultValues,
   onSubmit,
   onCancel,
   onReset,
@@ -230,13 +31,13 @@ export function FormBuilder({
   showActions = true,
   customActions,
   showActionsSeparator = true,
-}: FormBuilderProps) {
+}: FormBuilderProps<TFieldValues>) {
   // Generate schema from field configs if not provided
   const generatedSchema = useMemo(() => {
     if (schema) return schema;
 
     const generateFieldSchema = (
-      field: FormBuilderFieldConfig
+      field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>
     ): z.ZodType<unknown> => {
       if (field.validation && field.validation instanceof z.ZodType) {
         return field.validation;
@@ -430,7 +231,7 @@ export function FormBuilder({
         case 'object':
           if (field.fields) {
             const objectSchema: Record<string, z.ZodType<unknown>> = {};
-            for (const subField of field.fields) {
+            for (const subField of field.fields as Array<FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>>) {
               objectSchema[subField.name] = generateFieldSchema(subField);
             }
             fieldSchema = z.object(objectSchema);
@@ -442,9 +243,9 @@ export function FormBuilder({
           if (field.fields && field.fields.length > 0) {
             const arrayItemSchema =
               field.fields.length === 1
-                ? generateFieldSchema(field.fields[0])
+                ? generateFieldSchema(field.fields[0] as FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>)
                 : z.object(
-                    field.fields.reduce((acc, subField) => {
+                    (field.fields as Array<FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>>).reduce((acc, subField) => {
                       acc[subField.name] = generateFieldSchema(subField);
                       return acc;
                     }, {} as Record<string, z.ZodType<unknown>>)
@@ -463,7 +264,7 @@ export function FormBuilder({
 
     const schemaObject: Record<string, z.ZodType<unknown>> = {};
 
-    const forEachField = (secs: FormBuilderSectionConfig[]) => {
+    const forEachField = (secs: FormBuilderSectionConfig<TFieldValues>[]) => {
       for (const section of secs) {
         // Traverse tabs if present
         if (section.tabs && section.tabs.length > 0) {
@@ -472,21 +273,21 @@ export function FormBuilder({
           }
         }
         for (const field of (section.fields ?? [])) {
-          schemaObject[field.name] = generateFieldSchema(field);
+          schemaObject[field.name] = generateFieldSchema(field as FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>);
         }
       }
     };
 
     forEachField(sections);
 
-    return z.object(schemaObject);
+    return z.object(schemaObject) as unknown as z.ZodType<TFieldValues>;
   }, [sections, schema]);
 
   // Generate default values from field configs
   const generatedDefaultValues = useMemo(() => {
-    const values: Record<string, unknown> = { ...defaultValues };
+    const values: Record<string, unknown> = { ...((defaultValues ?? {}) as Record<string, unknown>) };
 
-    const processFields = (fields: FormBuilderFieldConfig[]) => {
+    const processFields = (fields: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>[]) => {
       for (const field of fields) {
         if (
           values[field.name] === undefined &&
@@ -518,7 +319,7 @@ export function FormBuilder({
       }
     };
 
-    const forEachSection = (secs: FormBuilderSectionConfig[]) => {
+    const forEachSection = (secs: FormBuilderSectionConfig<TFieldValues>[]) => {
       for (const section of secs) {
         if (section.tabs && section.tabs.length > 0) {
           for (const tab of section.tabs) {
@@ -534,19 +335,19 @@ export function FormBuilder({
     return values;
   }, [sections, defaultValues]);
 
-  const form = useForm<FieldValues>({
+  const form = useForm<TFieldValues>({
     // Dynamic schema shape: cast to any to satisfy resolver generics
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(generatedSchema as any) as unknown as import('react-hook-form').Resolver<FieldValues, any, FieldValues>,
-    defaultValues: generatedDefaultValues as FieldValues,
+    resolver: zodResolver(generatedSchema as any) as unknown as import('react-hook-form').Resolver<TFieldValues, any, TFieldValues>,
+    defaultValues: generatedDefaultValues as unknown as import('react-hook-form').DefaultValues<TFieldValues>,
   });
 
   const { control, handleSubmit, reset, setValue, getValues } = form;
 
   // Determine dependency fields to watch
   const dependencyFields = useMemo(() => {
-    const set = new Set<string>();
-    const forEachField = (secs: FormBuilderSectionConfig[]) => {
+    const set = new Set<Path<TFieldValues>>();
+    const forEachField = (secs: FormBuilderSectionConfig<TFieldValues>[]) => {
       for (const section of secs) {
         if (section.tabs && section.tabs.length > 0) {
           for (const tab of section.tabs) {
@@ -586,7 +387,7 @@ export function FormBuilder({
   );
 
   const handleFieldDependencies = useCallback(
-    (field: FormBuilderFieldConfig) => {
+    (field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>) => {
       if (!hasDependencies || !field.dependencies) return {};
 
       const result: { disabled?: boolean; hidden?: boolean } = {};
@@ -610,11 +411,11 @@ export function FormBuilder({
             break;
           case 'setValue':
             if (conditionMet && dep.value !== undefined) {
-              const currentValue = getValues(field.name);
+              const currentValue = getValues(field.name as unknown as Path<TFieldValues>);
               if (currentValue !== dep.value) {
                 // Defer the update to an effect to prevent state changes during render
                 pendingValueUpdatesRef.current.push({
-                  name: field.name,
+                  name: field.name as unknown as string,
                   value: dep.value,
                 });
               }
@@ -638,9 +439,10 @@ export function FormBuilder({
     }
     pendingValueUpdatesRef.current = [];
     for (const [name, value] of updatesMap) {
-      const current = getValues(name);
+      const pathName = name as unknown as Path<TFieldValues>;
+      const current = getValues(pathName);
       if (current !== value) {
-        setValue(name, value, {
+        setValue(pathName, value as unknown as never, {
           shouldDirty: false,
           shouldTouch: false,
           shouldValidate: false,
@@ -651,16 +453,20 @@ export function FormBuilder({
 
   // Handle field change with custom onChange
   const handleFieldChange = useCallback(
-    (field: FormBuilderFieldConfig, value: unknown) => {
+    (
+      field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>,
+      value: unknown,
+      ...extras: unknown[]
+    ) => {
       if (field.onChange) {
-        field.onChange(value, setValue, getValues);
+        field.onChange(value, extras, setValue, getValues);
       }
     },
     [setValue, getValues]
   );
 
   const handleFormSubmit = useCallback(
-    async (data: unknown) => {
+    async (data: TFieldValues) => {
       try {
         await onSubmit(data);
       } catch (error) {
@@ -671,13 +477,13 @@ export function FormBuilder({
   );
 
   const handleReset = useCallback(() => {
-    reset(generatedDefaultValues);
+    reset(generatedDefaultValues as unknown as import('react-hook-form').DefaultValues<TFieldValues>);
     onReset?.();
   }, [reset, generatedDefaultValues, onReset]);
 
   // Build SectionBuilder nodes from form sections/fields
   const sectionNodes: SectionNode[] = useMemo(() => {
-    const buildLeavesFromFields = (fields?: FormBuilderFieldConfig[]): SectionNode['children'] =>
+    const buildLeavesFromFields = (fields?: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>[]): SectionNode['children'] =>
       (fields ?? [])
         .map((field) => {
           const fieldState = handleFieldDependencies(field);
@@ -698,9 +504,9 @@ export function FormBuilder({
                   disabled: field.disabled || fieldState.disabled,
                 }}
                 control={control}
-                onChange={(value) => {
-                  handleFieldChange(field, value);
-                  onFieldChange?.(field.name, value, getValues());
+                onChange={(value, ...extras) => {
+                  handleFieldChange(field, value, ...extras);
+                  onFieldChange?.(field.name as unknown as string, value, getValues());
                 }}
                 onFieldChange={onFieldChange}
               />
@@ -710,7 +516,7 @@ export function FormBuilder({
         .filter(Boolean) as SectionNode['children'];
 
     const buildSectionNode = (
-      section: FormBuilderSectionConfig,
+      section: FormBuilderSectionConfig<TFieldValues>,
       sectionIndex: number,
     ): SectionNode => {
       const baseNode: SectionNode = {

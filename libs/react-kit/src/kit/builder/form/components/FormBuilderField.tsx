@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
-import type { Control, FieldValues } from 'react-hook-form';
+import type { Control, FieldValues, Path } from 'react-hook-form';
 import { useController } from 'react-hook-form';
 import { cn } from '../../../../shadcn/lib/utils';
 import { Label } from '../../../../shadcn/ui/label';
-import type { FormBuilderFieldConfig } from './FormBuilder';
+import type { FormBuilderFieldConfig } from '../types';
 import {
   AutocompleteField,
   TextField,
@@ -27,29 +27,37 @@ import {
   ArrayField,
 } from './fields';
 
-export interface FormBuilderFieldProps {
-  field: FormBuilderFieldConfig;
-  control: Control<FieldValues>;
-  onChange?: (value: unknown) => void;
-  onFieldChange?: (name: string, value: unknown, allValues: Record<string, unknown>) => void;
+export interface FormBuilderFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends string | Path<TFieldValues> = Path<TFieldValues>
+> {
+  field: FormBuilderFieldConfig<TFieldValues, TName>;
+  control: Control<TFieldValues>;
+  onChange?: (value: unknown, ...extras: unknown[]) => void;
+  onFieldChange?: (name: import('react-hook-form').Path<TFieldValues> | string, value: unknown, allValues: TFieldValues) => void;
   parentPath?: string;
 }
 
-export function FormBuilderField({ field, control, onChange, parentPath }: FormBuilderFieldProps) {
-  const fieldPath = parentPath ? `${parentPath}.${field.name}` : field.name;
+export function FormBuilderField<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends string | Path<TFieldValues> = Path<TFieldValues>
+>({ field, control, onChange, parentPath }: FormBuilderFieldProps<TFieldValues, TName>) {
+  const fieldPath = parentPath ? `${parentPath}.${field.name}` : (field.name as string);
 
   const {
     field: controllerField,
     fieldState: { error },
-  } = useController({
-    name: fieldPath,
+  } = useController<TFieldValues>({
+    name: fieldPath as unknown as Path<TFieldValues>,
     control,
     disabled: field.disabled,
   });
 
-  const handleChange = useCallback((value: unknown) => {
+  const handleChange = useCallback((value: unknown, ...extras: unknown[]) => {
+    // Only patch the RHF value with the first argument (the canonical value)
     controllerField.onChange(value);
-    onChange?.(value);
+    // Forward any extra metadata upstream (e.g., option, raw)
+    onChange?.(value, ...extras);
   }, [controllerField, onChange]);
   const baseClassName = cn(
     error && 'border-destructive focus-visible:ring-destructive',
@@ -62,7 +70,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <AutocompleteField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -75,7 +83,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <TextField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -86,7 +94,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <NumberField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -97,7 +105,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <TextareaField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -108,7 +116,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <SelectField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -119,7 +127,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <CheckboxField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -130,7 +138,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <SwitchField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -141,7 +149,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <RadioField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -152,7 +160,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <DateField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -163,7 +171,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <DatePickerField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -174,7 +182,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <DateRangePickerField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -185,7 +193,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <MonthPickerField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -196,7 +204,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <MonthRangePickerField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -207,7 +215,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <TimePickerField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -218,7 +226,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <TimeRangePickerField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -229,7 +237,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <DateTimePickerField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -240,7 +248,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <DateTimeRangePickerField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -251,7 +259,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <FileField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -262,7 +270,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <ObjectField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -273,7 +281,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <ArrayField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}
@@ -284,7 +292,7 @@ export function FormBuilderField({ field, control, onChange, parentPath }: FormB
         return (
           <TextField
             field={field}
-            control={control}
+            control={control as unknown as Control<FieldValues>}
             fieldPath={fieldPath}
             value={controllerField.value}
             onChange={handleChange}

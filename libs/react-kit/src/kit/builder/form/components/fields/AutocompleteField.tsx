@@ -5,7 +5,7 @@ import type { FieldRenderProps } from './types'
 export function AutocompleteField({ field, value, onChange, className }: FieldRenderProps) {
   const options: AutocompleteOption[] = (field.options ?? [])
     .filter((o): o is { label: string; value: string | number } => o.value !== null && o.value !== undefined)
-    .map(o => ({ label: o.label, value: o.value as string | number }))
+    .map(o => ({ label: o.label, value: o.value as string | number, raw: (o as unknown as AutocompleteOption).raw }))
 
   // Shape defaultValue according to single/multiple
   let defaultValueShaped: string | number | null | Array<string | number> | undefined = undefined
@@ -42,7 +42,7 @@ export function AutocompleteField({ field, value, onChange, className }: FieldRe
       initialSelectedOptions={field.initialSelectedOptions ?? null}
       loadSelected={field.loadSelected}
       value={field.multiple ? ((Array.isArray(value) ? value : (value ? [value] : [])) as Array<string | number>) : ((value as string | number | null) ?? null)}
-      onChange={(val) => onChange(val)}
+      onChange={(val, option, raw) => onChange(val, option, raw)}
       placeholder={field.placeholder}
       searchPlaceholder={field.searchPlaceholder}
       renderOption={field.renderOption}

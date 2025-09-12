@@ -1,4 +1,4 @@
-import { FormBuilderFieldConfig } from '../components/FormBuilder';
+import type { FormBuilderFieldConfig } from '../types';
 import { commonValidations } from './validations';
 
 // Field factory functions
@@ -7,7 +7,7 @@ export const createField = {
     name: string,
     label: string,
     options: Partial<FormBuilderFieldConfig> = {},
-  ): FormBuilderFieldConfig => ({
+  ): FormBuilderFieldConfig<any> => ({
     name,
     label,
     type: 'text',
@@ -147,9 +147,9 @@ export const createField = {
   object: (
     name: string,
     label: string,
-    fields: FormBuilderFieldConfig[],
-    options: Partial<FormBuilderFieldConfig> = {},
-  ): FormBuilderFieldConfig => ({
+    fields: FormBuilderFieldConfig<any>[],
+    options: Partial<FormBuilderFieldConfig<any>> = {},
+  ): FormBuilderFieldConfig<any> => ({
     name,
     label,
     type: 'object',
