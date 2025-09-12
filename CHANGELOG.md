@@ -1,3 +1,19 @@
+## 0.0.13 (2025-09-12)
+
+### 🚀 Features
+
+- add file uploader support to FormBuilder with retry functionality
+
+### 🩹 Fixes
+
+- missing export for stack dialog
+- type and imports for stack dialog
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+- Labib
+
 ## 0.0.12 (2025-09-08)
 
 ### 🩹 Fixes
