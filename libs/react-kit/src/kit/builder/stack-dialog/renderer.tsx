@@ -1,5 +1,4 @@
-import { DialogContent } from '@radix-ui/react-dialog';
-import { Dialog } from '../../../shadcn/ui/dialog';
+import { Dialog, DialogContent } from '../../../shadcn/ui/dialog';
 import { StackDialogInstance } from './types';
 
 export function StackDialogRenderer(props: {
@@ -10,19 +9,19 @@ export function StackDialogRenderer(props: {
     props.closeDialog(id)
   }
 
-  return props.dialogs.map((dialog) => (
+  return props.dialogs.map((dialog, i) => (
     (
       <Dialog
-        open
-        onOpenChange={(open) => (!open && handleCloseDialog(dialog.id))}
+        open={!!props.dialogs[i]}
+        onOpenChange={handleCloseDialog(dialog.id)}
         key={dialog.id}
       >
         <DialogContent
           onEscapeKeyDown={e => {
-            if (!dialog.closeOnEscapePressed) e.preventDefault();
+            if (dialog.closeOnEscapePressed === false) e.preventDefault();
           }}
           onInteractOutside={e => {
-            if (!dialog.closeOnInteractOutside) e.preventDefault();
+            if (dialog.closeOnInteractOutside === false) e.preventDefault();
           }}
         >
           {dialog.template}

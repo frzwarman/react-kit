@@ -27,7 +27,8 @@ export function StackDialogContextProvider(props: PropsWithChildren) {
   const handleCloseDialog = useCallback((id?: string) => {
     setActiveDialogs(prev => {
       const clone = [...prev];
-      clone.splice(clone.findIndex(d => d.id === (id || '')));
+      if (!id) clone.splice(clone.length - 1, 1);
+      else clone.splice(clone.findIndex((d) => (d.id === id)));
       return clone;
     });
   }, [setActiveDialogs]);
