@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, memo } from "react";
 import { useDropzone, type Accept } from "react-dropzone";
 import { cn } from "../../../shadcn/lib/utils";
 import { Button } from "../../../shadcn/ui/button";
@@ -18,6 +18,7 @@ import {
   XCircle,
   Download,
   Trash2,
+  RotateCcw,
 } from "lucide-react";
 import type { FileRecord, FileUploaderProps } from "./types";
 
@@ -74,6 +75,8 @@ export function FileUploader({
   onUploadSuccess,
   onUploadError,
   onRemove,
+  onRetry,
+  onRetryAll,
   multiple = true,
   maxFiles,
   accept,
@@ -110,6 +113,8 @@ export function FileUploader({
     },
     [onChange],
   );
+
+  
 
   useEffect(() => {
     if (isControlled && value) setFiles(value);
@@ -189,6 +194,30 @@ export function FileUploader({
     [files, isControlled, onUploadError, onUploadSuccess, setFilesAndEmit, uploader, value],
   );
 
+  const handleRetry = useCallback(
+    (idx: number) => {
+      const fr = files[idx];
+      if (!uploader || !fr?.file) return;
+      onRetry?.(fr);
+      void startUpload(idx, fr.file);
+    },
+    [files, onRetry, startUpload, uploader],
+  );
+
+  const handleRetryAll = useCallback(() => {
+    if (!uploader) return;
+    const failedFiles = files.filter((f) => f.status === "error" && !!f.file);
+    if (failedFiles.length === 0) return;
+    onRetryAll?.(failedFiles);
+    failedFiles.forEach((fr) => {
+      const idx = files.indexOf(fr);
+      if (idx >= 0 && fr.file) {
+        onRetry?.(fr);
+        void startUpload(idx, fr.file);
+      }
+    });
+  }, [files, onRetry, onRetryAll, startUpload, uploader]);
+
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (!acceptedFiles?.length) return;
@@ -254,95 +283,123 @@ export function FileUploader({
     (disabled || disabledBecauseFull) && "opacity-50 pointer-events-none",
   );
 
-  const renderThumb = (fr: FileRecord) => {
-    const preview = getPreviewUrl(fr);
-    const status = fr.status;
-    return (
-      <div className={cn(
-        "relative overflow-hidden bg-muted/40 border rounded-md flex items-center justify-center",
-        layout === "grid" ? "h-28 w-28" : "h-16 w-16",
-      )}>
-        {preview ? (
-          <img src={preview} alt={fr.name} className="object-cover w-full h-full" />
-        ) : (
-          <div className="flex items-center justify-center text-muted-foreground">
-            {pickIconByType(fr.type, fr.name)}
-          </div>
-        )}
-        {status === "uploading" ? (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <Loader2 className="h-6 w-6 text-white animate-spin" />
-          </div>
-        ) : null}
-        {status === "success" ? (
-          <div className="absolute top-1 right-1 text-green-500">
-            <CheckCircle2 className="h-5 w-5 drop-shadow" />
-          </div>
-        ) : null}
-        {status === "error" ? (
-          <div className="absolute top-1 right-1 text-red-500">
-            <XCircle className="h-5 w-5 drop-shadow" />
-          </div>
-        ) : null}
-      </div>
-    );
+  // (renderThumb removed; inlined into FileItem for better memoization)
+
+  // Stable handler refs so children don't see new function identities each render
+  const removeRef = useRef(handleRemove);
+  useEffect(() => { removeRef.current = handleRemove; }, [handleRemove]);
+  const retryRef = useRef(handleRetry);
+  useEffect(() => { retryRef.current = handleRetry; }, [handleRetry]);
+  const onRemoveAt = useCallback((i: number) => { removeRef.current(i); }, []);
+  const onRetryAt = useCallback((i: number) => { retryRef.current(i); }, []);
+
+  type FileItemProps = {
+    fr: FileRecord;
+    idx: number;
+    layout: "grid" | "list";
+    withDownload: boolean;
+    uploaderPresent: boolean;
+    onRemove: (idx: number) => void;
+    onRetry: (idx: number) => void;
   };
 
-  const renderItem = (fr: FileRecord, idx: number) => {
+  const FileItem = memo(function FileItem({ fr, idx, layout, withDownload, uploaderPresent, onRemove, onRetry }: FileItemProps) {
     const name = fr.name;
     const size = formatBytes(fr.size);
     const error = fr.status === "error" ? fr.errorMessage : undefined;
+    const preview = getPreviewUrl(fr);
     return (
-      <div key={`${name}-${idx}`} className={cn(
+      <div className={cn(
         "flex items-center gap-3 border rounded-md p-2 bg-card",
         layout === "grid" ? "flex-col items-stretch" : "flex-row",
       )}>
-        <div className={cn(layout === "grid" ? "self-center" : "")}>{renderThumb(fr)}</div>
-        <div className={cn("min-w-0 flex-1", layout === "grid" ? "mt-2" : "")}
-        >
+        <div className={cn(layout === "grid" ? "self-center" : "")}>{
+          (
+            <div className={cn(
+              "relative overflow-hidden bg-muted/40 border rounded-md flex items-center justify-center",
+              layout === "grid" ? "h-28 w-28" : "h-16 w-16",
+            )}>
+              {preview ? (
+                <img src={preview} alt={fr.name} className="object-cover w-full h-full" />
+              ) : (
+                <div className="flex items-center justify-center text-muted-foreground">
+                  {pickIconByType(fr.type, fr.name)}
+                </div>
+              )}
+              {fr.status === "uploading" ? (
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                  <Loader2 className="h-6 w-6 text-white animate-spin" />
+                </div>
+              ) : null}
+              {fr.status === "success" ? (
+                <div className="absolute top-1 right-1 text-green-500">
+                  <CheckCircle2 className="h-5 w-5 drop-shadow" />
+                </div>
+              ) : null}
+              {fr.status === "error" ? (
+                <div className="absolute top-1 right-1 text-red-500">
+                  <XCircle className="h-5 w-5 drop-shadow" />
+                </div>
+              ) : null}
+            </div>
+          )
+        }</div>
+        <div className={cn("min-w-0 flex-1", layout === "grid" ? "mt-2" : "")}>
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
               <div className="truncate font-medium" title={name}>{name}</div>
               <div className="text-xs text-muted-foreground">{size}</div>
             </div>
             <div className="flex items-center gap-1">
-              {withDownload && (fr.url || fr.thumbnailUrl) ? (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => {
-                          const url = fr.url ?? fr.thumbnailUrl;
-                          if (url) {
-                            window.open(url, "_blank", "noopener,noreferrer");
-                          }
-                        }}
-                        aria-label="Download"
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Download</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              ) : null}
-              <TooltipProvider>
+              {fr.status === "error" ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => void handleRemove(idx)}
-                      aria-label="Remove"
+                      onClick={() => onRetry(idx)}
+                      aria-label="Retry upload"
+                      disabled={!uploaderPresent || !fr.file}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <RotateCcw className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Remove</TooltipContent>
+                  <TooltipContent>Retry</TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
+              ) : null}
+              {withDownload && (fr.url || fr.thumbnailUrl) ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => {
+                        const url = fr.url ?? fr.thumbnailUrl;
+                        if (url) {
+                          window.open(url, "_blank", "noopener,noreferrer");
+                        }
+                      }}
+                      aria-label="Download"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Download</TooltipContent>
+                </Tooltip>
+              ) : null}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => onRemove(idx)}
+                    aria-label="Remove"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Remove</TooltipContent>
+              </Tooltip>
             </div>
           </div>
           {fr.status === "uploading" ? (
@@ -356,15 +413,20 @@ export function FileUploader({
         </div>
       </div>
     );
-  };
+  }, (prev, next) => prev.fr === next.fr && prev.layout === next.layout && prev.withDownload === next.withDownload && prev.uploaderPresent === next.uploaderPresent && prev.idx === next.idx);
 
   return (
     <div className={cn("space-y-3", className)}>
       <div {...getRootProps({ className: rootClasses })}>
-        <input {...getInputProps()} />
+        <input {...getInputProps({ onClick: (e) => { (e.target as HTMLInputElement).value = ""; } })} />
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-muted-foreground">
-            <Button size="sm" variant="secondary" disabled={disabled || disabledBecauseFull} onClick={open}>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={disabled || disabledBecauseFull}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); open(); }}
+            >
               Select files
             </Button>
             <UploadCloud className="h-5 w-5" />
@@ -378,9 +440,22 @@ export function FileUploader({
               </div>
             </div>
           </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleRetryAll}
+              disabled={
+                !!disabled || !uploader || files.every((f) => f.status !== "error" || !f.file)
+              }
+            >
+              <RotateCcw className="mr-1 h-4 w-4" /> Retry failed
+            </Button>
+          </div>
         </div>
       </div>
 
+      <TooltipProvider>
       <div
         className={cn(
           layout === "grid"
@@ -391,9 +466,21 @@ export function FileUploader({
         {files.length === 0 ? (
           <div className="text-sm text-muted-foreground">No files</div>
         ) : (
-          files.map((fr, i) => renderItem(fr, i))
+          files.map((fr, i) => (
+            <FileItem
+              key={`${fr.name}-${i}`}
+              fr={fr}
+              idx={i}
+              layout={layout}
+              withDownload={withDownload}
+              uploaderPresent={!!uploader}
+              onRemove={onRemoveAt}
+              onRetry={onRetryAt}
+            />
+          ))
         )}
       </div>
+      </TooltipProvider>
     </div>
   );
 }

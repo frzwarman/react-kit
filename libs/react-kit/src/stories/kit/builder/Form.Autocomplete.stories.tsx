@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { FormBuilder, type FormBuilderProps } from '../../../kit/builder/form/components/FormBuilder'
 
 const meta: Meta<typeof FormBuilder> = {
-  title: 'Kit/Builder/Form Autocomplete',
+  title: 'Kit/Builder/Form',
   component: FormBuilder,
   parameters: {
     controls: { expanded: true },
@@ -28,7 +28,7 @@ const CITY_OPTIONS = [
 ]
 
 export const SingleAutocomplete: Story = {
-  name: 'Single select (clearable + custom allowed)',
+  name: 'Autocomplete - Single select (clearable + custom allowed)',
   args: {
     sections: [
       {
@@ -89,7 +89,7 @@ async function loadSelectedByIds(values: Array<string | number>) {
 }
 
 export const ServerEditPrefilledByIds: Story = {
-  name: 'Server edit page (prefilled IDs)',
+  name: 'Autocomplete - Server edit page (prefilled IDs)',
   args: {
     sections: [
       {
@@ -135,7 +135,7 @@ export const ServerEditPrefilledByIds: Story = {
 }
 
 export const MultiAutocompleteChips: Story = {
-  name: 'Multi select with chips',
+  name: 'Autocomplete - Multi select with chips',
   args: {
     sections: [
       {
@@ -172,7 +172,7 @@ export const MultiAutocompleteChips: Story = {
 }
 
 export const TaggingAutocomplete: Story = {
-  name: 'Tagging (no options, custom values)',
+  name: 'Autocomplete - Tagging (no options, custom values)',
   args: {
     sections: [
       {

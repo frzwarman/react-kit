@@ -52,6 +52,10 @@ const meta: Meta<typeof FileUploader> = {
       },
     },
   },
+  argTypes: {
+    onRetry: { action: 'onRetry' },
+    onRetryAll: { action: 'onRetryAll' },
+  },
   args: {
     multiple: true,
     withDownload: true,
@@ -119,6 +123,16 @@ export const ErrorSimulation: Story = {
     multiple: true,
     uploader: mockUploaderFactory({ minMs: 600, maxMs: 1200, failRate: 0.5 }),
     maxFiles: 6,
+  },
+};
+
+export const RetryAllDemo: Story = {
+  name: 'Retry all failed (demo)',
+  args: {
+    multiple: true,
+    uploader: mockUploaderFactory({ minMs: 600, maxMs: 1200, failRate: 0.5 }),
+    maxFiles: 6,
+    layout: 'list',
   },
 };
 

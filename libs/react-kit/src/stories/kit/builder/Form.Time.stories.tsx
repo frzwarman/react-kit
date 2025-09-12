@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react'
 import { FormBuilder, type FormBuilderProps } from '../../../kit/builder/form/components/FormBuilder'
 
 const meta: Meta<typeof FormBuilder> = {
-  title: 'Kit/Builder/Form (Time)',
+  title: 'Kit/Builder/Form',
   component: FormBuilder,
   parameters: {
     controls: { expanded: true },

@@ -17,6 +17,11 @@ import type {
   AutocompleteFetcher,
   AutocompleteOption,
 } from '../../../components/autocomplete/types';
+import type { Accept } from 'react-dropzone';
+import type {
+  FileRecord,
+  FileUploaderLayout,
+} from '../../../components/fileuploader/types';
 
 export interface FormBuilderFieldConfig {
   id?: string; // Optional ID for test fixtures
@@ -75,6 +80,9 @@ export interface FormBuilderFieldConfig {
         max?: { value: number; message: string };
         minLength?: { value: number; message: string };
         maxLength?: { value: number; message: string };
+        // For array-like fields (e.g., file uploader)
+        minItems?: { value: number; message: string };
+        maxItems?: { value: number; message: string };
       };
   defaultValue?: unknown;
   fields?: FormBuilderFieldConfig[]; // For nested object/array fields
@@ -136,6 +144,21 @@ export interface FormBuilderFieldConfig {
   hourCycle?: 12 | 24;
   minuteStep?: number;
   secondStep?: number;
+  // File uploader specific options
+  fileMultiple?: boolean;
+  fileMaxFiles?: number;
+  fileAccept?: Accept;
+  fileLayout?: FileUploaderLayout;
+  fileWithDownload?: boolean;
+  fileUploader?: (
+    file: File,
+    onProgress: (pct: number) => void,
+  ) => Promise<Partial<FileRecord>>;
+  fileOnUploadSuccess?: (file: FileRecord) => void;
+  fileOnUploadError?: (file: FileRecord, error: unknown) => void;
+  fileOnRemove?: (file: FileRecord) => void | Promise<void>;
+  fileOnRetry?: (file: FileRecord) => void;
+  fileOnRetryAll?: (files: FileRecord[]) => void;
 }
 
 export interface FormBuilderSectionConfig {
@@ -236,6 +259,9 @@ export function FormBuilder({
           case 'number':
             baseSchema = z.number();
             break;
+          case 'file':
+            baseSchema = z.array(z.unknown());
+            break;
           case 'date_picker':
           case 'month':
           case 'date':
@@ -304,6 +330,27 @@ export function FormBuilder({
             validationObj.maxLength.message
           );
         }
+        // Array item count constraints
+        if (baseSchema instanceof z.ZodArray) {
+          let arr = baseSchema as z.ZodArray<z.ZodTypeAny>;
+          if (validationObj.minItems) {
+            arr = arr.min(
+              validationObj.minItems.value,
+              validationObj.minItems.message,
+            );
+          }
+          if (validationObj.maxItems) {
+            arr = arr.max(
+              validationObj.maxItems.value,
+              validationObj.maxItems.message,
+            );
+          }
+          // If required and file field, enforce at least 1 item when no explicit minItems
+          if (field.type === 'file' && field.required && !validationObj.minItems) {
+            arr = arr.min(1, `${field.label} requires at least 1 file`);
+          }
+          baseSchema = arr;
+        }
 
         return field.required ? baseSchema : baseSchema.optional();
       }
@@ -317,6 +364,15 @@ export function FormBuilder({
         case 'number':
           fieldSchema = z.number();
           break;
+        case 'file': {
+          let arr = z.array(z.unknown());
+          // If required, ensure at least 1 file
+          if (field.required) {
+            arr = arr.min(1, `${field.label} requires at least 1 file`);
+          }
+          fieldSchema = arr;
+          break;
+        }
         case 'date_picker':
         case 'month':
         case 'date':
