@@ -17,6 +17,7 @@ export * from './kit/components/autocomplete';
 export * from './kit/components/login';
 // Ensure default export for Login at root
 export { default as Login } from './kit/components/login/Login';
+export * from './kit/components/fileuploader';
 
 // -----------------------------
 // KIT: layouts (admin)
