@@ -419,7 +419,7 @@ export function Autocomplete<T = unknown>({
 						tabIndex={disabled ? -1 : 0}
 						aria-disabled={disabled || undefined}
 						className={cn(
-							"w-full inline-flex items-center justify-between rounded-md border bg-background px-3 py-2 text-sm shadow-sm transition-colors",
+							"w-full inline-flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm transition-colors",
 							"hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
 							disabled && "opacity-50 pointer-events-none",
 							className,
