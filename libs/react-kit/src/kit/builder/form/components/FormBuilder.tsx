@@ -4,9 +4,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from '../../../../shadcn/lib/utils';
 import { Button } from '../../../../shadcn/ui/button';
-import { FormBuilderField } from './FormBuilderField';
 import SectionBuilder from '../../section/SectionBuilder';
-import type { SectionNode } from '../../section/types';
+import { buildSectionNodes } from './sectionNodes';
+import { FormBuilderContext, type FormBuilderContextValue } from './FormBuilderContext';
 import type {
   FormBuilderProps,
   FormBuilderFieldConfig,
@@ -31,6 +31,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
   showActions = true,
   customActions,
   showActionsSeparator = true,
+  form,
 }: FormBuilderProps<TFieldValues>) {
   // Generate schema from field configs if not provided
   const generatedSchema = useMemo(() => {
@@ -335,14 +336,16 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
     return values;
   }, [sections, defaultValues]);
 
-  const form = useForm<TFieldValues>({
+  const internalForm = useForm<TFieldValues>({
     // Dynamic schema shape: cast to any to satisfy resolver generics
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(generatedSchema as any) as unknown as import('react-hook-form').Resolver<TFieldValues, any, TFieldValues>,
     defaultValues: generatedDefaultValues as unknown as import('react-hook-form').DefaultValues<TFieldValues>,
   });
 
-  const { control, handleSubmit, reset, setValue, getValues } = form;
+  const activeForm = form ?? internalForm;
+
+  const { control, handleSubmit, reset, setValue, getValues } = activeForm;
 
   // Determine dependency fields to watch
   const dependencyFields = useMemo(() => {
@@ -482,149 +485,84 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
   }, [reset, generatedDefaultValues, onReset]);
 
   // Build SectionBuilder nodes from form sections/fields
-  const sectionNodes: SectionNode[] = useMemo(() => {
-    const buildLeavesFromFields = (fields?: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>[]): SectionNode['children'] =>
-      (fields ?? [])
-        .map((field) => {
-          const fieldState = handleFieldDependencies(field);
-          if (field.hidden || fieldState.hidden) return null;
+  const sectionNodes = useMemo(
+    () =>
+      buildSectionNodes({
+        sections,
+        control,
+        handleFieldDependencies,
+        handleFieldChange,
+        onFieldChange,
+        getValues,
+      }),
+    [sections, control, handleFieldDependencies, handleFieldChange, onFieldChange, getValues],
+  );
 
-          const spanMd = Math.max(1, Math.min(12, field.gridCols ?? 1));
-
-          return {
-            key: field.name,
-            span: { base: 1, md: spanMd },
-            className: field.wrapperClassName,
-            hidden: field.hidden,
-            content: (
-              <FormBuilderField
-                key={field.name}
-                field={{
-                  ...field,
-                  disabled: field.disabled || fieldState.disabled,
-                }}
-                control={control}
-                onChange={(value, ...extras) => {
-                  handleFieldChange(field, value, ...extras);
-                  onFieldChange?.(field.name as unknown as string, value, getValues());
-                }}
-                onFieldChange={onFieldChange}
-              />
-            ),
-          };
-        })
-        .filter(Boolean) as SectionNode['children'];
-
-    const buildSectionNode = (
-      section: FormBuilderSectionConfig<TFieldValues>,
-      sectionIndex: number,
-    ): SectionNode => {
-      const baseNode: SectionNode = {
-        id: section.id ?? `section-${sectionIndex}`,
-        title: section.title,
-        subtitle: section.description,
-        variant: section.variant ?? 'plain',
-        className: section.className,
-        layout: section.layout ?? (section.tabs && section.tabs.length > 0 ? 'tabs' : 'grid'),
-        grid: section.grid ?? { cols: 1, mdCols: 2, gap: 'gap-4' },
-        flex: section.flex,
-        hidden: section.hidden,
-      };
-
-      // Tabs layout
-      if (baseNode.layout === 'tabs' && section.tabs && section.tabs.length > 0) {
-        baseNode.defaultTabId = section.defaultTabId ?? section.tabs[0]?.id;
-        baseNode.tabsListClassName = section.tabsListClassName;
-        baseNode.tabsContentClassName = section.tabsContentClassName;
-        baseNode.tabs = section.tabs.map((tab, _tabIdx) => {
-          // Each tab can contain multiple sub-sections; wrap them under a container node
-          const nestedNodes = tab.sections.map((subSection, subIdx) => buildSectionNode(subSection, subIdx));
-          const containerNode: SectionNode = {
-            id: `${baseNode.id}-tab-${tab.id}`,
-            title: undefined,
-            subtitle: undefined,
-            variant: 'plain',
-            layout: 'grid',
-            grid: section.grid ?? { cols: 1, mdCols: 2, gap: 'gap-4' },
-            children: nestedNodes,
-          } as SectionNode;
-          return {
-            id: tab.id,
-            label: tab.label,
-            className: tab.className,
-            contentClassName: tab.contentClassName,
-            node: containerNode,
-          };
-        });
-        return baseNode;
-      }
-
-      // Regular non-tab section with direct fields
-      baseNode.children = buildLeavesFromFields(section.fields);
-      return baseNode;
-    };
-
-    return sections.map((section, sectionIndex) => buildSectionNode(section, sectionIndex));
-  }, [
-    sections,
-    control,
-    handleFieldDependencies,
-    handleFieldChange,
-    onFieldChange,
-    getValues,
-  ]);
+  const contextValue = useMemo(
+    () => ({
+      control,
+      getValues,
+      setValue,
+      onFieldChange,
+      handleFieldDependencies,
+      handleFieldChange,
+    }) satisfies FormBuilderContextValue<TFieldValues>,
+    [control, getValues, setValue, onFieldChange, handleFieldDependencies, handleFieldChange],
+  );
 
   return (
-    <div className={cn('space-y-6', className)}>
-      <form
-        onSubmit={handleSubmit(handleFormSubmit)}
-        className={cn('space-y-6', formClassName)}
-      >
-        <SectionBuilder sections={sectionNodes} />
+    <FormBuilderContext.Provider value={contextValue as unknown as FormBuilderContextValue<FieldValues>}>
+      <div className={cn('space-y-6', className)}>
+        <form
+          onSubmit={handleSubmit(handleFormSubmit)}
+          className={cn('space-y-6', formClassName)}
+        >
+          <SectionBuilder sections={sectionNodes} />
 
-        {showActions && (
-          <div
-            className={cn(
-              'flex flex-col sm:flex-row gap-3',
-              showActionsSeparator && 'pt-6',
-              showActionsSeparator && 'border-t',
-              actionsClassName
-            )}
-          >
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="sm:order-last"
+          {showActions && (
+            <div
+              className={cn(
+                'flex flex-col sm:flex-row gap-3',
+                showActionsSeparator && 'pt-6',
+                showActionsSeparator && 'border-t',
+                actionsClassName
+              )}
             >
-              {isSubmitting ? 'Submitting...' : submitLabel}
-            </Button>
-
-            {onCancel && (
               <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
+                type="submit"
                 disabled={isSubmitting}
+                className="sm:order-last"
               >
-                {cancelLabel}
+                {isSubmitting ? 'Submitting...' : submitLabel}
               </Button>
-            )}
 
-            {onReset && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleReset}
-                disabled={isSubmitting}
-              >
-                {resetLabel}
-              </Button>
-            )}
+              {onCancel && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
+                  disabled={isSubmitting}
+                >
+                  {cancelLabel}
+                </Button>
+              )}
 
-            {customActions}
-          </div>
-        )}
-      </form>
-    </div>
+              {onReset && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleReset}
+                  disabled={isSubmitting}
+                >
+                  {resetLabel}
+                </Button>
+              )}
+
+              {customActions}
+            </div>
+          )}
+        </form>
+      </div>
+    </FormBuilderContext.Provider>
   );
 }

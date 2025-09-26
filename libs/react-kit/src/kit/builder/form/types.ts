@@ -5,12 +5,13 @@ import type {
   FieldValues,
   Path,
   UseFormGetValues,
+  UseFormReturn,
   UseFormSetValue,
   DefaultValues,
 } from 'react-hook-form'
 import type { z } from 'zod'
 import type { Accept } from 'react-dropzone'
-import type { SectionFlexOptions, SectionGridOptions, SectionLayout, SectionNode } from '../section/types'
+import type { SectionFlexOptions, SectionGridOptions, SectionLayout } from '../section/types'
 import type { AutocompleteFetcher, AutocompleteOption } from '../../components/autocomplete/types'
 import type { FileRecord, FileUploaderLayout } from '../../components/fileuploader/types'
 
@@ -192,7 +193,8 @@ export interface FormBuilderProps<TFieldValues extends FieldValues = FieldValues
   showActions?: boolean
   customActions?: React.ReactNode
   showActionsSeparator?: boolean
+  form?: UseFormReturn<TFieldValues>
 }
 
 // Re-export for external consumers that build custom section nodes
-export type { SectionNode }
+export type { SectionNode } from '../section/types'
