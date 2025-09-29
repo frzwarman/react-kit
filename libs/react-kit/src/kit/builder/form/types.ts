@@ -36,6 +36,7 @@ export type FieldType =
   | 'date_time'
   | 'date_time_range'
   | 'file'
+  | 'hidden'
   | 'object'
   | 'array'
 

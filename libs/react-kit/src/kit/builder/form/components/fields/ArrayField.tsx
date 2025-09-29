@@ -48,7 +48,10 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
   if (field.arrayLayout === 'table') {
     const hasNested = Array.isArray(field.fields) && field.fields.length > 0
     const fFields = field.fields ?? []
-    const singleNested = hasNested && fFields.length === 1
+    const isSubFieldHidden = (subField: typeof fFields[number]) =>
+      Boolean(subField?.hidden) || subField?.type === 'hidden'
+    const visibleSubFields = fFields.filter(subField => !isSubFieldHidden(subField))
+    const singleNested = hasNested && visibleSubFields.length === 1
     const headerBg = field.arrayColors?.headerBgClass ?? 'bg-primary'
     const headerText = field.arrayColors?.headerTextClass ?? 'text-primary-foreground'
     const altRow = field.arrayColors?.rowAltBgClass ?? 'bg-muted/40'
@@ -80,9 +83,9 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
                 <TableRow className={cn(headerBg, headerText)}>
                   {hasNested ? (
                     singleNested ? (
-                      <TableHead className={cn(headerText)}>{fFields[0]?.label || 'Value'}</TableHead>
+                      <TableHead className={cn(headerText)}>{visibleSubFields[0]?.label || 'Value'}</TableHead>
                     ) : (
-                      fFields.map(sf => (
+                      visibleSubFields.map(sf => (
                         <TableHead key={sf.name} className={cn(headerText)}>{sf.label || sf.name}</TableHead>
                       ))
                     )
@@ -99,13 +102,13 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
                       singleNested ? (
                         <TableCell>
                           <FormBuilderField
-                            field={{ ...fFields[0], name: fFields[0]?.name, label: fFields[0]?.label || 'Value' }}
+                            field={{ ...visibleSubFields[0], name: visibleSubFields[0]?.name, label: visibleSubFields[0]?.label || 'Value' }}
                             control={control}
                             parentPath={`${fieldPath}.${index}`}
                           />
                         </TableCell>
                       ) : (
-                        fFields.map(subField => (
+                        visibleSubFields.map(subField => (
                           <TableCell key={subField.name}>
                             <FormBuilderField
                               field={subField}

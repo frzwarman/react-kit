@@ -66,6 +66,18 @@ export function FormBuilderField<
 
   const renderField = () => {
     switch (field.type) {
+      case 'hidden':
+        return (
+          <input
+            id={fieldPath}
+            type="hidden"
+            name={controllerField.name}
+            value={controllerField.value ?? ''}
+            onChange={(event) => handleChange(event.target.value)}
+            onBlur={controllerField.onBlur}
+            ref={controllerField.ref}
+          />
+        );
       case 'autocomplete':
         return (
           <AutocompleteField
@@ -301,6 +313,10 @@ export function FormBuilderField<
         );
     }
   };
+
+  if (field.type === 'hidden') {
+    return renderField();
+  }
 
   // For checkbox/switch, label is handled inside the specific field component
   if (field.type === 'checkbox' || field.type === 'switch') {

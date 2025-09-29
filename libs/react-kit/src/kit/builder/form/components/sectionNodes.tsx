@@ -2,6 +2,7 @@ import type { FieldValues, Path, Control, UseFormGetValues } from 'react-hook-fo
 import type { SectionNode } from '../../section/types'
 import { FormBuilderField } from './FormBuilderField'
 import type { FormBuilderFieldConfig, FormBuilderSectionConfig } from '../types'
+import { cn } from '../../../../shadcn/lib/utils'
 
 interface BuildSectionNodesOptions<TFieldValues extends FieldValues> {
   sections: Array<FormBuilderSectionConfig<TFieldValues>>
@@ -40,15 +41,18 @@ export function buildSectionNodes<TFieldValues extends FieldValues>(
     (fields ?? [])
       .map((field) => {
         const fieldState = handleFieldDependencies(field)
-        if (field.hidden || fieldState.hidden) return null
+
+        const isHiddenType = field.type === 'hidden'
+        if (!isHiddenType && (field.hidden || fieldState.hidden)) return null
+        if (fieldState.hidden) return null
 
         const spanMd = Math.max(1, Math.min(12, field.gridCols ?? 1))
 
         return {
           key: field.name,
-          span: { base: 1, md: spanMd },
-          className: field.wrapperClassName,
-          hidden: field.hidden,
+          span: isHiddenType ? undefined : { base: 1, md: spanMd },
+          className: cn(field.wrapperClassName, isHiddenType ? 'hidden' : undefined),
+          hidden: isHiddenType ? false : field.hidden,
           content: (
             <FormBuilderField
               key={field.name}

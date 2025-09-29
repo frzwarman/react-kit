@@ -5,6 +5,7 @@ import { FormBuilder } from '../../../index'
 import type { FormBuilderSectionConfig } from '../../../kit/builder/form/types'
 
 interface SplitFormValues {
+  userId: string
   firstName: string
   lastName: string
   email: string
@@ -24,6 +25,7 @@ interface SplitFormValues {
   smsOptIn: boolean
   smsFrequency?: 'daily' | 'weekly' | 'monthly'
   timezone: string
+  authorizedContacts: Array<{ contactId: string; contactName: string }>
 }
 
 const generalInfoSections: FormBuilderSectionConfig<SplitFormValues>[] = [
@@ -32,6 +34,11 @@ const generalInfoSections: FormBuilderSectionConfig<SplitFormValues>[] = [
     layout: 'grid',
     grid: { cols: 2, gap: 'gap-4' },
     fields: [
+      {
+        name: 'userId',
+        label: 'User ID',
+        type: 'hidden',
+      },
       {
         name: 'firstName',
         label: 'First name',
@@ -243,6 +250,32 @@ const preferencesSections: FormBuilderSectionConfig<SplitFormValues>[] = [
         ],
         required: true,
       },
+      {
+        name: 'authorizedContacts',
+        label: 'Authorized contacts',
+        description: 'Names remain editable while hidden IDs stay intact for submission.',
+        type: 'array',
+        arrayLayout: 'table',
+        defaultValue: [
+          { contactId: 'contact-001', contactName: 'Jane Smith' },
+          { contactId: 'contact-002', contactName: 'John Appleseed' },
+        ],
+        fields: [
+          {
+            name: 'contactId',
+            label: 'Contact ID',
+            type: 'hidden',
+            defaultValue: '',
+          },
+          {
+            name: 'contactName',
+            label: 'Name',
+            type: 'text',
+            placeholder: 'Alex Johnson',
+            required: true,
+          },
+        ],
+      },
     ],
   },
 ]
@@ -250,6 +283,7 @@ const preferencesSections: FormBuilderSectionConfig<SplitFormValues>[] = [
 const SplitFormExample = () => {
   const form = useForm<SplitFormValues>({
     defaultValues: {
+      userId: 'user-001',
       firstName: 'Jane',
       lastName: 'Doe',
       email: 'jane.doe@example.com',
@@ -269,6 +303,10 @@ const SplitFormExample = () => {
       smsFrequency: undefined,
       complianceContactEmail: '',
       timezone: 'Asia/Jakarta',
+      authorizedContacts: [
+        { contactId: 'contact-001', contactName: 'Jane Smith' },
+        { contactId: 'contact-002', contactName: 'John Appleseed' },
+      ],
     },
     mode: 'onSubmit',
   })
