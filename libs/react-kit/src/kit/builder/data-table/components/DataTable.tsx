@@ -220,11 +220,10 @@ export function DataTable<TData, TValue>({
   const renderActionButton = (action: DataTableAction, key: React.Key) => {
     if (action.element) return <React.Fragment key={key}>{action.element}</React.Fragment>;
     const content = (
-      <>
-        {action.icon && action.iconPosition !== 'right' && <span className="mr-2">{action.icon}</span>}
+      <div className="flex items-center gap-x-2">
+        {action.icon && <span className={cn(action.iconPosition === 'right' ? 'order-last' : '')}>{action.icon}</span>}
         {action.label}
-        {action.icon && action.iconPosition === 'right' && <span className="ml-2">{action.icon}</span>}
-      </>
+      </div>
     );
     return (
       <Button
@@ -244,11 +243,10 @@ export function DataTable<TData, TValue>({
     if (action.element) return <React.Fragment key={key}>{action.element}</React.Fragment>;
     const onClick = () => action.onClick?.({ selectedRows, clearSelection: () => table.resetRowSelection() });
     const content = (
-      <>
-        {action.icon && action.iconPosition !== 'right' && <span className="mr-2">{action.icon}</span>}
+      <div className="flex items-center gap-x-2">
+        {action.icon && <span className={cn(action.iconPosition === 'right' ? 'order-last' : '')}>{action.icon}</span>}
         {action.label}
-        {action.icon && action.iconPosition === 'right' && <span className="ml-2">{action.icon}</span>}
-      </>
+      </div>
     );
     return (
       <Button

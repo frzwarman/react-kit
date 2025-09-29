@@ -8,16 +8,11 @@ export function StackDialogContextProvider(props: PropsWithChildren) {
   const ids = useRef<number>(0)
 
   const handleCreateDialog = useCallback((config: StackDialogCreateConfig) => {
-    const dialogId = config.id || (ids.current++).toString();
+    const dialogId = config.id ?? (ids.current++).toString();
 
     setActiveDialogs(prev => {
       const clone = [...prev];
-      clone.push({
-        id: dialogId,
-        template: config.template,
-        closeOnEscapePressed: config.closeOnEscapePressed,
-        closeOnInteractOutside: config.closeOnInteractOutside,
-      });
+      clone.push({ ...config, id: dialogId });
       return clone;
     });
 
