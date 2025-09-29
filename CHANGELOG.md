@@ -1,3 +1,13 @@
+## 0.0.17 (2025-09-29)
+
+### 🚀 Features
+
+- add hidden field type support for form builder
+
+### ❤️ Thank You
+
+- Labib
+
 ## 0.0.16 (2025-09-28)
 
 This was a version bump only, there were no code changes.
