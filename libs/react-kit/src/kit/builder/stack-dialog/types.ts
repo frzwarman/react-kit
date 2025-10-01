@@ -10,6 +10,7 @@ export type StackDialogContextInstance = {
 export type StackDialogInstance = {
   id: string,
   template: ReactNode,
+  dialogContentClassName?: string,
   onInterruptClosing?: () => boolean,
   closeOnInteractOutside?: boolean,
   closeOnEscapePressed?: boolean,
@@ -26,6 +27,8 @@ export type StackDialogCreateConfig = {
   closeOnInteractOutside?: boolean,
   /** Allow closing the dialog by pressing Escape key. */
   closeOnEscapePressed?: boolean,
+  /** Classname for DialogContent */
+  dialogContentClassName?: string,
 };
 
 export type StackDialogHook = Omit<StackDialogContextInstance, "activeDialogs">

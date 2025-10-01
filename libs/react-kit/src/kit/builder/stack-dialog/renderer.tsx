@@ -1,3 +1,4 @@
+import { cn } from '../../../shadcn/lib/utils';
 import { Dialog, DialogContent } from '../../../shadcn/ui/dialog';
 import { StackDialogInstance } from './types';
 
@@ -22,6 +23,7 @@ export function StackDialogRenderer(props: {
         key={dialog.id}
       >
         <DialogContent
+          className={cn("w-auto min-w-[300px]", dialog.dialogContentClassName)}
           onEscapeKeyDown={e => {
             if (dialog.closeOnEscapePressed === false) e.preventDefault();
           }}
