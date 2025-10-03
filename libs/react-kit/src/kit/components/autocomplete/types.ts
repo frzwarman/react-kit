@@ -7,7 +7,7 @@ export type AutocompleteOption<T = unknown> = {
 
 export type AutocompleteFetchParams = {
   search: string
-  moreFilter?: Record<string, string | number | boolean>,
+  moreFilter?: () => Record<string, string | number | boolean>,
   cursor?: string | number | null
   page: number
   pageSize: number

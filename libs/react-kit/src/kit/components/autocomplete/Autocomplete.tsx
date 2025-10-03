@@ -208,7 +208,7 @@ export function Autocomplete<T = unknown>({
 			try {
 				const res: AutocompleteFetchResult<T> = await fetcher({
 					search: debouncedSearch,
-					moreFilter: fetcherFilter?.(),
+					moreFilter: fetcherFilter,
 					cursor: nextCursor ?? null,
 					page,
 					pageSize,
