@@ -36,7 +36,7 @@ export type AutocompleteProps<T = unknown> = {
 	mode: AutocompleteMode;
 	options?: AutocompleteOption<T>[];
 	fetcher?: AutocompleteFetcher<T>;
-	fetcherFilter?: Record<string, string | number | boolean>,
+	fetcherFilter?: () => Record<string, string | number | boolean>,
 	pageSize?: number;
 	/**
 	 * Value can be a single primitive or an array when `multiple` is true
@@ -208,7 +208,7 @@ export function Autocomplete<T = unknown>({
 			try {
 				const res: AutocompleteFetchResult<T> = await fetcher({
 					search: debouncedSearch,
-					moreFilter: fetcherFilter,
+					moreFilter: fetcherFilter?.(),
 					cursor: nextCursor ?? null,
 					page,
 					pageSize,
