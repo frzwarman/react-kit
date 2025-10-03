@@ -39,6 +39,7 @@ export type FieldType =
   | 'hidden'
   | 'object'
   | 'array'
+  | 'custom_field'
 
 export interface Dependency<TFieldValues extends FieldValues> {
   field: Path<TFieldValues>
@@ -62,6 +63,7 @@ export interface FormBuilderFieldConfig<
   options?: { label: string; value: string | number | null }[]
   autocompleteMode?: 'client' | 'server'
   fetcher?: AutocompleteFetcher
+  fetcherFilter?: Record<string, string | number | boolean>
   pageSize?: number
   searchPlaceholder?: string
   renderOption?: (option: AutocompleteOption, selected: boolean) => React.ReactNode
@@ -145,6 +147,13 @@ export interface FormBuilderFieldConfig<
   fileOnRemove?: (file: FileRecord) => void | Promise<void>
   fileOnRetry?: (file: FileRecord) => void
   fileOnRetryAll?: (files: FileRecord[]) => void
+  customRender?: (fieldControl: {
+    field: FormBuilderFieldConfig<TFieldValues, string>,
+    fieldPath: string,
+    control: Control<TFieldValues>,
+    value: TFieldValues,
+    handleChange: (value: unknown, ...extras: unknown[]) => void,
+  }) => React.ReactNode
 }
 
 export interface FormBuilderSectionConfig<TFieldValues extends FieldValues = FieldValues> {

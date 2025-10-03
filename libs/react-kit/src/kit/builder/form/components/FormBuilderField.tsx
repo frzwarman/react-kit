@@ -300,6 +300,14 @@ export function FormBuilderField<
             className={baseClassName}
           />
         );
+      case 'custom_field':
+        return field.customRender?.({
+          field,
+          fieldPath,
+          control,
+          value: controllerField.value,
+          handleChange
+        });
       default:
         return (
           <TextField

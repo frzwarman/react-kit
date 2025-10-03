@@ -32,6 +32,7 @@ export function AutocompleteField({ field, value, onChange, className }: FieldRe
       mode={field.autocompleteMode ?? 'client'}
       options={options}
       fetcher={field.fetcher}
+      fetcherFilter={field.fetcherFilter}
       pageSize={field.pageSize}
       multiple={field.multiple}
       allowCustomValue={field.allowCustomValue}

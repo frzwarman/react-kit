@@ -36,6 +36,7 @@ export type AutocompleteProps<T = unknown> = {
 	mode: AutocompleteMode;
 	options?: AutocompleteOption<T>[];
 	fetcher?: AutocompleteFetcher<T>;
+	fetcherFilter?: Record<string, string | number | boolean>,
 	pageSize?: number;
 	/**
 	 * Value can be a single primitive or an array when `multiple` is true
@@ -96,6 +97,7 @@ export function Autocomplete<T = unknown>({
 	mode,
 	options = EMPTY_OPTIONS as AutocompleteOption<T>[],
 	fetcher,
+	fetcherFilter,
 	pageSize = DEFAULT_PAGE_SIZE,
 	value: controlledValue,
 	onChange,
@@ -206,6 +208,7 @@ export function Autocomplete<T = unknown>({
 			try {
 				const res: AutocompleteFetchResult<T> = await fetcher({
 					search: debouncedSearch,
+					moreFilter: fetcherFilter,
 					cursor: nextCursor ?? null,
 					page,
 					pageSize,
@@ -222,8 +225,8 @@ export function Autocomplete<T = unknown>({
 			try {
 				const filtered = debouncedSearch
 					? options.filter((o) =>
-							o.label.toLowerCase().includes(debouncedSearch.toLowerCase()),
-						)
+						o.label.toLowerCase().includes(debouncedSearch.toLowerCase()),
+					)
 					: options;
 				const start = (page - 1) * pageSize;
 				const slice = filtered.slice(start, start + pageSize);
@@ -234,7 +237,7 @@ export function Autocomplete<T = unknown>({
 				setLoading(false);
 			}
 		}
-	}, [mode, fetcher, debouncedSearch, nextCursor, page, pageSize, options]);
+	}, [mode, fetcher, fetcherFilter, debouncedSearch, nextCursor, page, pageSize, options]);
 
 	// Keep a ref to latest load() to avoid stale closures
 	const loadRef = useRef(load);
@@ -295,8 +298,8 @@ export function Autocomplete<T = unknown>({
 		const curValues: Array<string | number> = Array.isArray(value)
 			? (isMultiple ? (value as Array<string | number>) : [])
 			: value !== null && value !== undefined
-			? [value as string | number]
-			: [];
+				? [value as string | number]
+				: [];
 		if (curValues.length === 0) return;
 		const missing = curValues.filter(
 			(v) => !labelMapRef.current.has(v) && !options.some((o) => o.value === v),
@@ -441,44 +444,44 @@ export function Autocomplete<T = unknown>({
 							>
 								{selectedOptionsMulti.length > 0
 									? selectedOptionsMulti.map((opt) => (
-											<Badge
-												key={`${opt.value}`}
-												variant={chipVariant}
-												className={cn("pr-1", chipClassName)}
+										<Badge
+											key={`${opt.value}`}
+											variant={chipVariant}
+											className={cn("pr-1", chipClassName)}
+										>
+											<span className="truncate max-w-[10rem]">
+												{opt.label}
+											</span>
+											<button
+												type="button"
+												aria-label={`Remove ${opt.label}`}
+												className="ml-1 inline-flex items-center rounded-sm hover:bg-black/5 dark:hover:bg-white/10"
+												onMouseDown={(e) => {
+													e.preventDefault();
+													e.stopPropagation();
+												}}
+												onClick={(e) => {
+													e.preventDefault();
+													e.stopPropagation();
+													const prevValues = Array.isArray(value)
+														? value
+														: [];
+													const newValues = prevValues.filter(
+														(v) => v !== opt.value,
+													);
+													if (controlledValue === undefined)
+														setValue(newValues);
+													const newOptions = newValues.map((v) => ({
+														value: v,
+														label: getLabel(v),
+													}));
+													onChange?.(newValues, newOptions);
+												}}
 											>
-												<span className="truncate max-w-[10rem]">
-													{opt.label}
-												</span>
-												<button
-													type="button"
-													aria-label={`Remove ${opt.label}`}
-													className="ml-1 inline-flex items-center rounded-sm hover:bg-black/5 dark:hover:bg-white/10"
-													onMouseDown={(e) => {
-														e.preventDefault();
-														e.stopPropagation();
-													}}
-													onClick={(e) => {
-														e.preventDefault();
-														e.stopPropagation();
-														const prevValues = Array.isArray(value)
-															? value
-															: [];
-														const newValues = prevValues.filter(
-															(v) => v !== opt.value,
-														);
-														if (controlledValue === undefined)
-															setValue(newValues);
-														const newOptions = newValues.map((v) => ({
-															value: v,
-															label: getLabel(v),
-														}));
-														onChange?.(newValues, newOptions);
-													}}
-												>
-													<X className="h-3 w-3" />
-												</button>
-											</Badge>
-										))
+												<X className="h-3 w-3" />
+											</button>
+										</Badge>
+									))
 									: null}
 								{allowCustomValue ? (
 									<input
@@ -530,11 +533,11 @@ export function Autocomplete<T = unknown>({
 							</span>
 						)}
 						{clearable &&
-						((isMultiple && selectedOptionsMulti.length > 0) ||
-							(!isMultiple &&
-								value !== null &&
-								value !== undefined &&
-								!Array.isArray(value))) ? (
+							((isMultiple && selectedOptionsMulti.length > 0) ||
+								(!isMultiple &&
+									value !== null &&
+									value !== undefined &&
+									!Array.isArray(value))) ? (
 							<button
 								type="button"
 								aria-label="Clear selection"
@@ -594,42 +597,42 @@ export function Autocomplete<T = unknown>({
 						>
 							{selectedOptionsMulti.length > 0
 								? selectedOptionsMulti.map((opt) => (
-										<Badge
-											key={`${opt.value}`}
-											variant={chipVariant}
-											className={cn("pr-1", chipClassName)}
+									<Badge
+										key={`${opt.value}`}
+										variant={chipVariant}
+										className={cn("pr-1", chipClassName)}
+									>
+										<span className="truncate max-w-[10rem]">
+											{opt.label}
+										</span>
+										<button
+											type="button"
+											aria-label={`Remove ${opt.label}`}
+											className="ml-1 inline-flex items-center rounded-sm hover:bg-black/5 dark:hover:bg-white/10"
+											onMouseDown={(e) => {
+												e.preventDefault();
+												e.stopPropagation();
+											}}
+											onClick={(e) => {
+												e.preventDefault();
+												e.stopPropagation();
+												const prevValues = Array.isArray(value) ? value : [];
+												const newValues = prevValues.filter(
+													(v) => v !== opt.value,
+												);
+												if (controlledValue === undefined)
+													setValue(newValues);
+												const newOptions = newValues.map((v) => ({
+													value: v,
+													label: getLabel(v),
+												}));
+												onChange?.(newValues, newOptions);
+											}}
 										>
-											<span className="truncate max-w-[10rem]">
-												{opt.label}
-											</span>
-											<button
-												type="button"
-												aria-label={`Remove ${opt.label}`}
-												className="ml-1 inline-flex items-center rounded-sm hover:bg-black/5 dark:hover:bg-white/10"
-												onMouseDown={(e) => {
-													e.preventDefault();
-													e.stopPropagation();
-												}}
-												onClick={(e) => {
-													e.preventDefault();
-													e.stopPropagation();
-													const prevValues = Array.isArray(value) ? value : [];
-													const newValues = prevValues.filter(
-														(v) => v !== opt.value,
-													);
-													if (controlledValue === undefined)
-														setValue(newValues);
-													const newOptions = newValues.map((v) => ({
-														value: v,
-														label: getLabel(v),
-													}));
-													onChange?.(newValues, newOptions);
-												}}
-											>
-												<X className="h-3 w-3" />
-											</button>
-										</Badge>
-									))
+											<X className="h-3 w-3" />
+										</button>
+									</Badge>
+								))
 								: null}
 							{allowCustomValue ? (
 								<input
@@ -678,11 +681,11 @@ export function Autocomplete<T = unknown>({
 						</span>
 					)}
 					{clearable &&
-					((isMultiple && selectedOptionsMulti.length > 0) ||
-						(!isMultiple &&
-							value !== null &&
-							value !== undefined &&
-							!Array.isArray(value))) ? (
+						((isMultiple && selectedOptionsMulti.length > 0) ||
+							(!isMultiple &&
+								value !== null &&
+								value !== undefined &&
+								!Array.isArray(value))) ? (
 						<button
 							type="button"
 							aria-label="Clear selection"
