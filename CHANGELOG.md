@@ -1,3 +1,17 @@
+## 0.0.19 (2025-10-03)
+
+### 🚀 Features
+
+- add custom field to FormBuilder and more filter in autocomplete
+
+### 🩹 Fixes
+
+- autocomplete more filter function call
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+
 ## 0.0.18 (2025-10-01)
 
 This was a version bump only, there were no code changes.
