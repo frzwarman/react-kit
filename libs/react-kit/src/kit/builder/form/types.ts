@@ -14,6 +14,7 @@ import type { Accept } from 'react-dropzone'
 import type { SectionFlexOptions, SectionGridOptions, SectionLayout } from '../section/types'
 import type { AutocompleteFetcher, AutocompleteOption } from '../../components/autocomplete/types'
 import type { FileRecord, FileUploaderLayout } from '../../components/fileuploader/types'
+import { ReactNode } from 'react'
 
 export type FieldType =
   | 'text'
@@ -171,7 +172,7 @@ export interface FormBuilderSectionConfig<TFieldValues extends FieldValues = Fie
   hidden?: boolean
   tabs?: Array<{
     id: string
-    label: React.ReactNode
+    label: ReactNode,
     sections: Array<FormBuilderSectionConfig<TFieldValues>>
     className?: string
     contentClassName?: string
