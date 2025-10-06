@@ -63,7 +63,7 @@ export interface FormBuilderFieldConfig<
   options?: { label: string; value: string | number | null }[]
   autocompleteMode?: 'client' | 'server'
   fetcher?: AutocompleteFetcher
-  fetcherFilter?: () => Record<string, string | number | boolean>
+  fetcherFilter?: () => Record<string, string | number | boolean | null>
   pageSize?: number
   searchPlaceholder?: string
   renderOption?: (option: AutocompleteOption, selected: boolean) => React.ReactNode

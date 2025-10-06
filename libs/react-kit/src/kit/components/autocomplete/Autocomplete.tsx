@@ -36,7 +36,7 @@ export type AutocompleteProps<T = unknown> = {
 	mode: AutocompleteMode;
 	options?: AutocompleteOption<T>[];
 	fetcher?: AutocompleteFetcher<T>;
-	fetcherFilter?: () => Record<string, string | number | boolean>,
+	fetcherFilter?: () => Record<string, string | number | boolean | null>,
 	pageSize?: number;
 	/**
 	 * Value can be a single primitive or an array when `multiple` is true
