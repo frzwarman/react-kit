@@ -48,6 +48,9 @@ export type FileUploaderProps = {
   onUploadError?: (file: FileRecord, error: unknown) => void;
   /** Called when a file is removed (useful to delete from server) */
   onRemove?: (file: FileRecord) => void | Promise<void>;
+
+  /** Allow retrying errored uploads */
+  withRetry?: boolean;
   /** Called when user retries an errored file upload */
   onRetry?: (file: FileRecord) => void;
   /** Called when user retries all failed uploads at once */

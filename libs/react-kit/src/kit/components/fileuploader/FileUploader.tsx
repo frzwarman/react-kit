@@ -45,12 +45,12 @@ function isImageType(type?: string, name?: string) {
 function pickIconByType(type?: string, name?: string) {
   const t = (type || "").toLowerCase();
   const ext = (name?.split(".").pop() || "").toLowerCase();
-  if (t.startsWith("image/") || ["png","jpg","jpeg","webp","gif","bmp","svg","heic","heif"].includes(ext)) return <ImageIcon className="h-8 w-8" />;
-  if (t.startsWith("video/") || ["mp4","mov","webm","mkv"].includes(ext)) return <Video className="h-8 w-8" />;
-  if (t.startsWith("audio/") || ["mp3","wav","aac","flac"].includes(ext)) return <Music className="h-8 w-8" />;
-  if (["zip","rar","7z","tar","gz"].includes(ext)) return <Archive className="h-8 w-8" />;
-  if (["txt","md","rtf"].includes(ext)) return <FileText className="h-8 w-8" />;
-  if (["js","ts","tsx","json","yml","yaml","xml","html","css"].includes(ext)) return <FileCode className="h-8 w-8" />;
+  if (t.startsWith("image/") || ["png", "jpg", "jpeg", "webp", "gif", "bmp", "svg", "heic", "heif"].includes(ext)) return <ImageIcon className="h-8 w-8" />;
+  if (t.startsWith("video/") || ["mp4", "mov", "webm", "mkv"].includes(ext)) return <Video className="h-8 w-8" />;
+  if (t.startsWith("audio/") || ["mp3", "wav", "aac", "flac"].includes(ext)) return <Music className="h-8 w-8" />;
+  if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return <Archive className="h-8 w-8" />;
+  if (["txt", "md", "rtf"].includes(ext)) return <FileText className="h-8 w-8" />;
+  if (["js", "ts", "tsx", "json", "yml", "yaml", "xml", "html", "css"].includes(ext)) return <FileCode className="h-8 w-8" />;
   return <FileIcon className="h-8 w-8" />;
 }
 
@@ -75,6 +75,7 @@ export function FileUploader({
   onUploadSuccess,
   onUploadError,
   onRemove,
+  withRetry = true,
   onRetry,
   onRetryAll,
   multiple = true,
@@ -114,7 +115,7 @@ export function FileUploader({
     [onChange],
   );
 
-  
+
 
   useEffect(() => {
     if (isControlled && value) setFiles(value);
@@ -440,46 +441,48 @@ export function FileUploader({
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleRetryAll}
-              disabled={
-                !!disabled || !uploader || files.every((f) => f.status !== "error" || !f.file)
-              }
-            >
-              <RotateCcw className="mr-1 h-4 w-4" /> Retry failed
-            </Button>
-          </div>
+          {withRetry && (
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleRetryAll}
+                disabled={
+                  !!disabled || !uploader || files.every((f) => f.status !== "error" || !f.file)
+                }
+              >
+                <RotateCcw className="mr-1 h-4 w-4" /> Retry failed
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
       <TooltipProvider>
-      <div
-        className={cn(
-          layout === "grid"
-            ? "flex flex-wrap gap-3"
-            : "flex flex-col gap-2",
-        )}
-      >
-        {files.length === 0 ? (
-          <div className="text-sm text-muted-foreground">No files</div>
-        ) : (
-          files.map((fr, i) => (
-            <FileItem
-              key={`${fr.name}-${i}`}
-              fr={fr}
-              idx={i}
-              layout={layout}
-              withDownload={withDownload}
-              uploaderPresent={!!uploader}
-              onRemove={onRemoveAt}
-              onRetry={onRetryAt}
-            />
-          ))
-        )}
-      </div>
+        <div
+          className={cn(
+            layout === "grid"
+              ? "flex flex-wrap gap-3"
+              : "flex flex-col gap-2",
+          )}
+        >
+          {files.length === 0 ? (
+            <div className="text-sm text-muted-foreground">No files</div>
+          ) : (
+            files.map((fr, i) => (
+              <FileItem
+                key={`${fr.name}-${i}`}
+                fr={fr}
+                idx={i}
+                layout={layout}
+                withDownload={withDownload}
+                uploaderPresent={!!uploader}
+                onRemove={onRemoveAt}
+                onRetry={onRetryAt}
+              />
+            ))
+          )}
+        </div>
       </TooltipProvider>
     </div>
   );
