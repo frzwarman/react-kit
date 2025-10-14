@@ -97,6 +97,9 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
           case 'switch':
             baseSchema = z.boolean();
             break;
+          case 'custom_field':
+            baseSchema = z.any();
+          break;
           default:
             baseSchema = z.string();
         }
@@ -255,6 +258,9 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
           } else {
             fieldSchema = z.array(z.unknown());
           }
+          break;
+        case 'custom_field':
+          fieldSchema = z.any();
           break;
         default:
           fieldSchema = z.any();
