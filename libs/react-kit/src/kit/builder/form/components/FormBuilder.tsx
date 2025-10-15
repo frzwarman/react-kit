@@ -263,7 +263,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
           fieldSchema = z.any();
           break;
         default:
-          fieldSchema = z.any();
+          fieldSchema = z.string();
       }
 
       return field.required ? fieldSchema : fieldSchema.optional();
