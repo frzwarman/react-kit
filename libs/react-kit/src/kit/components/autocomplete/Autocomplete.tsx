@@ -394,6 +394,11 @@ export function Autocomplete<T = unknown>({
 	const parentRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
+	// Stable ref callback for merging Downshift's ref with our parentRef
+	const menuRefCallback = useCallback((node: HTMLDivElement | null) => {
+		parentRef.current = node;
+	}, []);
+
 	const handleScroll = useCallback(() => {
 		if (!parentRef.current || !hasMore || loading) return;
 		
@@ -490,8 +495,9 @@ export function Autocomplete<T = unknown>({
 				onOpenAutoFocus={(e) => e.preventDefault()}
 			>
 				<div
-					{...getMenuProps()}
-					ref={parentRef}
+					{...getMenuProps({
+						ref: menuRefCallback
+					})}
 					className="max-h-[300px] overflow-auto"
 				>
 						{loading && items.length === 0 ? (
