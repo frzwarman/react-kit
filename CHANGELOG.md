@@ -1,3 +1,19 @@
+## 0.0.23 (2025-10-16)
+
+### 🚀 Features
+
+- add custom field to FormBuilder and more filter in autocomplete
+- add validation for custom_field type
+
+### 🩹 Fixes
+
+- autocomplete more filter function call
+- change default field validation back to string
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+
 ## 0.0.22 (2025-10-16)
 
 ### 🚀 Features
