@@ -1,3 +1,17 @@
+## 0.0.22 (2025-10-16)
+
+### 🚀 Features
+
+- add validation for custom_field type
+
+### 🩹 Fixes
+
+- change default field validation back to string
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+
 ## 0.0.21 (2025-10-09)
 
 This was a version bump only, there were no code changes.
