@@ -61,7 +61,7 @@ export interface FormBuilderFieldConfig<
   description?: string
   required?: boolean
   disabled?: boolean
-  options?: { label: string; value: string | number | null }[]
+  options?: { label: string; value: string | number | boolean | null }[]
   autocompleteMode?: 'client' | 'server'
   fetcher?: AutocompleteFetcher
   fetcherFilter?: () => Record<string, string | number | boolean | null>
