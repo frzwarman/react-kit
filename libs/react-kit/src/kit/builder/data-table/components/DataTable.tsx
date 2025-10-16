@@ -270,10 +270,10 @@ export function DataTable<TData, TValue>({
     <div className={cn('space-y-3', className)}>
       {formFilters && formFilters.length ? (
         effectiveFilterWrapper === 'accordion' ? (
-          <div className="rounded-md border">
+          <div className="rounded-md border border-border">
             <Accordion type="single" collapsible className="w-full" defaultValue="filters">
               <AccordionItem value="filters">
-                <AccordionTrigger className="px-4 py-3 border-b text-md">{effectiveFilterTitle}</AccordionTrigger>
+                <AccordionTrigger className="px-4 py-3 border-b border-border text-md">{effectiveFilterTitle}</AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-5">
                   <FormBuilder
                     key={JSON.stringify(formFilterValues ?? {})}
@@ -291,7 +291,7 @@ export function DataTable<TData, TValue>({
             </Accordion>
           </div>
         ) : effectiveFilterWrapper === 'card' ? (
-          <div className="rounded-md border p-4">
+          <div className="rounded-md border border-border p-4">
             <FormBuilder
               key={JSON.stringify(formFilterValues ?? {})}
               sections={formFilters as FormBuilderSectionConfig[]}
@@ -346,7 +346,7 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
       )}
-      <div className="relative overflow-hidden rounded-md border" aria-busy={loading || undefined}>
+      <div className="relative overflow-hidden rounded-md border border-border" aria-busy={loading || undefined}>
         {loading && (
           <div className="pointer-events-none absolute inset-0 z-10 flex items-start justify-end p-2">
             <span className="inline-flex items-center gap-2 rounded bg-background/80 px-2 py-1 text-xs shadow-sm ring-1 ring-border">
