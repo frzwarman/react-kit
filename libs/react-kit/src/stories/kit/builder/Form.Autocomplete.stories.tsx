@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { FormBuilder, type FormBuilderProps } from '../../../kit/builder/form/components/FormBuilder'
+import { FormBuilder } from '../../../kit/builder/form/components/FormBuilder'
+import { type FormBuilderProps } from '../../../kit/builder/form/types'
 
 const meta: Meta<typeof FormBuilder> = {
   title: 'Kit/Builder/Form',
@@ -42,7 +43,6 @@ export const SingleAutocomplete: Story = {
             label: 'City',
             type: 'autocomplete',
             placeholder: 'Select a city...',
-            searchPlaceholder: 'Search cities...',
             autocompleteMode: 'client',
             options: CITY_OPTIONS,
             clearable: true,
@@ -149,7 +149,6 @@ export const MultiAutocompleteChips: Story = {
             label: 'Cities',
             type: 'autocomplete',
             placeholder: 'Select cities...',
-            searchPlaceholder: 'Type to search cities...',
             autocompleteMode: 'client',
             options: CITY_OPTIONS,
             multiple: true,
@@ -186,7 +185,6 @@ export const TaggingAutocomplete: Story = {
             label: 'Tags',
             type: 'autocomplete',
             placeholder: 'Type and press Enter to add tags',
-            searchPlaceholder: 'Type a tag and press Enter',
             autocompleteMode: 'client',
             options: [],
             multiple: true,

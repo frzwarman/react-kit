@@ -1,806 +1,553 @@
-import type React from "react";
-import {
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-	useId,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCombobox } from "downshift";
+import { useDebounce } from "use-debounce";
 import { cn } from "../../../shadcn/lib/utils";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "../../../shadcn/ui/popover";
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-	CommandSeparator,
-} from "../../../shadcn/ui/command";
-import { ChevronsUpDown, Check, Loader2, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "../../../shadcn/ui/popover";
 import { Badge } from "../../../shadcn/ui/badge";
+import { ChevronsUpDown, X, Check, Loader2 } from "lucide-react";
 import type {
 	AutocompleteFetcher,
 	AutocompleteMode,
 	AutocompleteOption,
 	AutocompleteFetchResult,
 } from "./types";
-import { useDebounce } from "use-debounce";
 
 export type AutocompleteProps<T = unknown> = {
 	mode: AutocompleteMode;
 	options?: AutocompleteOption<T>[];
 	fetcher?: AutocompleteFetcher<T>;
-	fetcherFilter?: () => Record<string, string | number | boolean | null>,
+	fetcherFilter?: () => Record<string, string | number | boolean | null>;
 	pageSize?: number;
-	/**
-	 * Value can be a single primitive or an array when `multiple` is true
-	 */
 	value?: string | number | null | Array<string | number>;
-	/**
-	 * onChange returns a single value + option in single mode, or an array of values + options in multiple mode
-	 */
 	onChange?: (
 		value: string | number | null | Array<string | number>,
-		option: AutocompleteOption<T> | AutocompleteOption<T>[] | null,
+		selected: AutocompleteOption<T> | AutocompleteOption<T>[] | null,
 		raw?: T | T[] | null,
 	) => void;
-	/** Enable selecting multiple values (shows chips) */
-	multiple?: boolean;
-	/** Placeholder shown when nothing is selected */
 	placeholder?: string;
 	disabled?: boolean;
+	multiple?: boolean;
 	className?: string;
-	emptyText?: string;
-	renderOption?: (
-		option: AutocompleteOption<T>,
-		selected: boolean,
-	) => React.ReactNode;
-	searchPlaceholder?: string;
-	/** Controls initial open state; component is uncontrolled otherwise */
-	defaultOpen?: boolean;
-	/** Initial value when component is uncontrolled */
-	defaultValue?: string | number | null | Array<string | number>;
-	/** Allow entering custom values not present in options (useful for tagging) */
-	allowCustomValue?: boolean;
-	/**
-	 * Chip visual style for multiple selection. Uses shadcn Badge variants.
-	 * default | secondary | destructive | outline
-	 */
 	chipVariant?: "default" | "secondary" | "destructive" | "outline";
-	/** Additional className for each chip */
 	chipClassName?: string;
-	/** Show a clear button when a selection exists */
+	emptyText?: string;
+	renderOption?: (option: AutocompleteOption<T>, selected: boolean) => React.ReactNode;
+	defaultOpen?: boolean;
+	defaultValue?: string | number | null | Array<string | number>;
+	allowCustomValue?: boolean;
 	clearable?: boolean;
-	/**
-	 * Optional: seed selected labels for edit pages. These options are only used to populate the
-	 * internal label map so labels render correctly when values are prefilled.
-	 */
-	initialSelectedOptions?: AutocompleteOption<T> | AutocompleteOption<T>[] | null;
-	/**
-	 * Optional: load labels/options for a list of values whose labels are unknown.
-	 * Useful for edit pages in server mode when only values are available.
-	 */
+	initialSelectedOptions?: AutocompleteOption<T> | AutocompleteOption<T>[];
 	loadSelected?: (values: Array<string | number>) => Promise<AutocompleteOption<T>[]>;
 };
 
-const DEFAULT_PAGE_SIZE = 20;
-
-const EMPTY_OPTIONS: AutocompleteOption[] = [];
+const DEFAULT_PAGE_SIZE = 50;
 
 export function Autocomplete<T = unknown>({
-	mode,
-	options = EMPTY_OPTIONS as AutocompleteOption<T>[],
+	mode = "client",
+	options = [],
 	fetcher,
 	fetcherFilter,
 	pageSize = DEFAULT_PAGE_SIZE,
 	value: controlledValue,
 	onChange,
+	placeholder = "Search or select...",
+	disabled = false,
 	multiple = false,
-	placeholder = "Select...",
-	disabled,
 	className,
+	chipVariant = "secondary",
+	chipClassName,
 	emptyText = "No results found",
 	renderOption,
-	searchPlaceholder = "Search...",
 	defaultOpen,
 	defaultValue,
 	allowCustomValue = false,
-	chipVariant = "secondary",
-	chipClassName,
 	clearable = true,
 	initialSelectedOptions,
 	loadSelected,
 }: AutocompleteProps<T>) {
-	const [open, setOpen] = useState<boolean>(!!defaultOpen);
-	const [search, setSearch] = useState("");
-	const [debouncedSearch] = useDebounce(search, 250);
-	const listId = useId();
-
-	// Selection
 	const isMultiple = !!multiple;
-	const [value, setValue] = useState<
-		string | number | null | Array<string | number>
-	>(() => {
-		if (controlledValue !== undefined) return controlledValue;
+	const isControlled = controlledValue !== undefined;
+
+	// Internal value state
+	const [internalValue, setInternalValue] = useState<string | number | null | Array<string | number>>(() => {
 		if (defaultValue !== undefined) return defaultValue;
 		return isMultiple ? [] : null;
 	});
-	useEffect(() => {
-		if (controlledValue !== undefined) setValue(controlledValue);
-	}, [controlledValue]);
 
-	// Keep a map of value -> label to ensure we can render chips/labels even if the option
-	// is not present in the current page (especially in server mode or for custom values)
+	const currentValue = isControlled ? controlledValue : internalValue;
+
+	// Label and raw data maps
 	const labelMapRef = useRef<Map<string | number, string>>(new Map());
 	const rawMapRef = useRef<Map<string | number, T>>(new Map());
-	const addToLabelMap = useCallback((opt: AutocompleteOption<T>) => {
+
+	const storeOption = useCallback((opt: AutocompleteOption<T>) => {
 		labelMapRef.current.set(opt.value, opt.label);
-		if (Object.prototype.hasOwnProperty.call(opt, "raw") && (opt as AutocompleteOption<T>).raw !== undefined) {
-			rawMapRef.current.set(opt.value, (opt as AutocompleteOption<T>).raw as T);
+		if (opt.raw !== undefined) {
+			rawMapRef.current.set(opt.value, opt.raw);
 		}
 	}, []);
-	// Tick to force re-render when labels hydrate via async
-	const [labelTick, setLabelTick] = useState(0);
-	const getLabel = useCallback(
-		(v: string | number) =>
-			labelMapRef.current.get(v) ??
-			options.find((o) => o.value === v)?.label ??
-			(loadSelected ? "Loading..." : String(v)),
-		[options, loadSelected],
-	);
 
-	const handleSelect = useCallback(
-		(next: AutocompleteOption<T>) => {
-			addToLabelMap(next);
-			if (isMultiple) {
-				const prevValues = Array.isArray(value) ? value : [];
-				const exists = prevValues.some((v) => v === next.value);
-				const newValues = exists
-					? prevValues.filter((v) => v !== next.value)
-					: [...prevValues, next.value];
-
-				if (controlledValue === undefined) setValue(newValues);
-				const selectedOptions: AutocompleteOption<T>[] = newValues.map((v) => ({
-					value: v,
-					label: getLabel(v),
-					raw: rawMapRef.current.get(v),
-				}));
-				const raws = selectedOptions.map((o) => o.raw as T);
-				onChange?.(newValues, selectedOptions, raws);
-				// Keep open for multi-select
-			} else {
-				const newValue = next.value;
-				if (controlledValue === undefined) setValue(newValue);
-				onChange?.(newValue, next, (next as AutocompleteOption<T>).raw as T | undefined ?? null);
-				setOpen(false);
+	// Immediately populate labels for initial values (runs once on mount)
+	if (labelMapRef.current.size === 0 && currentValue) {
+		const values = Array.isArray(currentValue) ? currentValue : [currentValue];
+		// First, store initialSelectedOptions if provided
+		if (initialSelectedOptions) {
+			const arr = Array.isArray(initialSelectedOptions) ? initialSelectedOptions : [initialSelectedOptions];
+			arr.forEach(opt => {
+				labelMapRef.current.set(opt.value, opt.label);
+				if (opt.raw !== undefined) {
+					rawMapRef.current.set(opt.value, opt.raw);
+				}
+			});
+		}
+		// Then look up missing values in options array
+		values.forEach(val => {
+			if (!labelMapRef.current.has(val)) {
+				const option = options.find(opt => opt.value === val);
+				if (option) {
+					labelMapRef.current.set(option.value, option.label);
+					if (option.raw !== undefined) {
+						rawMapRef.current.set(option.value, option.raw);
+					}
+				}
 			}
-		},
-		[addToLabelMap, controlledValue, getLabel, isMultiple, onChange, value],
-	);
+		});
+	}
 
-	// Data state (shared for both modes)
+	// Data state
 	const [items, setItems] = useState<AutocompleteOption<T>[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [hasMore, setHasMore] = useState(false);
-	const [nextCursor, setNextCursor] = useState<
-		string | number | null | undefined
-	>(undefined);
 	const [page, setPage] = useState(1);
+	const [searchInput, setSearchInput] = useState("");
+	const [debouncedSearch] = useDebounce(searchInput, 300);
+	const [clearCounter, setClearCounter] = useState(0);
 
-	const resetData = useCallback(() => {
-		setItems([]);
-		setHasMore(false);
-		setNextCursor(undefined);
-		setPage(1);
-	}, []);
+	// Popover state
+	const [isOpen, setIsOpen] = useState(!!defaultOpen);
+
+	// Clear input in multiple mode after selection
+	useEffect(() => {
+		if (clearCounter > 0) {
+			setSearchInput("");
+		}
+	}, [clearCounter]);
 
 	// Load data
-	const load = useCallback(async () => {
-		if (mode === "server") {
-			if (!fetcher) return;
-			setLoading(true);
-			try {
-				const res: AutocompleteFetchResult<T> = await fetcher({
-					search: debouncedSearch,
-					moreFilter: fetcherFilter,
-					cursor: nextCursor ?? null,
-					page,
-					pageSize,
-				});
-				setItems((prev) => (page === 1 ? res.items : [...prev, ...res.items]));
-				setHasMore(!!res.hasMore);
-				setNextCursor(res.nextCursor);
-			} finally {
-				setLoading(false);
-			}
-		} else {
-			// client mode: filter and paginate locally
-			setLoading(true);
-			try {
-				const filtered = debouncedSearch
-					? options.filter((o) =>
-						o.label.toLowerCase().includes(debouncedSearch.toLowerCase()),
-					)
+	const loadData = useCallback(
+		async (pageNum: number, search: string) => {
+			if (mode === "server") {
+				if (!fetcher) return;
+				setLoading(true);
+				try {
+					const res: AutocompleteFetchResult<T> = await fetcher({
+						search,
+						moreFilter: fetcherFilter,
+						cursor: null,
+						page: pageNum,
+						pageSize,
+					});
+					res.items.forEach(storeOption);
+					setItems((prev) => (pageNum === 1 ? res.items : [...prev, ...res.items]));
+					setHasMore(!!res.hasMore);
+				} catch (_error) {
+					if (pageNum === 1) setItems([]);
+					setHasMore(false);
+				} finally {
+					setLoading(false);
+				}
+			} else {
+				// Client mode
+				const filtered = search
+					? options.filter((o) => o.label.toLowerCase().includes(search.toLowerCase()))
 					: options;
-				const start = (page - 1) * pageSize;
+				options.forEach(storeOption);
+				const start = (pageNum - 1) * pageSize;
 				const slice = filtered.slice(start, start + pageSize);
-				setItems((prev) => (page === 1 ? slice : [...prev, ...slice]));
+				setItems((prev) => (pageNum === 1 ? slice : [...prev, ...slice]));
 				setHasMore(start + pageSize < filtered.length);
-				setNextCursor(undefined);
-			} finally {
-				setLoading(false);
 			}
+		},
+		[mode, fetcher, fetcherFilter, options, pageSize, storeOption],
+	);
+
+	// Reset and load on search change
+	useEffect(() => {
+		if (!isOpen) return;
+		setPage(1);
+		loadData(1, debouncedSearch);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isOpen, debouncedSearch]);
+
+	// Load more pages
+	useEffect(() => {
+		if (!isOpen || page <= 1) return;
+		loadData(page, debouncedSearch);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [page]);
+
+	// Store initial/selected options (takes precedence)
+	useEffect(() => {
+		if (initialSelectedOptions) {
+			const arr = Array.isArray(initialSelectedOptions) ? initialSelectedOptions : [initialSelectedOptions];
+			arr.forEach(storeOption);
 		}
-	}, [mode, fetcher, fetcherFilter, debouncedSearch, nextCursor, page, pageSize, options]);
+	}, [initialSelectedOptions, storeOption]);
 
-	// Keep a ref to latest load() to avoid stale closures
-	const loadRef = useRef(load);
+	// Auto-populate missing initial options from provided options array
 	useEffect(() => {
-		loadRef.current = load;
-	}, [load]);
+		if (!currentValue || (Array.isArray(currentValue) && currentValue.length === 0)) return;
+		
+		const values = Array.isArray(currentValue) ? currentValue : [currentValue];
+		
+		// Only look up values that are missing (not in label map)
+		const missingValues = values.filter(v => !labelMapRef.current.has(v));
+		
+		if (missingValues.length === 0) return;
+		
+		// Look up missing values in the options array
+		missingValues.forEach(val => {
+			const option = options.find(opt => opt.value === val);
+			if (option) {
+				storeOption(option);
+			}
+		});
+	}, [currentValue, options, storeOption]);
 
-	// Reset and load on open/search change (do NOT depend on load to avoid resets during pagination)
+	// Load selected labels on mount for initial values
+	const hasLoadedInitial = useRef(false);
+	const [labelsLoadedCounter, setLabelsLoadedCounter] = useState(0);
+	
 	useEffect(() => {
-		if (!open) return;
-		// Reference debouncedSearch to intentionally re-run on search changes
-		void debouncedSearch;
-		resetData();
-		const t = window.setTimeout(() => {
-			void loadRef.current();
-		}, 0);
-		return () => window.clearTimeout(t);
-	}, [open, debouncedSearch, resetData]);
-
-	// Load subsequent pages when page changes (>1)
-	useEffect(() => {
-		if (!open) return;
-		if (page <= 1) return;
-		void loadRef.current();
-	}, [open, page]);
-
-	// Infinite scroll
-	const listRef = useRef<HTMLDivElement | null>(null);
-	const onListScroll = useCallback(() => {
-		const el = listRef.current;
-		if (!el || loading) return;
-		const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 24;
-		if (nearBottom && hasMore) {
-			setPage((p) => p + 1);
+		// Only run once on mount
+		if (!loadSelected || hasLoadedInitial.current) return;
+		if (!currentValue) return;
+		
+		const values = Array.isArray(currentValue) ? currentValue : [currentValue];
+		if (values.length === 0) return;
+		
+		// Check if any values are missing labels
+		const missing = values.filter((v) => !labelMapRef.current.has(v));
+		if (missing.length === 0) {
+			hasLoadedInitial.current = true;
+			return;
 		}
-	}, [loading, hasMore]);
 
-	// Prime label map from loaded items and static options
-	useEffect(() => {
-		items.forEach(addToLabelMap);
-	}, [items, addToLabelMap]);
-	useEffect(() => {
-		options.forEach(addToLabelMap);
-	}, [options, addToLabelMap]);
-	// Seed label map from explicitly provided initialSelectedOptions
-	useEffect(() => {
-		if (!initialSelectedOptions) return;
-		const arr = Array.isArray(initialSelectedOptions)
-			? initialSelectedOptions
-			: [initialSelectedOptions];
-		arr.forEach(addToLabelMap);
-		setLabelTick((t) => t + 1);
-	}, [initialSelectedOptions, addToLabelMap]);
-
-	// Resolve labels for current values if missing and a resolver is provided
-	useEffect(() => {
-		if (!loadSelected) return;
-		const curValues: Array<string | number> = Array.isArray(value)
-			? (isMultiple ? (value as Array<string | number>) : [])
-			: value !== null && value !== undefined
-				? [value as string | number]
-				: [];
-		if (curValues.length === 0) return;
-		const missing = curValues.filter(
-			(v) => !labelMapRef.current.has(v) && !options.some((o) => o.value === v),
-		);
-		if (missing.length === 0) return;
+		hasLoadedInitial.current = true;
 		let cancelled = false;
-		loadSelected(missing)
-			.then((opts) => {
-				if (cancelled) return;
-				opts.forEach(addToLabelMap);
-				setLabelTick((t) => t + 1);
-			})
-			.catch(() => {
-				/* swallow resolver errors */
-			});
+		loadSelected(missing).then((opts) => {
+			if (!cancelled && opts.length > 0) {
+				opts.forEach(storeOption);
+				// Only trigger re-render if we actually stored something
+				setLabelsLoadedCounter(c => c + 1);
+			}
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
+		}).catch(() => {});
 		return () => {
 			cancelled = true;
 		};
-		// include options so we don't resolve when already present
-	}, [value, isMultiple, loadSelected, options, addToLabelMap]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Only run once on mount - uses closure values
 
-	// Selected label
-	const selectedOption = useMemo(() => {
-		if (isMultiple || Array.isArray(value)) return undefined;
-		return items.find((i) => i.value === value);
-	}, [isMultiple, items, value]);
+	// Load selected labels if missing when dropdown opens
+	useEffect(() => {
+		if (!loadSelected || !isOpen) return;
+		const values = Array.isArray(currentValue) ? currentValue : currentValue ? [currentValue] : [];
+		const missing = values.filter((v) => !labelMapRef.current.has(v));
+		if (missing.length === 0) return;
 
-	// Ensure selected label when item not in current page (server mode)
-	// biome-ignore lint/correctness/useExhaustiveDependencies: labelTick intentionally triggers recompute when labelMap hydrates
-	const displayedLabel = useMemo(() => {
-		if (isMultiple || Array.isArray(value)) return placeholder;
-		if (selectedOption) return selectedOption.label;
-		const v = value;
-		if (v !== null && v !== undefined && !Array.isArray(v)) {
-			const mapped = labelMapRef.current.get(v);
-			if (mapped) return mapped;
-			if (mode === "client") {
-				const found = options.find((i) => i.value === v);
-				return found?.label ?? placeholder;
-			}
+		let cancelled = false;
+		loadSelected(missing).then((opts) => {
+			if (!cancelled) opts.forEach(storeOption);
+		// eslint-disable-next-line @typescript-eslint/no-empty-function
+		}).catch(() => {});
+		return () => {
+			cancelled = true;
+		};
+	}, [currentValue, loadSelected, isOpen, storeOption]);
+
+	// Get label helper
+	const getLabel = useCallback((v: string | number) => {
+		return labelMapRef.current.get(v) ?? String(v);
+	}, []);
+
+	// Selected items for display
+	const selectedItems = useMemo(() => {
+		if (!isMultiple) {
+			if (currentValue === null || currentValue === undefined || Array.isArray(currentValue)) return [];
+			return [{ value: currentValue, label: getLabel(currentValue), raw: rawMapRef.current.get(currentValue) }];
 		}
-		return placeholder;
-	}, [isMultiple, mode, options, selectedOption, value, placeholder, labelTick]);
+		const values = Array.isArray(currentValue) ? currentValue : [];
+		return values.map((v) => ({ value: v, label: getLabel(v), raw: rawMapRef.current.get(v) }));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [currentValue, isMultiple, getLabel, labelsLoadedCounter]); // labelsLoadedCounter triggers re-compute when loadSelected completes
 
-	const selectedValues: Array<string | number> = useMemo(
-		() => (isMultiple && Array.isArray(value) ? value : []),
-		[isMultiple, value],
-	);
-	// biome-ignore lint/correctness/useExhaustiveDependencies: labelTick intentionally triggers recompute when labelMap hydrates
-	const selectedOptionsMulti: AutocompleteOption<T>[] = useMemo(
-		() => selectedValues.map((v) => ({ value: v, label: getLabel(v), raw: rawMapRef.current.get(v) })),
-		[getLabel, selectedValues, labelTick],
-	);
+	// Handle selection
+	const handleSelect = useCallback(
+		(item: AutocompleteOption<T> | null) => {
+			if (!item) return;
+			storeOption(item);
 
-	const handleClear = useCallback(() => {
-		if (isMultiple) {
-			if (controlledValue === undefined) setValue([]);
-			onChange?.([], [], []);
-		} else {
-			if (controlledValue === undefined) setValue(null);
-			onChange?.(null, null, null);
-		}
-	}, [controlledValue, isMultiple, onChange]);
-
-	// Helper: add custom value from current search
-	const addCustomValue = useCallback(
-		(text: string) => {
-			const t = text.trim();
-			if (!t) return;
-			const created: AutocompleteOption<T> = { value: t, label: t };
-			addToLabelMap(created);
 			if (isMultiple) {
-				const prevValues = Array.isArray(value) ? value : [];
-				const exists = prevValues.some((v) => v === created.value);
-				const newValues = exists ? prevValues : [...prevValues, created.value];
-				if (controlledValue === undefined) setValue(newValues);
-				const newOptions = newValues.map((v) => ({
-					value: v,
-					label: getLabel(v),
-					raw: rawMapRef.current.get(v),
-				}));
-				const raws = newOptions.map((o) => o.raw as T);
+				const values = Array.isArray(currentValue) ? currentValue : [];
+				const exists = values.includes(item.value);
+				
+				// Skip if already selected (don't toggle), but still clear the search
+				if (exists) {
+					setClearCounter(c => c + 1);
+					return;
+				}
+				
+				const newValues = [...values, item.value];
+
+				if (!isControlled) setInternalValue(newValues);
+				const newOptions = newValues.map((v) => ({ value: v, label: getLabel(v), raw: rawMapRef.current.get(v) }));
+				const raws = newOptions.map((o) => o.raw).filter((r): r is T => r !== undefined);
 				onChange?.(newValues, newOptions, raws);
-				setSearch("");
+				
+				// Trigger input clear
+				setClearCounter(c => c + 1);
 			} else {
-				if (controlledValue === undefined) setValue(created.value);
-				onChange?.(created.value, created, (created.raw as T | undefined) ?? null);
-				setSearch("");
-				setOpen(false);
+				if (!isControlled) setInternalValue(item.value);
+				onChange?.(item.value, item, item.raw ?? null);
+				setIsOpen(false);
 			}
 		},
-		[addToLabelMap, controlledValue, getLabel, isMultiple, onChange, value],
+		[isMultiple, currentValue, isControlled, onChange, getLabel, storeOption],
 	);
 
-	const inlineInputRef = useRef<HTMLInputElement | null>(null);
-	const canOpen = useMemo(() => {
-		// When purely tagging (no static options and no fetcher) in client mode with multi+allowCustomValue,
-		// we do not show the dropdown; user types inline.
-		const pureTagging =
-			isMultiple &&
-			allowCustomValue &&
-			mode === "client" &&
-			options.length === 0 &&
-			!fetcher;
-		return !pureTagging;
-	}, [allowCustomValue, fetcher, isMultiple, mode, options.length]);
+	// Handle remove chip
+	const handleRemove = useCallback(
+		(valueToRemove: string | number) => {
+			const values = Array.isArray(currentValue) ? currentValue : [];
+			const newValues = values.filter((v) => v !== valueToRemove);
+			if (!isControlled) setInternalValue(newValues);
+			const newOptions = newValues.map((v) => ({ value: v, label: getLabel(v), raw: rawMapRef.current.get(v) }));
+			const raws = newOptions.map((o) => o.raw).filter((r): r is T => r !== undefined);
+			onChange?.(newValues, newOptions, raws);
+		},
+		[currentValue, isControlled, onChange, getLabel],
+	);
+
+	// Handle clear
+	const handleClear = useCallback(() => {
+		const newValue = isMultiple ? [] : null;
+		if (!isControlled) setInternalValue(newValue);
+		onChange?.(newValue, isMultiple ? [] : null, isMultiple ? [] : null);
+	}, [isMultiple, isControlled, onChange]);
+
+	// Handle custom value creation
+	const handleCreateCustom = useCallback(() => {
+		const trimmed = searchInput.trim();
+		if (!trimmed || !allowCustomValue) return;
+
+		const newOption: AutocompleteOption<T> = { value: trimmed, label: trimmed };
+		storeOption(newOption);
+
+		if (isMultiple) {
+			const values = Array.isArray(currentValue) ? currentValue : [];
+			if (values.includes(trimmed)) return;
+			const newValues = [...values, trimmed];
+			if (!isControlled) setInternalValue(newValues);
+			const newOptions = newValues.map((v) => ({ value: v, label: getLabel(v), raw: rawMapRef.current.get(v) }));
+			onChange?.(newValues, newOptions, []);
+			setSearchInput("");
+		} else {
+			if (!isControlled) setInternalValue(trimmed);
+			onChange?.(trimmed, newOption, null);
+			setSearchInput("");
+			setIsOpen(false);
+		}
+	}, [searchInput, allowCustomValue, isMultiple, currentValue, isControlled, onChange, getLabel, storeOption]);
+
+	// Compute input value based on mode and state
+	const computedInputValue = useMemo(() => {
+		// In multiple mode or when dropdown is open, show search input
+		if (isMultiple || isOpen) {
+			return searchInput;
+		}
+		// In single mode when closed, show selected item label
+		if (selectedItems.length > 0) {
+			return selectedItems[0].label;
+		}
+		return "";
+	}, [isMultiple, isOpen, searchInput, selectedItems]);
+
+	// Downshift
+	const {
+		getInputProps,
+		getItemProps,
+		getMenuProps,
+		highlightedIndex,
+	} = useCombobox({
+		items,
+		itemToString: (item) => item?.label ?? "",
+		selectedItem: isMultiple ? null : (selectedItems[0] ?? null),
+		onSelectedItemChange: ({ selectedItem }) => handleSelect(selectedItem),
+		isOpen,
+		onIsOpenChange: ({ isOpen: newIsOpen }) => setIsOpen(newIsOpen ?? false),
+		inputValue: computedInputValue,
+		onInputValueChange: ({ inputValue }) => setSearchInput(inputValue ?? ""),
+	});
+
+	// Refs
+	const parentRef = useRef<HTMLDivElement>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	const handleScroll = useCallback(() => {
+		if (!parentRef.current || !hasMore || loading) return;
+		
+		const { scrollTop, scrollHeight, clientHeight } = parentRef.current;
+		const scrolledToBottom = scrollHeight - scrollTop - clientHeight < 50;
+		
+		if (scrolledToBottom) {
+			setPage((p) => p + 1);
+		}
+	}, [hasMore, loading]);
+
 	useEffect(() => {
-		if (!canOpen && open) setOpen(false);
-	}, [canOpen, open]);
+		const element = parentRef.current;
+		if (!element) return;
+		
+		element.addEventListener('scroll', handleScroll);
+		return () => element.removeEventListener('scroll', handleScroll);
+	}, [handleScroll]);
+
+	const showClearButton = clearable && (
+		(isMultiple && selectedItems.length > 0) ||
+		(!isMultiple && currentValue !== null && currentValue !== undefined && !Array.isArray(currentValue))
+	);
 
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
-			{canOpen ? (
-				<PopoverTrigger asChild>
-					<div
-						// biome-ignore lint/a11y/useSemanticElements: <explanation>
-						role="combobox"
-						aria-expanded={open}
-						aria-controls={listId}
-						tabIndex={disabled ? -1 : 0}
-						aria-disabled={disabled || undefined}
-						className={cn(
-							"w-full inline-flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-sm shadow-sm transition-colors",
-							"hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-							disabled && "opacity-50 pointer-events-none",
-							className,
-						)}
-						onKeyDown={(e) => {
-							if (disabled || !canOpen) return;
-							if (e.target instanceof HTMLInputElement) return; // let input handle keys
-							if (e.key === "Enter" || e.key === " ") {
-								e.preventDefault();
-								setOpen((v) => !v);
-							}
-						}}
-					>
-						{isMultiple ? (
-							<div
-								className={cn(
-									"flex min-w-0 flex-1 flex-wrap items-center gap-1 text-left",
-								)}
-							>
-								{selectedOptionsMulti.length > 0
-									? selectedOptionsMulti.map((opt) => (
-										<Badge
-											key={`${opt.value}`}
-											variant={chipVariant}
-											className={cn("pr-1", chipClassName)}
-										>
-											<span className="truncate max-w-[10rem]">
-												{opt.label}
-											</span>
-											<button
-												type="button"
-												aria-label={`Remove ${opt.label}`}
-												className="ml-1 inline-flex items-center rounded-sm hover:bg-black/5 dark:hover:bg-white/10"
-												onMouseDown={(e) => {
-													e.preventDefault();
-													e.stopPropagation();
-												}}
-												onClick={(e) => {
-													e.preventDefault();
-													e.stopPropagation();
-													const prevValues = Array.isArray(value)
-														? value
-														: [];
-													const newValues = prevValues.filter(
-														(v) => v !== opt.value,
-													);
-													if (controlledValue === undefined)
-														setValue(newValues);
-													const newOptions = newValues.map((v) => ({
-														value: v,
-														label: getLabel(v),
-													}));
-													onChange?.(newValues, newOptions);
-												}}
-											>
-												<X className="h-3 w-3" />
-											</button>
-										</Badge>
-									))
-									: null}
-								{allowCustomValue ? (
-									<input
-										ref={inlineInputRef}
-										value={search}
-										onChange={(e) => setSearch(e.target.value)}
-										placeholder={
-											selectedOptionsMulti.length === 0
-												? placeholder
-												: undefined
-										}
-										className="flex-1 min-w-[8ch] bg-transparent outline-none text-sm placeholder:text-muted-foreground"
-										onKeyDown={(e) => {
-											if (e.key === "Enter" || e.key === ",") {
-												e.preventDefault();
-												addCustomValue(search);
-											} else if (
-												e.key === "Backspace" &&
-												search === "" &&
-												selectedOptionsMulti.length > 0
-											) {
-												// Remove last chip when input is empty
-												const prevValues = Array.isArray(value) ? value : [];
-												const newValues = prevValues.slice(0, -1);
-												if (controlledValue === undefined) setValue(newValues);
-												const newOptions = newValues.map((v) => ({
-													value: v,
-													label: getLabel(v),
-												}));
-												onChange?.(newValues, newOptions);
-											}
-										}}
-									/>
-								) : null}
-								{selectedOptionsMulti.length === 0 && !allowCustomValue ? (
-									<span className="truncate text-muted-foreground">
-										{placeholder}
-									</span>
-								) : null}
-							</div>
-						) : (
-							<span
-								className={cn(
-									"truncate",
-									(!value || Array.isArray(value)) && "text-muted-foreground",
-								)}
-							>
-								{displayedLabel}
-							</span>
-						)}
-						{clearable &&
-							((isMultiple && selectedOptionsMulti.length > 0) ||
-								(!isMultiple &&
-									value !== null &&
-									value !== undefined &&
-									!Array.isArray(value))) ? (
-							<button
-								type="button"
-								aria-label="Clear selection"
-								className="ml-2 inline-flex items-center rounded-sm p-1 hover:bg-black/5 dark:hover:bg-white/10"
-								onMouseDown={(e) => {
-									e.preventDefault();
-									e.stopPropagation();
-								}}
-								onClick={(e) => {
-									e.preventDefault();
-									e.stopPropagation();
-									handleClear();
-								}}
-								onKeyDown={(e) => {
-									if (e.key === "Enter" || e.key === " ") {
-										e.preventDefault();
-										e.stopPropagation();
-										handleClear();
-									}
-								}}
-							>
-								<X className="h-4 w-4 opacity-60" />
-							</button>
-						) : null}
-						<ChevronsUpDown
-							className={cn(
-								"ml-2 h-4 w-4 shrink-0 opacity-50",
-								!canOpen && "hidden",
-							)}
-						/>
-					</div>
-				</PopoverTrigger>
-			) : (
+		<Popover open={isOpen} onOpenChange={setIsOpen}>
+			<PopoverTrigger asChild>
 				<div
-					// biome-ignore lint/a11y/useSemanticElements: <explanation>
-					role="combobox"
-					aria-expanded={open}
-					aria-controls={listId}
-					tabIndex={disabled ? -1 : 0}
-					aria-disabled={disabled || undefined}
 					className={cn(
-						"w-full inline-flex items-center justify-between rounded-md border bg-background px-3 py-2 text-sm shadow-sm transition-colors",
-						"hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-						disabled && "opacity-50 pointer-events-none",
+						"flex min-h-10 w-full items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm",
+						"ring-offset-background",
+						"focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
+						disabled && "cursor-not-allowed opacity-50",
 						className,
 					)}
-					onKeyDown={(_e) => {
-						if (disabled || canOpen) return;
-						// Do not toggle popover; handle inline input only
-					}}
 				>
-					{isMultiple ? (
-						<div
-							className={cn(
-								"flex min-w-0 flex-1 flex-wrap items-center gap-1 text-left",
-							)}
-						>
-							{selectedOptionsMulti.length > 0
-								? selectedOptionsMulti.map((opt) => (
-									<Badge
-										key={`${opt.value}`}
-										variant={chipVariant}
-										className={cn("pr-1", chipClassName)}
+					{isMultiple && (
+						<div className="flex flex-wrap gap-1">
+							{selectedItems.map((item) => (
+								<Badge key={item.value} variant={chipVariant} className={cn("gap-1", chipClassName)}>
+									<span className="max-w-[150px] truncate">{item.label}</span>
+									<button
+										type="button"
+										onClick={(e) => {
+											e.stopPropagation();
+											handleRemove(item.value);
+										}}
+										className="rounded-sm opacity-70 hover:opacity-100"
 									>
-										<span className="truncate max-w-[10rem]">
-											{opt.label}
-										</span>
-										<button
-											type="button"
-											aria-label={`Remove ${opt.label}`}
-											className="ml-1 inline-flex items-center rounded-sm hover:bg-black/5 dark:hover:bg-white/10"
-											onMouseDown={(e) => {
-												e.preventDefault();
-												e.stopPropagation();
-											}}
-											onClick={(e) => {
-												e.preventDefault();
-												e.stopPropagation();
-												const prevValues = Array.isArray(value) ? value : [];
-												const newValues = prevValues.filter(
-													(v) => v !== opt.value,
-												);
-												if (controlledValue === undefined)
-													setValue(newValues);
-												const newOptions = newValues.map((v) => ({
-													value: v,
-													label: getLabel(v),
-												}));
-												onChange?.(newValues, newOptions);
-											}}
-										>
-											<X className="h-3 w-3" />
-										</button>
-									</Badge>
-								))
-								: null}
-							{allowCustomValue ? (
-								<input
-									ref={inlineInputRef}
-									value={search}
-									onChange={(e) => setSearch(e.target.value)}
-									placeholder={
-										selectedOptionsMulti.length === 0 ? placeholder : undefined
-									}
-									className="flex-1 min-w-[8ch] bg-transparent outline-none text-sm placeholder:text-muted-foreground"
-									onKeyDown={(e) => {
-										if (e.key === "Enter" || e.key === ",") {
-											e.preventDefault();
-											addCustomValue(search);
-										} else if (
-											e.key === "Backspace" &&
-											search === "" &&
-											selectedOptionsMulti.length > 0
-										) {
-											const prevValues = Array.isArray(value) ? value : [];
-											const newValues = prevValues.slice(0, -1);
-											if (controlledValue === undefined) setValue(newValues);
-											const newOptions = newValues.map((v) => ({
-												value: v,
-												label: getLabel(v),
-											}));
-											onChange?.(newValues, newOptions);
-										}
-									}}
-								/>
-							) : null}
-							{selectedOptionsMulti.length === 0 && !allowCustomValue ? (
-								<span className="truncate text-muted-foreground">
-									{placeholder}
-								</span>
-							) : null}
+										<X className="h-3 w-3" />
+									</button>
+								</Badge>
+							))}
 						</div>
-					) : (
-						<span
-							className={cn(
-								"truncate",
-								(!value || Array.isArray(value)) && "text-muted-foreground",
-							)}
-						>
-							{displayedLabel}
-						</span>
 					)}
-					{clearable &&
-						((isMultiple && selectedOptionsMulti.length > 0) ||
-							(!isMultiple &&
-								value !== null &&
-								value !== undefined &&
-								!Array.isArray(value))) ? (
-						<button
-							type="button"
-							aria-label="Clear selection"
-							className="ml-2 inline-flex items-center rounded-sm p-1 hover:bg-black/5 dark:hover:bg-white/10"
-							onMouseDown={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-							}}
-							onClick={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-								handleClear();
-							}}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" || e.key === " ") {
+					<input
+						{...getInputProps({
+							ref: inputRef,
+							placeholder,
+							disabled,
+							onClick: () => {
+								if (!isOpen) setIsOpen(true);
+							},
+							onKeyDown: (e) => {
+								if (e.key === "Enter" && allowCustomValue && searchInput.trim() && items.length === 0) {
 									e.preventDefault();
+									handleCreateCustom();
+								}
+							},
+						})}
+						className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground min-w-[120px]"
+					/>
+					<div className="flex items-center gap-2 shrink-0">
+						{showClearButton && (
+							<button
+								type="button"
+								onClick={(e) => {
 									e.stopPropagation();
 									handleClear();
-								}
-							}}
-						>
-							<X className="h-4 w-4 opacity-60" />
-						</button>
-					) : null}
-					<ChevronsUpDown
-						className={cn(
-							"ml-2 h-4 w-4 shrink-0 opacity-50",
-							!canOpen && "hidden",
-						)}
-					/>
-				</div>
-			)}
-			{canOpen ? (
-				<PopoverContent
-					className="w-[--radix-popover-trigger-width] p-0"
-					align="start"
-				>
-					<Command shouldFilter={false} className="w-full">
-						<div className="p-2">
-							<CommandInput
-								value={search}
-								onValueChange={setSearch}
-								placeholder={searchPlaceholder}
-								autoFocus
-								onKeyDown={(e) => {
-									if (e.key === "Enter" && allowCustomValue && search.trim()) {
-										e.preventDefault();
-										addCustomValue(search);
-									}
 								}}
-							/>
-						</div>
-						<CommandList
-							id={listId}
-							className="max-h-56 overflow-auto"
-							ref={listRef}
-							onScroll={onListScroll}
-						>
-							{loading && items.length === 0 ? (
-								<div className="flex items-center justify-center py-6 text-sm text-muted-foreground">
-									<Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading
-								</div>
-							) : null}
-							<CommandEmpty>
-								{allowCustomValue && search.trim() ? (
-									<span>Press Enter to add "{search.trim()}"</span>
+								className="rounded-sm opacity-70 hover:opacity-100"
+							>
+								<X className="h-4 w-4" />
+							</button>
+						)}
+						<ChevronsUpDown className="h-4 w-4 opacity-50" />
+					</div>
+				</div>
+			</PopoverTrigger>
+			<PopoverContent 
+				className="p-0" 
+				style={{ width: "var(--radix-popover-trigger-width)" }}
+				align="start"
+				onOpenAutoFocus={(e) => e.preventDefault()}
+			>
+				<div
+					{...getMenuProps()}
+					ref={parentRef}
+					className="max-h-[300px] overflow-auto"
+				>
+						{loading && items.length === 0 ? (
+							<div className="flex items-center justify-center py-6">
+								<Loader2 className="h-4 w-4 animate-spin mr-2" />
+								<span className="text-sm text-muted-foreground">Loading...</span>
+							</div>
+						) : items.length === 0 ? (
+							<div className="py-6 text-center text-sm text-muted-foreground">
+								{allowCustomValue && searchInput.trim() ? (
+									<>Press Enter to add &quot;{searchInput.trim()}&quot;</>
 								) : (
 									emptyText
 								)}
-							</CommandEmpty>
-							{items.length > 0 ? (
-								<CommandGroup>
-									{items.map((item) => {
-										const selected = isMultiple
-											? Array.isArray(value)
-												? value.includes(item.value)
-												: false
-											: item.value === value;
-										return (
-											<CommandItem
-												key={`${item.value}`}
-												value={`${item.label}`}
-												onSelect={() => handleSelect(item)}
-												className="flex items-center justify-between"
-											>
-												<div className="min-w-0 truncate">
-													{renderOption
-														? renderOption(item, selected)
-														: item.label}
-												</div>
-												{selected ? <Check className="h-4 w-4" /> : null}
-											</CommandItem>
-										);
-									})}
-								</CommandGroup>
-							) : null}
-							{hasMore ? (
-								<>
-									<CommandSeparator />
-									<div className="flex items-center justify-center py-2 text-xs text-muted-foreground">
-										{loading ? (
-											<>
-												<Loader2 className="mr-1 h-3 w-3 animate-spin" />{" "}
-												Loading more
-											</>
-										) : (
-											"Scroll to load more"
-										)}
-									</div>
-								</>
-							) : null}
-						</CommandList>
-					</Command>
-				</PopoverContent>
-			) : null}
+							</div>
+						) : (
+							<>
+								{items.map((item, index) => {
+									const isSelected = isMultiple
+										? Array.isArray(currentValue) && currentValue.includes(item.value)
+										: currentValue === item.value;
+									const isHighlighted = highlightedIndex === index;
+
+									return (
+										<div
+											key={item.value}
+											{...getItemProps({ item, index })}
+											className={cn(
+												"flex cursor-pointer items-center justify-between px-2 py-2 text-sm outline-none transition-colors",
+												isHighlighted && "bg-accent text-accent-foreground",
+												isSelected && "font-medium",
+											)}
+										>
+											<div className="flex-1 truncate">
+												{renderOption ? renderOption(item, isSelected) : item.label}
+											</div>
+											{isSelected && <Check className="h-4 w-4 shrink-0" />}
+										</div>
+									);
+								})}
+							</>
+						)}
+						{hasMore && items.length > 0 && (
+							<div className="flex items-center justify-center border-t py-2">
+								{loading ? (
+									<>
+										<Loader2 className="h-3 w-3 animate-spin mr-1" />
+										<span className="text-xs text-muted-foreground">Loading more...</span>
+									</>
+								) : (
+									<span className="text-xs text-muted-foreground">Scroll for more</span>
+								)}
+						</div>
+					)}
+				</div>
+			</PopoverContent>
 		</Popover>
 	);
 }

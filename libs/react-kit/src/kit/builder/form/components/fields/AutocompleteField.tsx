@@ -40,12 +40,11 @@ export function AutocompleteField({ field, value, onChange, className }: FieldRe
       chipClassName={field.chipClassName}
       clearable={field.clearable}
       defaultValue={defaultValueShaped}
-      initialSelectedOptions={field.initialSelectedOptions ?? null}
+      initialSelectedOptions={field.initialSelectedOptions ?? undefined}
       loadSelected={field.loadSelected}
       value={field.multiple ? ((Array.isArray(value) ? value : (value ? [value] : [])) as Array<string | number>) : ((value as string | number | null) ?? null)}
       onChange={(val, option, raw) => onChange(val, option, raw)}
       placeholder={field.placeholder}
-      searchPlaceholder={field.searchPlaceholder}
       renderOption={field.renderOption}
       disabled={field.disabled}
       className={className}
