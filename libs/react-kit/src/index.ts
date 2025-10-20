@@ -39,6 +39,8 @@ export * from './kit/providers/ThemeProvider';
 export * from './shadcn/hooks/use-mobile';
 export * from './shadcn/lib/utils';
 
+export { toast } from 'sonner';
+
 // -----------------------------
 // SHADCN: UI components
 // -----------------------------
