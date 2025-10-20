@@ -335,7 +335,9 @@ export function FormBuilderField<
           <p className="text-sm text-muted-foreground">{field.description}</p>
         )}
         {error && (
-          <p className="text-sm text-destructive">{error.message}</p>
+          <p className="text-sm font-medium text-destructive" role="alert" aria-live="polite">
+            {error.message}
+          </p>
         )}
       </div>
     );
@@ -351,7 +353,9 @@ export function FormBuilderField<
           <p className="text-sm text-muted-foreground">{field.description}</p>
         )}
         {error && (
-          <p className="text-sm text-destructive">{error.message}</p>
+          <p className="text-sm font-medium text-destructive" role="alert" aria-live="polite">
+            {error.message}
+          </p>
         )}
       </div>
     );
@@ -371,7 +375,9 @@ export function FormBuilderField<
           <p className="text-sm text-muted-foreground">{field.description}</p>
         )}
         {error && (
-          <p className="text-sm text-destructive">{error.message}</p>
+          <p className="text-sm font-medium text-destructive" role="alert" aria-live="polite">
+            {error.message}
+          </p>
         )}
       </div>
     );
@@ -389,7 +395,9 @@ export function FormBuilderField<
         <p className="text-sm text-muted-foreground">{field.description}</p>
       )}
       {error && (
-        <p className="text-sm text-destructive">{error.message}</p>
+        <p className="text-sm font-medium text-destructive" role="alert" aria-live="polite">
+          {error.message}
+        </p>
       )}
     </div>
   );

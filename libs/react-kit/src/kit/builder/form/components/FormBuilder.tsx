@@ -1,17 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useForm, useWatch, type FieldValues, type Path } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import {
+  useWatch,
+  type FieldValues,
+  type Path,
+} from 'react-hook-form';
 import { cn } from '../../../../shadcn/lib/utils';
 import { Button } from '../../../../shadcn/ui/button';
 import SectionBuilder from '../../section/SectionBuilder';
 import { buildSectionNodes } from './sectionNodes';
-import { FormBuilderContext, type FormBuilderContextValue } from './FormBuilderContext';
+import {
+  FormBuilderContext,
+  type FormBuilderContextValue,
+} from './FormBuilderContext';
 import type {
   FormBuilderProps,
   FormBuilderFieldConfig,
   FormBuilderSectionConfig,
 } from '../types';
+import { useFormBuilder } from '../hooks/useFormBuilder';
 
 export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
   sections,
@@ -33,323 +39,15 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
   showActionsSeparator = true,
   form,
 }: FormBuilderProps<TFieldValues>) {
-  // Generate schema from field configs if not provided
-  const generatedSchema = useMemo(() => {
-    if (schema) return schema;
-
-    const generateFieldSchema = (
-      field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>
-    ): z.ZodType<unknown> => {
-      if (field.validation && field.validation instanceof z.ZodType) {
-        return field.validation;
-      }
-
-      // Handle validation object format
-      if (
-        field.validation &&
-        typeof field.validation === 'object' &&
-        !(field.validation instanceof z.ZodType)
-      ) {
-        const validationObj = field.validation;
-        let baseSchema: z.ZodType<unknown>;
-
-        // Determine base schema type
-        switch (field.type) {
-          case 'email':
-            baseSchema = z.string().email('Invalid email address');
-            break;
-          case 'number':
-            baseSchema = z.number();
-            break;
-          case 'file':
-            baseSchema = z.array(z.unknown());
-            break;
-          case 'date_picker':
-          case 'month':
-          case 'date':
-          case 'time':
-          case 'date_time':
-            baseSchema = z.date();
-            break;
-          case 'date_range':
-          case 'time_range':
-          case 'date_time_range':
-            baseSchema = z
-              .object({ from: z.date().optional().nullable(), to: z.date().optional().nullable() })
-              .nullable();
-            break;
-          case 'month_range':
-            baseSchema = z
-              .object({ start: z.date().optional().nullable(), end: z.date().optional().nullable() })
-              .nullable();
-            break;
-          case 'autocomplete': {
-            const single = z
-              .union([z.string(), z.number(), z.object({})])
-              .nullable();
-            const multi = z.array(
-              z.union([z.string(), z.number(), z.object({})])
-            );
-            baseSchema = field.multiple ? multi : single;
-            break;
-          }
-          case 'checkbox':
-          case 'switch':
-            baseSchema = z.boolean();
-            break;
-          case 'custom_field':
-            baseSchema = z.any();
-          break;
-          default:
-            baseSchema = z.string();
-        }
-
-        // Apply validation constraints
-        if (validationObj.pattern && baseSchema instanceof z.ZodString) {
-          baseSchema = baseSchema.regex(
-            validationObj.pattern.value,
-            validationObj.pattern.message
-          );
-        }
-        if (validationObj.min && baseSchema instanceof z.ZodNumber) {
-          baseSchema = baseSchema.min(
-            validationObj.min.value,
-            validationObj.min.message
-          );
-        }
-        if (validationObj.max && baseSchema instanceof z.ZodNumber) {
-          baseSchema = baseSchema.max(
-            validationObj.max.value,
-            validationObj.max.message
-          );
-        }
-        if (validationObj.minLength && baseSchema instanceof z.ZodString) {
-          baseSchema = baseSchema.min(
-            validationObj.minLength.value,
-            validationObj.minLength.message
-          );
-        }
-        if (validationObj.maxLength && baseSchema instanceof z.ZodString) {
-          baseSchema = baseSchema.max(
-            validationObj.maxLength.value,
-            validationObj.maxLength.message
-          );
-        }
-        // Array item count constraints
-        if (baseSchema instanceof z.ZodArray) {
-          let arr = baseSchema as z.ZodArray<z.ZodTypeAny>;
-          if (validationObj.minItems) {
-            arr = arr.min(
-              validationObj.minItems.value,
-              validationObj.minItems.message,
-            );
-          }
-          if (validationObj.maxItems) {
-            arr = arr.max(
-              validationObj.maxItems.value,
-              validationObj.maxItems.message,
-            );
-          }
-          // If required and file field, enforce at least 1 item when no explicit minItems
-          if (field.type === 'file' && field.required && !validationObj.minItems) {
-            arr = arr.min(1, `${field.label} requires at least 1 file`);
-          }
-          baseSchema = arr;
-        }
-
-        return field.required ? baseSchema : baseSchema.optional();
-      }
-
-      let fieldSchema: z.ZodType<unknown>;
-
-      switch (field.type) {
-        case 'email':
-          fieldSchema = z.string().email('Invalid email address');
-          break;
-        case 'number':
-          fieldSchema = z.number();
-          break;
-        case 'file': {
-          let arr = z.array(z.unknown());
-          // If required, ensure at least 1 file
-          if (field.required) {
-            arr = arr.min(1, `${field.label} requires at least 1 file`);
-          }
-          fieldSchema = arr;
-          break;
-        }
-        case 'date_picker':
-        case 'month':
-        case 'date':
-        case 'time':
-        case 'date_time':
-          fieldSchema = z.date();
-          break;
-        case 'date_range':
-        case 'time_range':
-        case 'date_time_range':
-          fieldSchema = z
-            .object({ from: z.date().optional().nullable(), to: z.date().optional().nullable() })
-            .nullable();
-          break;
-        case 'month_range':
-          fieldSchema = z
-            .object({ start: z.date().optional().nullable(), end: z.date().optional().nullable() })
-            .nullable();
-          break;
-        case 'autocomplete': {
-          const single = z
-            .union([z.string(), z.number(), z.object({})])
-            .nullable();
-          const multi = z.array(
-            z.union([z.string(), z.number(), z.object({})])
-          );
-          fieldSchema = field.multiple ? multi : single;
-          break;
-        }
-        case 'checkbox':
-        case 'switch':
-          fieldSchema = z.boolean();
-          break;
-        case 'select':
-        case 'radio':
-          if (field.options && field.options.length > 0) {
-            // Build a union of literals to allow specific values, including null if present
-            const literals: Array<z.ZodLiteral<string | number | null>> = field.options.map((opt) =>
-              z.literal(opt.value as string | number | null)
-            );
-            if (literals.length === 1) {
-              fieldSchema = literals[0];
-            } else {
-              fieldSchema = z.union(
-                literals as [
-                  z.ZodLiteral<string | number | null>,
-                  ...z.ZodLiteral<string | number | null>[]
-                ]
-              );
-            }
-          } else {
-            fieldSchema = z.string();
-          }
-          break;
-        case 'object':
-          if (field.fields) {
-            const objectSchema: Record<string, z.ZodType<unknown>> = {};
-            for (const subField of field.fields as Array<FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>>) {
-              objectSchema[subField.name] = generateFieldSchema(subField);
-            }
-            fieldSchema = z.object(objectSchema);
-          } else {
-            fieldSchema = z.object({});
-          }
-          break;
-        case 'array':
-          if (field.fields && field.fields.length > 0) {
-            const arrayItemSchema =
-              field.fields.length === 1
-                ? generateFieldSchema(field.fields[0] as FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>)
-                : z.object(
-                    (field.fields as Array<FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>>).reduce((acc, subField) => {
-                      acc[subField.name] = generateFieldSchema(subField);
-                      return acc;
-                    }, {} as Record<string, z.ZodType<unknown>>)
-                  );
-            fieldSchema = z.array(arrayItemSchema);
-          } else {
-            fieldSchema = z.array(z.unknown());
-          }
-          break;
-        case 'custom_field':
-          fieldSchema = z.any();
-          break;
-        default:
-          fieldSchema = z.string();
-      }
-
-      return field.required ? fieldSchema : fieldSchema.optional();
-    };
-
-    const schemaObject: Record<string, z.ZodType<unknown>> = {};
-
-    const forEachField = (secs: FormBuilderSectionConfig<TFieldValues>[]) => {
-      for (const section of secs) {
-        // Traverse tabs if present
-        if (section.tabs && section.tabs.length > 0) {
-          for (const tab of section.tabs) {
-            forEachField(tab.sections);
-          }
-        }
-        for (const field of (section.fields ?? [])) {
-          schemaObject[field.name] = generateFieldSchema(field as FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>);
-        }
-      }
-    };
-
-    forEachField(sections);
-
-    return z.object(schemaObject) as unknown as z.ZodType<TFieldValues>;
-  }, [sections, schema]);
-
-  // Generate default values from field configs
-  const generatedDefaultValues = useMemo(() => {
-    const values: Record<string, unknown> = { ...((defaultValues ?? {}) as Record<string, unknown>) };
-
-    const processFields = (fields: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>[]) => {
-      for (const field of fields) {
-        if (
-          values[field.name] === undefined &&
-          field.defaultValue !== undefined
-        ) {
-          values[field.name] = field.defaultValue;
-        }
-
-        if (field.type === 'object' && field.fields) {
-          if (!values[field.name]) values[field.name] = {};
-          const nestedValues: Record<string, unknown> = {};
-          for (const subField of field.fields) {
-            if (subField.defaultValue !== undefined) {
-              nestedValues[subField.name] = subField.defaultValue;
-            }
-          }
-          const existing =
-            values[field.name] && typeof values[field.name] === 'object'
-              ? (values[field.name] as Record<string, unknown>)
-              : {};
-          values[field.name] = { ...nestedValues, ...existing };
-        }
-
-        if (field.type === 'array' && field.fields) {
-          if (!values[field.name]) {
-            values[field.name] = field.defaultValue || [];
-          }
-        }
-      }
-    };
-
-    const forEachSection = (secs: FormBuilderSectionConfig<TFieldValues>[]) => {
-      for (const section of secs) {
-        if (section.tabs && section.tabs.length > 0) {
-          for (const tab of section.tabs) {
-            forEachSection(tab.sections);
-          }
-        }
-        processFields(section.fields ?? []);
-      }
-    };
-
-    forEachSection(sections);
-
-    return values;
-  }, [sections, defaultValues]);
-
-  const internalForm = useForm<TFieldValues>({
-    // Dynamic schema shape: cast to any to satisfy resolver generics
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(generatedSchema as any) as unknown as import('react-hook-form').Resolver<TFieldValues, any, TFieldValues>,
-    defaultValues: generatedDefaultValues as unknown as import('react-hook-form').DefaultValues<TFieldValues>,
+  // Always call useFormBuilder hook (hooks must be called unconditionally)
+  const { form: generatedForm } = useFormBuilder({
+    sections,
+    schema,
+    defaultValues: defaultValues ?? undefined,
   });
 
-  const activeForm = form ?? internalForm;
+  // Use provided form or fall back to generated form
+  const activeForm = form ?? generatedForm;
 
   const { control, handleSubmit, reset, setValue, getValues } = activeForm;
 
@@ -363,7 +61,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
             forEachField(tab.sections);
           }
         }
-        for (const f of (section.fields ?? [])) {
+        for (const f of section.fields ?? []) {
           for (const d of f.dependencies || []) {
             set.add(d.field);
           }
@@ -391,12 +89,14 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
 
   // Handle field dependencies
   // Queue dependency-driven value updates to avoid calling setValue during render
-  const pendingValueUpdatesRef = useRef<Array<{ name: string; value: unknown }>>(
-    []
-  );
+  const pendingValueUpdatesRef = useRef<
+    Array<{ name: string; value: unknown }>
+  >([]);
 
   const handleFieldDependencies = useCallback(
-    (field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>) => {
+    (
+      field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>
+    ) => {
       if (!hasDependencies || !field.dependencies) return {};
 
       const result: { disabled?: boolean; hidden?: boolean } = {};
@@ -420,7 +120,9 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
             break;
           case 'setValue':
             if (conditionMet && dep.value !== undefined) {
-              const currentValue = getValues(field.name as unknown as Path<TFieldValues>);
+              const currentValue = getValues(
+                field.name as unknown as Path<TFieldValues>
+              );
               if (currentValue !== dep.value) {
                 // Defer the update to an effect to prevent state changes during render
                 pendingValueUpdatesRef.current.push({
@@ -486,9 +188,9 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
   );
 
   const handleReset = useCallback(() => {
-    reset(generatedDefaultValues as unknown as import('react-hook-form').DefaultValues<TFieldValues>);
+    reset();
     onReset?.();
-  }, [reset, generatedDefaultValues, onReset]);
+  }, [reset, onReset]);
 
   // Build SectionBuilder nodes from form sections/fields
   const sectionNodes = useMemo(
@@ -501,23 +203,40 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
         onFieldChange,
         getValues,
       }),
-    [sections, control, handleFieldDependencies, handleFieldChange, onFieldChange, getValues],
+    [
+      sections,
+      control,
+      handleFieldDependencies,
+      handleFieldChange,
+      onFieldChange,
+      getValues,
+    ]
   );
 
   const contextValue = useMemo(
-    () => ({
+    () =>
+      ({
+        control,
+        getValues,
+        setValue,
+        onFieldChange,
+        handleFieldDependencies,
+        handleFieldChange,
+      } satisfies FormBuilderContextValue<TFieldValues>),
+    [
       control,
       getValues,
       setValue,
       onFieldChange,
       handleFieldDependencies,
       handleFieldChange,
-    }) satisfies FormBuilderContextValue<TFieldValues>,
-    [control, getValues, setValue, onFieldChange, handleFieldDependencies, handleFieldChange],
+    ]
   );
 
   return (
-    <FormBuilderContext.Provider value={contextValue as unknown as FormBuilderContextValue<FieldValues>}>
+    <FormBuilderContext.Provider
+      value={contextValue as unknown as FormBuilderContextValue<FieldValues>}
+    >
       <div className={cn('space-y-6', className)}>
         <form
           onSubmit={handleSubmit(handleFormSubmit)}

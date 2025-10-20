@@ -182,9 +182,15 @@ export interface FormBuilderSectionConfig<TFieldValues extends FieldValues = Fie
 }
 
 export interface FormBuilderProps<TFieldValues extends FieldValues = FieldValues> {
+  // Accept form from useFormBuilder hook
+  form?: UseFormReturn<TFieldValues>
   sections: Array<FormBuilderSectionConfig<TFieldValues>>
+  
+  // Optional overrides (for backward compatibility)
   schema?: z.ZodType<TFieldValues>
   defaultValues?: DeepPartial<TFieldValues> | DefaultValues<TFieldValues> | null
+  
+  // Handlers
   onSubmit: (data: TFieldValues) => void | Promise<void>
   onCancel?: () => void
   onReset?: () => void
@@ -193,6 +199,8 @@ export interface FormBuilderProps<TFieldValues extends FieldValues = FieldValues
     value: unknown,
     allValues: TFieldValues
   ) => void
+  
+  // UI customization
   submitLabel?: string
   cancelLabel?: string
   resetLabel?: string
@@ -203,7 +211,6 @@ export interface FormBuilderProps<TFieldValues extends FieldValues = FieldValues
   showActions?: boolean
   customActions?: React.ReactNode
   showActionsSeparator?: boolean
-  form?: UseFormReturn<TFieldValues>
 }
 
 // Re-export for external consumers that build custom section nodes
