@@ -39,6 +39,7 @@ export interface DataTableProps<TData, TValue> {
   rowCount?: number;
   pagination?: boolean;
   paginationState?: PaginationState;
+  paginationVariant?: 'full' | 'compact';
   onPaginationChange?: (newState: PaginationState) => void;
   columnVisibility?: boolean;
   columnVisibilityState?: VisibilityState;
@@ -79,6 +80,7 @@ export function DataTable<TData, TValue>({
   onColumnFiltersChange,
   rowCount,
   pagination,
+  paginationVariant = 'full',
   onPaginationChange,
   paginationState,
   columnVisibility,
@@ -406,7 +408,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {isPaginationEnabled && (
-        <DataTablePagination table={table} />
+        <DataTablePagination table={table} paginationVariant={paginationVariant} />
       )}
     </div>
   );
