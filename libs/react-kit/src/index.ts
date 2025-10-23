@@ -1,6 +1,7 @@
 // -----------------------------
 // KIT: builders
 // -----------------------------
+export * from './kit/builder/auth';
 export * from './kit/builder/data-table';
 export * from './kit/builder/dialog';
 export * from './kit/builder/form';

@@ -41,6 +41,7 @@ type AdminLayoutProps = {
   // Header bar customization
   headerAfterTrigger?: React.ReactNode; // renders right after the collapsible icon trigger
   headerAfterTheme?: React.ReactNode; // renders right after the ThemeToggle on the right
+  onLogout?: () => void | Promise<void>;
 };
 
 function AdminLayoutContent({
@@ -52,6 +53,7 @@ function AdminLayoutContent({
   sidebarHeaderIcon,
   headerAfterTrigger,
   headerAfterTheme,
+  onLogout,
 }: AdminLayoutProps) {
   const { groups: sidebarGroups } = useAdminSidebarMenu();
   const location = useLocation();
@@ -212,23 +214,26 @@ function AdminLayoutContent({
             </Fragment>
           ))}
         </SidebarContent>
-        <SidebarFooter className="bg-sidebar border-t border-sidebar-border px-2 py-3">
-          <SidebarMenu>
-            <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:justify-center">
-              <SidebarMenuButton
-                tooltip="Logout"
-                className="group relative overflow-hidden rounded-lg mx-1 transition-all duration-200 hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!px-0 group-data-[collapsible=icon]:!gap-0"
-              >
-                <div className="flex items-center gap-3 px-3 py-2.5 group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!gap-0 group-data-[collapsible=icon]:!px-0">
-                  <LogOut className="h-4 w-4 text-sidebar-foreground group-hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:mr-0" />
-                  <span className="font-medium text-sidebar-foreground group-hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden">
-                    Logout
-                  </span>
-                </div>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
+        {onLogout && (
+          <SidebarFooter className="bg-sidebar border-t border-sidebar-border px-2 py-3">
+            <SidebarMenu>
+              <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:justify-center">
+                <SidebarMenuButton
+                  tooltip="Logout"
+                  className="cursor-pointer group relative overflow-hidden rounded-lg mx-1 transition-all duration-200 hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!px-0 group-data-[collapsible=icon]:!gap-0"
+                  onClick={() => { void onLogout(); }}
+                >
+                  <div className="flex items-center gap-3 px-3 py-2.5 group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!gap-0 group-data-[collapsible=icon]:!px-0">
+                    <LogOut className="h-4 w-4 text-sidebar-foreground group-hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:mr-0" />
+                    <span className="font-medium text-sidebar-foreground group-hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden">
+                      Logout
+                    </span>
+                  </div>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        )}
       </Sidebar>
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
@@ -258,6 +263,7 @@ export default function AdminLayout({
   sidebarHeaderIcon,
   headerAfterTrigger,
   headerAfterTheme,
+  onLogout,
 }: AdminLayoutProps) {
   return (
     <AdminMenuProvider>
@@ -270,6 +276,7 @@ export default function AdminLayout({
           sidebarHeaderIcon={sidebarHeaderIcon}
           headerAfterTrigger={headerAfterTrigger}
           headerAfterTheme={headerAfterTheme}
+          onLogout={onLogout}
         >
           {children}
         </AdminLayoutContent>

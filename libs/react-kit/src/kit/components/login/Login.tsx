@@ -39,7 +39,7 @@ export function Login({
   subtitle,
   signupLabel = "Don't have an account?",
   signupLinkLabel = 'Sign up',
-  signupHref = '#',
+  signupHref,
   forgotPasswordLabel = 'Forgot your password?',
   forgotPasswordLinkLabel = 'Reset Here',
   forgotPasswordHref,
@@ -99,12 +99,14 @@ export function Login({
           </div>
 
           {/* Signup footer */}
-          <div className="mt-6 text-center text-sm">
-            {signupLabel}{' '}
-            <a href={signupHref} className="underline underline-offset-4">
-              {signupLinkLabel}
-            </a>
-          </div>
+          {signupHref ? (
+            <div className="mt-6 text-center text-sm">
+              {signupLabel}{' '}
+              <a href={signupHref} className="underline underline-offset-4">
+                {signupLinkLabel}
+              </a>
+            </div>
+          ) : null}
         </div>
       </div>
 
