@@ -1,7 +1,10 @@
-import React from 'react';
+import type React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { type ColumnDef } from '@tanstack/react-table';
-import { DataTable, DataTableColumnHeader } from '../../../kit/builder/data-table';
+import type { ColumnDef } from '@tanstack/react-table';
+import {
+  DataTable,
+  DataTableColumnHeader,
+} from '../../../kit/builder/data-table';
 
 interface Person {
   id: string;
@@ -13,16 +16,24 @@ interface Person {
 const columns: ColumnDef<Person>[] = [
   {
     accessorKey: 'name',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Name" />
+    ),
   },
   {
     accessorKey: 'email',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Email" />
+    ),
   },
   {
     accessorKey: 'age',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Age" />,
-    cell: ({ getValue }) => <span className="tabular-nums">{getValue() as number}</span>,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Age" />
+    ),
+    cell: ({ getValue }) => (
+      <span className="tabular-nums">{getValue() as number}</span>
+    ),
   },
 ];
 

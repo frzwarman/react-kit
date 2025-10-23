@@ -4,7 +4,11 @@ import * as React from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '../../../shadcn/lib/utils';
 import { Button } from '../../../shadcn/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../../../shadcn/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../../../shadcn/ui/popover';
 import { Calendar } from '../../../shadcn/ui/calendar';
 import {
   Select,
@@ -21,7 +25,8 @@ export interface DateTimeRangeValue {
   to?: Date | null;
 }
 
-export interface DateTimeRangePickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface DateTimeRangePickerProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value?: DateTimeRangeValue | null;
   onChange?: (range: DateTimeRangeValue | null) => void;
   placeholder?: string;
@@ -47,11 +52,26 @@ export interface DateTimeRangePickerProps extends Omit<React.HTMLAttributes<HTML
 }
 
 const pad2 = (n: number) => String(n).padStart(2, '0');
-function startOfDay(d: Date) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-function sameDay(a: Date, b: Date) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
-function isBefore(date: Date, min?: Date) { return !!(min && date < startOfDay(min)); }
-function isAfter(date: Date, max?: Date) { return !!(max && date > startOfDay(max)); }
-function inDisabled(date: Date, items?: Array<Date | { from: Date; to: Date }>) {
+function startOfDay(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function sameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+function isBefore(date: Date, min?: Date) {
+  return !!(min && date < startOfDay(min));
+}
+function isAfter(date: Date, max?: Date) {
+  return !!(max && date > startOfDay(max));
+}
+function inDisabled(
+  date: Date,
+  items?: Array<Date | { from: Date; to: Date }>,
+) {
   if (!items || items.length === 0) return false;
   const d = startOfDay(date);
   for (const it of items) {
@@ -65,11 +85,17 @@ function inDisabled(date: Date, items?: Array<Date | { from: Date; to: Date }>) 
   }
   return false;
 }
-function rangeContainsDisabled(from?: Date, to?: Date, items?: Array<Date | { from: Date; to: Date }>) {
+function rangeContainsDisabled(
+  from?: Date,
+  to?: Date,
+  items?: Array<Date | { from: Date; to: Date }>,
+) {
   if (!from || !to) return false;
   if (!items || items.length === 0) return false;
-  const a = startOfDay(from); const b = startOfDay(to);
-  const start = a <= b ? a : b; const end = a <= b ? b : a;
+  const a = startOfDay(from);
+  const b = startOfDay(to);
+  const start = a <= b ? a : b;
+  const end = a <= b ? b : a;
   let cur = start;
   while (cur <= end) {
     if (inDisabled(cur, items)) return true;
@@ -99,9 +125,29 @@ function TimeSelectors({
   disabled?: boolean;
   compact?: boolean;
 }) {
-  const hours = React.useMemo(() => (hourCycle === 12 ? Array.from({ length: 12 }, (_, i) => i + 1) : Array.from({ length: 24 }, (_, i) => i)), [hourCycle]);
-  const minutes = React.useMemo(() => Array.from({ length: Math.ceil(60 / minuteStep) }, (_, i) => i * minuteStep), [minuteStep]);
-  const seconds = React.useMemo(() => Array.from({ length: Math.ceil(60 / secondStep) }, (_, i) => i * secondStep), [secondStep]);
+  const hours = React.useMemo(
+    () =>
+      hourCycle === 12
+        ? Array.from({ length: 12 }, (_, i) => i + 1)
+        : Array.from({ length: 24 }, (_, i) => i),
+    [hourCycle],
+  );
+  const minutes = React.useMemo(
+    () =>
+      Array.from(
+        { length: Math.ceil(60 / minuteStep) },
+        (_, i) => i * minuteStep,
+      ),
+    [minuteStep],
+  );
+  const seconds = React.useMemo(
+    () =>
+      Array.from(
+        { length: Math.ceil(60 / secondStep) },
+        (_, i) => i * secondStep,
+      ),
+    [secondStep],
+  );
   const selectedHour = React.useMemo(() => {
     if (!value) return hourCycle === 12 ? 12 : 0;
     const h = value.getHours();
@@ -109,21 +155,33 @@ function TimeSelectors({
   }, [value, hourCycle]);
   const selectedMinute = value?.getMinutes() ?? 0;
   const selectedSecond = value?.getSeconds() ?? 0;
-  const selectedPeriod: 'AM' | 'PM' = value && value.getHours() >= 12 ? 'PM' : 'AM';
+  const selectedPeriod: 'AM' | 'PM' =
+    value && value.getHours() >= 12 ? 'PM' : 'AM';
 
-  const setPart = (part: 'hour' | 'minute' | 'second' | 'period', v: number | 'AM' | 'PM') => {
+  const setPart = (
+    part: 'hour' | 'minute' | 'second' | 'period',
+    v: number | 'AM' | 'PM',
+  ) => {
     const base = value
       ? new Date(value)
       : (() => {
           const n = new Date();
-          return new Date(n.getFullYear(), n.getMonth(), n.getDate(), 0, 0, 0, 0);
+          return new Date(
+            n.getFullYear(),
+            n.getMonth(),
+            n.getDate(),
+            0,
+            0,
+            0,
+            0,
+          );
         })();
     if (part === 'hour') {
       let h = Number(v);
       if (hourCycle === 12) {
         const isPM = base.getHours() >= 12;
         h = h % 12;
-        base.setHours(isPM ? (h === 12 ? 12 : h + 12) : (h === 12 ? 0 : h));
+        base.setHours(isPM ? (h === 12 ? 12 : h + 12) : h === 12 ? 0 : h);
       } else {
         base.setHours(h);
       }
@@ -147,28 +205,46 @@ function TimeSelectors({
       {!compact && <div className="text-xs text-muted-foreground">{label}</div>}
       <div className="flex items-end gap-2">
         <div className={widthClass}>
-          {!compact && <div className="mb-1 block text-xs text-muted-foreground">Hour</div>}
-          <Select disabled={disabled} value={String(selectedHour)} onValueChange={(v) => setPart('hour', Number(v))}>
+          {!compact && (
+            <div className="mb-1 block text-xs text-muted-foreground">Hour</div>
+          )}
+          <Select
+            disabled={disabled}
+            value={String(selectedHour)}
+            onValueChange={(v) => setPart('hour', Number(v))}
+          >
             <SelectTrigger aria-label={`${label} hour`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {hours.map((h) => (
-                <SelectItem key={h} value={String(h)}>{hourCycle === 12 ? h : pad2(h)}</SelectItem>
+                <SelectItem key={h} value={String(h)}>
+                  {hourCycle === 12 ? h : pad2(h)}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         {(precision === 'minute' || precision === 'second') && (
           <div className={widthClass}>
-            {!compact && <div className="mb-1 block text-xs text-muted-foreground">Minute</div>}
-            <Select disabled={disabled} value={String(selectedMinute - (selectedMinute % minuteStep))} onValueChange={(v) => setPart('minute', Number(v))}>
+            {!compact && (
+              <div className="mb-1 block text-xs text-muted-foreground">
+                Minute
+              </div>
+            )}
+            <Select
+              disabled={disabled}
+              value={String(selectedMinute - (selectedMinute % minuteStep))}
+              onValueChange={(v) => setPart('minute', Number(v))}
+            >
               <SelectTrigger aria-label={`${label} minute`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {minutes.map((m) => (
-                  <SelectItem key={m} value={String(m)}>{pad2(m)}</SelectItem>
+                  <SelectItem key={m} value={String(m)}>
+                    {pad2(m)}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -176,14 +252,24 @@ function TimeSelectors({
         )}
         {precision === 'second' && (
           <div className={widthClass}>
-            {!compact && <div className="mb-1 block text-xs text-muted-foreground">Second</div>}
-            <Select disabled={disabled} value={String(selectedSecond - (selectedSecond % secondStep))} onValueChange={(v) => setPart('second', Number(v))}>
+            {!compact && (
+              <div className="mb-1 block text-xs text-muted-foreground">
+                Second
+              </div>
+            )}
+            <Select
+              disabled={disabled}
+              value={String(selectedSecond - (selectedSecond % secondStep))}
+              onValueChange={(v) => setPart('second', Number(v))}
+            >
               <SelectTrigger aria-label={`${label} second`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {seconds.map((s) => (
-                  <SelectItem key={s} value={String(s)}>{pad2(s)}</SelectItem>
+                  <SelectItem key={s} value={String(s)}>
+                    {pad2(s)}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -191,8 +277,16 @@ function TimeSelectors({
         )}
         {hourCycle === 12 && (
           <div className={widthClass}>
-            {!compact && <div className="mb-1 block text-xs text-muted-foreground">Period</div>}
-            <Select disabled={disabled} value={selectedPeriod} onValueChange={(v) => setPart('period', v as 'AM' | 'PM')}>
+            {!compact && (
+              <div className="mb-1 block text-xs text-muted-foreground">
+                Period
+              </div>
+            )}
+            <Select
+              disabled={disabled}
+              value={selectedPeriod}
+              onValueChange={(v) => setPart('period', v as 'AM' | 'PM')}
+            >
               <SelectTrigger aria-label={`${label} period`}>
                 <SelectValue />
               </SelectTrigger>
@@ -229,29 +323,43 @@ export function DateTimeRangePicker({
 }: DateTimeRangePickerProps) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const isOpen = typeof props.open === 'boolean' ? props.open : internalOpen;
-  const setOpen = (o: boolean) => (props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o));
-  const [draft, setDraft] = React.useState<DateTimeRangeValue | null>(value ?? null);
+  const setOpen = (o: boolean) =>
+    props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o);
+  const [draft, setDraft] = React.useState<DateTimeRangeValue | null>(
+    value ?? null,
+  );
 
   React.useEffect(() => {
     if (isOpen) setDraft(value ?? null);
   }, [isOpen, value]);
 
-  const fmtTime = React.useCallback((d?: Date | null) => {
-    if (!d) return '';
-    const h = d.getHours();
-    const m = d.getMinutes();
-    const s = d.getSeconds();
-    return hourCycle === 12
-      ? `${((h % 12) || 12)}:${pad2(m)}${timePrecision === 'second' ? `:${pad2(s)}` : ''} ${h >= 12 ? 'PM' : 'AM'}`
-      : `${pad2(h)}:${pad2(m)}${timePrecision === 'second' ? `:${pad2(s)}` : ''}`;
-  }, [hourCycle, timePrecision]);
+  const fmtTime = React.useCallback(
+    (d?: Date | null) => {
+      if (!d) return '';
+      const h = d.getHours();
+      const m = d.getMinutes();
+      const s = d.getSeconds();
+      return hourCycle === 12
+        ? `${h % 12 || 12}:${pad2(m)}${timePrecision === 'second' ? `:${pad2(s)}` : ''} ${h >= 12 ? 'PM' : 'AM'}`
+        : `${pad2(h)}:${pad2(m)}${timePrecision === 'second' ? `:${pad2(s)}` : ''}`;
+    },
+    [hourCycle, timePrecision],
+  );
 
   const label = React.useMemo(() => {
     const f = draft?.from ?? value?.from ?? null;
     const t = draft?.to ?? value?.to ?? null;
     if (f && t) {
-      const fd = f.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' });
-      const td = t.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' });
+      const fd = f.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+      });
+      const td = t.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+      });
       return `${fd} ${fmtTime(f)} – ${td} ${fmtTime(t)}`;
     }
     return placeholder;
@@ -265,8 +373,12 @@ export function DateTimeRangePicker({
     const yyyy = d.getFullYear();
     return `${dd} / ${mm} / ${yyyy}`;
   }, []);
-  const [fromInput, setFromInput] = React.useState<string>(fmtDate(draft?.from ?? value?.from ?? null));
-  const [toInput, setToInput] = React.useState<string>(fmtDate(draft?.to ?? value?.to ?? null));
+  const [fromInput, setFromInput] = React.useState<string>(
+    fmtDate(draft?.from ?? value?.from ?? null),
+  );
+  const [toInput, setToInput] = React.useState<string>(
+    fmtDate(draft?.to ?? value?.to ?? null),
+  );
   React.useEffect(() => {
     if (isOpen) {
       setFromInput(fmtDate(value?.from ?? null));
@@ -276,20 +388,31 @@ export function DateTimeRangePicker({
   const maskDate = (raw: string) => {
     const digits = raw.replace(/\D/g, '').slice(0, 8);
     const parts: string[] = [];
-    const dd = digits.slice(0, Math.min(2, digits.length)); if (dd) parts.push(dd);
-    const mm = digits.length > 2 ? digits.slice(2, Math.min(4, digits.length)) : ''; if (mm) parts.push(mm);
-    const yyyy = digits.length > 4 ? digits.slice(4) : ''; if (yyyy) parts.push(yyyy);
+    const dd = digits.slice(0, Math.min(2, digits.length));
+    if (dd) parts.push(dd);
+    const mm =
+      digits.length > 2 ? digits.slice(2, Math.min(4, digits.length)) : '';
+    if (mm) parts.push(mm);
+    const yyyy = digits.length > 4 ? digits.slice(4) : '';
+    if (yyyy) parts.push(yyyy);
     return parts.join(' / ');
   };
   const parseMasked = (masked: string): Date | undefined => {
     const m = masked.match(/^(\d{1,2})\s*\/\s*(\d{1,2})\s*\/\s*(\d{4})$/);
     if (!m) return undefined;
-    const dd = Number(m[1]); const mm = Number(m[2]); const yyyy = Number(m[3]);
+    const dd = Number(m[1]);
+    const mm = Number(m[2]);
+    const yyyy = Number(m[3]);
     if (mm < 1 || mm > 12) return undefined;
     const lastDay = new Date(yyyy, mm, 0).getDate();
     if (dd < 1 || dd > lastDay) return undefined;
     const out = new Date(yyyy, mm - 1, dd);
-    if (isBefore(out, minDate) || isAfter(out, maxDate) || inDisabled(out, disabledDates)) return undefined;
+    if (
+      isBefore(out, minDate) ||
+      isAfter(out, maxDate) ||
+      inDisabled(out, disabledDates)
+    )
+      return undefined;
     return out;
   };
   const fromParsed = parseMasked(fromInput);
@@ -304,7 +427,7 @@ export function DateTimeRangePicker({
           fromParsed.getDate(),
           base.getHours(),
           base.getMinutes(),
-          base.getSeconds()
+          base.getSeconds(),
         );
       }
       return fromParsed;
@@ -321,25 +444,44 @@ export function DateTimeRangePicker({
           toParsed.getDate(),
           base.getHours(),
           base.getMinutes(),
-          base.getSeconds()
+          base.getSeconds(),
         );
       }
       return toParsed;
     }
     return draft?.to ?? undefined;
   }, [toParsed, draft, value]);
-  const invalidRange = !mergedFrom || !mergedTo || isBefore(mergedFrom, minDate) || isAfter(mergedTo, maxDate) || mergedFrom > mergedTo || rangeContainsDisabled(mergedFrom, mergedTo, disabledDates);
+  const invalidRange =
+    !mergedFrom ||
+    !mergedTo ||
+    isBefore(mergedFrom, minDate) ||
+    isAfter(mergedTo, maxDate) ||
+    mergedFrom > mergedTo ||
+    rangeContainsDisabled(mergedFrom, mergedTo, disabledDates);
 
   return (
     <div className={cn('w-fit', className)} {...props}>
       <Popover open={isOpen} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button type="button" disabled={disabled} variant={buttonVariant} className={cn('w-[360px] justify-start text-left font-normal', !value && 'text-muted-foreground')}>
+          <Button
+            type="button"
+            disabled={disabled}
+            variant={buttonVariant}
+            className={cn(
+              'w-[360px] justify-start text-left font-normal',
+              !value && 'text-muted-foreground',
+            )}
+          >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {label}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto max-w-none p-4" align="start" side={popoverSide ?? 'bottom'} sideOffset={8}>
+        <PopoverContent
+          className="w-auto max-w-none p-4"
+          align="start"
+          side={popoverSide ?? 'bottom'}
+          sideOffset={8}
+        >
           <div className={cn('w-fit min-w-0', contentClassName)}>
             {/* Header row: date inputs with inline time selectors beside each */}
             <div className="mb-3 rounded-md border border-input bg-background/50 px-3 py-2">
@@ -360,7 +502,7 @@ export function DateTimeRangePicker({
                           p.getDate(),
                           prev ? prev.getHours() : 0,
                           prev ? prev.getMinutes() : 0,
-                          prev ? prev.getSeconds() : 0
+                          prev ? prev.getSeconds() : 0,
                         );
                         setDraft((d) => ({ ...(d ?? {}), from: withTime }));
                       }
@@ -372,7 +514,9 @@ export function DateTimeRangePicker({
                     label="From"
                     compact
                     value={draft?.from ?? null}
-                    onChange={(d) => setDraft((prev) => ({ ...(prev ?? {}), from: d }))}
+                    onChange={(d) =>
+                      setDraft((prev) => ({ ...(prev ?? {}), from: d }))
+                    }
                     precision={timePrecision}
                     hourCycle={hourCycle}
                     minuteStep={minuteStep}
@@ -397,7 +541,7 @@ export function DateTimeRangePicker({
                           p.getDate(),
                           prev ? prev.getHours() : 0,
                           prev ? prev.getMinutes() : 0,
-                          prev ? prev.getSeconds() : 0
+                          prev ? prev.getSeconds() : 0,
                         );
                         setDraft((d) => ({ ...(d ?? {}), to: withTime }));
                       }
@@ -409,7 +553,9 @@ export function DateTimeRangePicker({
                     label="To"
                     compact
                     value={draft?.to ?? null}
-                    onChange={(d) => setDraft((prev) => ({ ...(prev ?? {}), to: d }))}
+                    onChange={(d) =>
+                      setDraft((prev) => ({ ...(prev ?? {}), to: d }))
+                    }
                     precision={timePrecision}
                     hourCycle={hourCycle}
                     minuteStep={minuteStep}
@@ -424,39 +570,83 @@ export function DateTimeRangePicker({
             <Calendar
               mode="range"
               numberOfMonths={numberOfMonths}
-              selected={draft?.from && draft?.to ? { from: draft.from, to: draft.to } : undefined}
+              selected={
+                draft?.from && draft?.to
+                  ? { from: draft.from, to: draft.to }
+                  : undefined
+              }
               onSelect={(range) => {
                 if (disabled) return;
-                if (!range) { setDraft(null); return; }
+                if (!range) {
+                  setDraft(null);
+                  return;
+                }
                 const { from, to } = range as { from?: Date; to?: Date };
-                if (from && (isBefore(from, minDate) || isAfter(from, maxDate))) return;
-                if (to && (isBefore(to, minDate) || isAfter(to, maxDate))) return;
-                if (from && to && rangeContainsDisabled(from, to, disabledDates)) return;
+                if (from && (isBefore(from, minDate) || isAfter(from, maxDate)))
+                  return;
+                if (to && (isBefore(to, minDate) || isAfter(to, maxDate)))
+                  return;
+                if (
+                  from &&
+                  to &&
+                  rangeContainsDisabled(from, to, disabledDates)
+                )
+                  return;
                 const prevFrom = draft?.from ?? from;
                 const prevTo = draft?.to ?? to;
                 const nextFrom = from
-                  ? new Date(from.getFullYear(), from.getMonth(), from.getDate(), prevFrom?.getHours?.() ?? 0, prevFrom?.getMinutes?.() ?? 0, prevFrom?.getSeconds?.() ?? 0)
+                  ? new Date(
+                      from.getFullYear(),
+                      from.getMonth(),
+                      from.getDate(),
+                      prevFrom?.getHours?.() ?? 0,
+                      prevFrom?.getMinutes?.() ?? 0,
+                      prevFrom?.getSeconds?.() ?? 0,
+                    )
                   : undefined;
                 const nextTo = to
-                  ? new Date(to.getFullYear(), to.getMonth(), to.getDate(), prevTo?.getHours?.() ?? 0, prevTo?.getMinutes?.() ?? 0, prevTo?.getSeconds?.() ?? 0)
+                  ? new Date(
+                      to.getFullYear(),
+                      to.getMonth(),
+                      to.getDate(),
+                      prevTo?.getHours?.() ?? 0,
+                      prevTo?.getMinutes?.() ?? 0,
+                      prevTo?.getSeconds?.() ?? 0,
+                    )
                   : undefined;
                 setDraft({ from: nextFrom ?? null, to: nextTo ?? null });
                 setFromInput(fmtDate(nextFrom ?? null));
                 setToInput(fmtDate(nextTo ?? null));
               }}
               defaultMonth={draft?.from ?? value?.from ?? new Date()}
-              disabled={(d) => isBefore(d, minDate) || isAfter(d, maxDate) || inDisabled(d, disabledDates)}
+              disabled={(d) =>
+                isBefore(d, minDate) ||
+                isAfter(d, maxDate) ||
+                inDisabled(d, disabledDates)
+              }
               buttonVariant="ghost"
               showOutsideDays
             />
           </div>
           {(props.showFooter ?? true) && (
             <div className="flex items-center justify-between gap-2 pt-3 mt-3 border-t">
-              <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)} disabled={disabled}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(false)}
+                disabled={disabled}
+              >
                 {props.cancelLabel ?? 'Cancel'}
               </Button>
               <div className="flex gap-2">
-                <Button type="button" variant="ghost" size="sm" onClick={() => onChange?.(null)} disabled={disabled}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onChange?.(null)}
+                  disabled={disabled}
+                >
                   {props.clearLabel ?? 'Clear'}
                 </Button>
                 <Button

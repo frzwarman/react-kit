@@ -11,7 +11,57 @@ export default meta;
 type Story = StoryObj<typeof ScrollArea>;
 
 const TAGS: string[] = [
-  'nextjs','shadcn','tailwind','radix','react','storybook','vitest','nx','pnpm','zod','react-hook-form','recharts','lucide','ui','forms','charts','table','sidebar','dialog','wizard','pagination','filtering','sorting','layout','accessibility','aria','dark-mode','light-mode','themes','components','hooks','state','routing','graphql','rest','cache','testing','automation','ci','cd','lint','format','prettier','eslint','typescript','javascript','css','html','design-system','docs','examples'
+  'nextjs',
+  'shadcn',
+  'tailwind',
+  'radix',
+  'react',
+  'storybook',
+  'vitest',
+  'nx',
+  'pnpm',
+  'zod',
+  'react-hook-form',
+  'recharts',
+  'lucide',
+  'ui',
+  'forms',
+  'charts',
+  'table',
+  'sidebar',
+  'dialog',
+  'wizard',
+  'pagination',
+  'filtering',
+  'sorting',
+  'layout',
+  'accessibility',
+  'aria',
+  'dark-mode',
+  'light-mode',
+  'themes',
+  'components',
+  'hooks',
+  'state',
+  'routing',
+  'graphql',
+  'rest',
+  'cache',
+  'testing',
+  'automation',
+  'ci',
+  'cd',
+  'lint',
+  'format',
+  'prettier',
+  'eslint',
+  'typescript',
+  'javascript',
+  'css',
+  'html',
+  'design-system',
+  'docs',
+  'examples',
 ];
 
 export const Default: Story = {
@@ -22,7 +72,9 @@ export const Default: Story = {
           <h4 className="text-sm font-medium leading-none">Tags</h4>
           <div className="space-y-2">
             {TAGS.map((tag) => (
-              <div key={tag} className="text-sm text-muted-foreground">#{tag}</div>
+              <div key={tag} className="text-sm text-muted-foreground">
+                #{tag}
+              </div>
             ))}
           </div>
         </div>

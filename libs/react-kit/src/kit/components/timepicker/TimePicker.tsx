@@ -85,7 +85,7 @@ export function TimePicker({
 
   const setDraftPart = (
     part: 'hour' | 'minute' | 'second' | 'period',
-    val: number | 'AM' | 'PM'
+    val: number | 'AM' | 'PM',
   ) => {
     setDraft((prev) => {
       const base = prev
@@ -99,7 +99,7 @@ export function TimePicker({
               0,
               0,
               0,
-              0
+              0,
             );
           })();
       if (part === 'hour') {
@@ -135,17 +135,17 @@ export function TimePicker({
     () =>
       Array.from(
         { length: Math.ceil(60 / minuteStep) },
-        (_, i) => i * minuteStep
+        (_, i) => i * minuteStep,
       ),
-    [minuteStep]
+    [minuteStep],
   );
   const seconds = React.useMemo(
     () =>
       Array.from(
         { length: Math.ceil(60 / secondStep) },
-        (_, i) => i * secondStep
+        (_, i) => i * secondStep,
       ),
-    [secondStep]
+    [secondStep],
   );
 
   const selectedHour = React.useMemo(() => {
@@ -170,7 +170,7 @@ export function TimePicker({
             variant={buttonVariant}
             className={cn(
               'w-[240px] justify-start text-left font-normal',
-              !value && 'text-muted-foreground'
+              !value && 'text-muted-foreground',
             )}
           >
             <Clock className="mr-2 h-4 w-4" />
@@ -180,7 +180,9 @@ export function TimePicker({
         <PopoverContent className="p-3 w-auto" align="start">
           <div className="flex items-end gap-2">
             <div className="w-24">
-              <div className="mb-1 block text-xs text-muted-foreground">Hour</div>
+              <div className="mb-1 block text-xs text-muted-foreground">
+                Hour
+              </div>
               <Select
                 disabled={disabled}
                 value={String(selectedHour)}
@@ -201,7 +203,9 @@ export function TimePicker({
 
             {(precision === 'minute' || precision === 'second') && (
               <div className="w-24">
-                <div className="mb-1 block text-xs text-muted-foreground">Minute</div>
+                <div className="mb-1 block text-xs text-muted-foreground">
+                  Minute
+                </div>
                 <Select
                   disabled={disabled}
                   value={String(selectedMinute - (selectedMinute % minuteStep))}
@@ -223,7 +227,9 @@ export function TimePicker({
 
             {precision === 'second' && (
               <div className="w-24">
-                <div className="mb-1 block text-xs text-muted-foreground">Second</div>
+                <div className="mb-1 block text-xs text-muted-foreground">
+                  Second
+                </div>
                 <Select
                   disabled={disabled}
                   value={String(selectedSecond - (selectedSecond % secondStep))}
@@ -245,7 +251,9 @@ export function TimePicker({
 
             {hourCycle === 12 && (
               <div className="w-24">
-                <div className="mb-1 block text-xs text-muted-foreground">Period</div>
+                <div className="mb-1 block text-xs text-muted-foreground">
+                  Period
+                </div>
                 <Select
                   disabled={disabled}
                   value={selectedPeriod}

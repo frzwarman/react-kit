@@ -29,10 +29,13 @@ export const Basic: Story = {
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>Edit profile</DrawerTitle>
-          <DrawerDescription>Make changes to your profile here. Click save when you're done.</DrawerDescription>
+          <DrawerDescription>
+            Make changes to your profile here. Click save when you're done.
+          </DrawerDescription>
         </DrawerHeader>
         <div className="px-4 pb-4 text-sm text-muted-foreground">
-          This is a bottom sheet drawer powered by <code>vaul</code> with shadcn styles.
+          This is a bottom sheet drawer powered by <code>vaul</code> with shadcn
+          styles.
         </div>
         <DrawerFooter>
           <Button type="button">Save changes</Button>

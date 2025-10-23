@@ -1,60 +1,96 @@
-import { useFieldArray } from 'react-hook-form'
-import type { FieldArrayPath, FieldValues } from 'react-hook-form'
-import { Card, CardContent, CardHeader, CardTitle } from '../../../../../shadcn/ui/card'
-import { Button } from '../../../../../shadcn/ui/button'
-import { Input } from '../../../../../shadcn/ui/input'
-import { GripVertical, Plus, Trash2 } from 'lucide-react'
-import { cn } from '../../../../../shadcn/lib/utils'
-import type { FieldRenderProps } from './types'
-import { FormBuilderField } from '../FormBuilderField'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../../../shadcn/ui/table'
+import { useFieldArray } from 'react-hook-form';
+import type { FieldArrayPath, FieldValues } from 'react-hook-form';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../../../../../shadcn/ui/card';
+import { Button } from '../../../../../shadcn/ui/button';
+import { Input } from '../../../../../shadcn/ui/input';
+import { GripVertical, Plus, Trash2 } from 'lucide-react';
+import { cn } from '../../../../../shadcn/lib/utils';
+import type { FieldRenderProps } from './types';
+import { FormBuilderField } from '../FormBuilderField';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../../../../../shadcn/ui/table';
 
-export function ArrayField({ field, control, fieldPath, value, onChange }: FieldRenderProps) {
+export function ArrayField({
+  field,
+  control,
+  fieldPath,
+  value,
+  onChange,
+}: FieldRenderProps) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: fieldPath as FieldArrayPath<FieldValues>,
-  })
+  });
 
   const addItem = () => {
     // For custom layout, prefer appending an object so useFieldArray can generate stable IDs
     if (field.arrayLayout === 'custom') {
-      append({} as never)
-      return
+      append({} as never);
+      return;
     }
     if (field.fields && field.fields.length === 1) {
-      const defaultValue = field.fields[0].defaultValue ?? ''
-      append(defaultValue as never)
+      const defaultValue = field.fields[0].defaultValue ?? '';
+      append(defaultValue as never);
     } else if (field.fields) {
-      const defaultObject: Record<string, unknown> = {}
+      const defaultObject: Record<string, unknown> = {};
       field.fields.forEach((subField) => {
-        defaultObject[subField.name] = subField.defaultValue ?? ''
-      })
-      append(defaultObject as never)
+        defaultObject[subField.name] = subField.defaultValue ?? '';
+      });
+      append(defaultObject as never);
     } else {
-      append('' as never)
+      append('' as never);
     }
-  }
+  };
 
-  const removeItem = (index: number) => remove(index)
+  const removeItem = (index: number) => remove(index);
 
   // Custom layout hook
-  if (field.arrayLayout === 'custom' && typeof field.arrayRender === 'function') {
+  if (
+    field.arrayLayout === 'custom' &&
+    typeof field.arrayRender === 'function'
+  ) {
     return (
-      <>{field.arrayRender({ field, control, fieldPath, value, onChange, addItem, removeItem, disabled: field.disabled, rows: fields })}</>
-    )
+      <>
+        {field.arrayRender({
+          field,
+          control,
+          fieldPath,
+          value,
+          onChange,
+          addItem,
+          removeItem,
+          disabled: field.disabled,
+          rows: fields,
+        })}
+      </>
+    );
   }
 
   // Table layout
   if (field.arrayLayout === 'table') {
-    const hasNested = Array.isArray(field.fields) && field.fields.length > 0
-    const fFields = field.fields ?? []
-    const isSubFieldHidden = (subField: typeof fFields[number]) =>
-      Boolean(subField?.hidden) || subField?.type === 'hidden'
-    const visibleSubFields = fFields.filter(subField => !isSubFieldHidden(subField))
-    const singleNested = hasNested && visibleSubFields.length === 1
-    const headerBg = field.arrayColors?.headerBgClass ?? 'bg-primary'
-    const headerText = field.arrayColors?.headerTextClass ?? 'text-primary-foreground'
-    const altRow = field.arrayColors?.rowAltBgClass ?? 'bg-muted/40'
+    const hasNested = Array.isArray(field.fields) && field.fields.length > 0;
+    const fFields = field.fields ?? [];
+    const isSubFieldHidden = (subField: (typeof fFields)[number]) =>
+      Boolean(subField?.hidden) || subField?.type === 'hidden';
+    const visibleSubFields = fFields.filter(
+      (subField) => !isSubFieldHidden(subField),
+    );
+    const singleNested = hasNested && visibleSubFields.length === 1;
+    const headerBg = field.arrayColors?.headerBgClass ?? 'bg-primary';
+    const headerText =
+      field.arrayColors?.headerTextClass ?? 'text-primary-foreground';
+    const altRow = field.arrayColors?.rowAltBgClass ?? 'bg-muted/40';
 
     return (
       <Card className={cn(field.className, 'py-3 rounded-md gap-3')}>
@@ -63,10 +99,18 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
             <div>
               <CardTitle className="text-base">{field.label}</CardTitle>
               {field.description && (
-                <p className="text-sm text-muted-foreground">{field.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  {field.description}
+                </p>
               )}
             </div>
-            <Button type="button" variant="outline" size="sm" onClick={addItem} disabled={field.disabled}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addItem}
+              disabled={field.disabled}
+            >
               <Plus className="h-4 w-4 mr-1" />
               Add Item
             </Button>
@@ -83,10 +127,14 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
                 <TableRow className={cn(headerBg, headerText)}>
                   {hasNested ? (
                     singleNested ? (
-                      <TableHead className={cn(headerText)}>{visibleSubFields[0]?.label || 'Value'}</TableHead>
+                      <TableHead className={cn(headerText)}>
+                        {visibleSubFields[0]?.label || 'Value'}
+                      </TableHead>
                     ) : (
-                      visibleSubFields.map(sf => (
-                        <TableHead key={sf.name} className={cn(headerText)}>{sf.label || sf.name}</TableHead>
+                      visibleSubFields.map((sf) => (
+                        <TableHead key={sf.name} className={cn(headerText)}>
+                          {sf.label || sf.name}
+                        </TableHead>
                       ))
                     )
                   ) : (
@@ -97,18 +145,25 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
               </TableHeader>
               <TableBody>
                 {fields.map((item, index) => (
-                  <TableRow key={item.id} className={cn(index % 2 === 1 && altRow)}>
+                  <TableRow
+                    key={item.id}
+                    className={cn(index % 2 === 1 && altRow)}
+                  >
                     {hasNested ? (
                       singleNested ? (
                         <TableCell>
                           <FormBuilderField
-                            field={{ ...visibleSubFields[0], name: visibleSubFields[0]?.name, label: visibleSubFields[0]?.label || 'Value' }}
+                            field={{
+                              ...visibleSubFields[0],
+                              name: visibleSubFields[0]?.name,
+                              label: visibleSubFields[0]?.label || 'Value',
+                            }}
                             control={control}
                             parentPath={`${fieldPath}.${index}`}
                           />
                         </TableCell>
                       ) : (
-                        visibleSubFields.map(subField => (
+                        visibleSubFields.map((subField) => (
                           <TableCell key={subField.name}>
                             <FormBuilderField
                               field={subField}
@@ -121,12 +176,15 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
                     ) : (
                       <TableCell>
                         <Input
-                          value={String(((value as unknown[] | undefined)?.[index] ?? ''))}
+                          value={String(
+                            (value as unknown[] | undefined)?.[index] ?? '',
+                          )}
                           onChange={(e) => {
-                            const current = (value as unknown[] | undefined) ?? []
-                            const newArray = [...current]
-                            newArray[index] = e.target.value
-                            onChange(newArray)
+                            const current =
+                              (value as unknown[] | undefined) ?? [];
+                            const newArray = [...current];
+                            newArray[index] = e.target.value;
+                            onChange(newArray);
                           }}
                           placeholder={`Item ${index + 1}`}
                           disabled={field.disabled}
@@ -134,7 +192,13 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
                       </TableCell>
                     )}
                     <TableCell className="w-1 text-right">
-                      <Button type="button" variant="destructive" size="sm" onClick={() => remove(index)} disabled={field.disabled}>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => remove(index)}
+                        disabled={field.disabled}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -145,7 +209,7 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
           )}
         </CardContent>
       </Card>
-    )
+    );
   }
 
   // Default: card layout (existing UI)
@@ -156,10 +220,18 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
           <div>
             <CardTitle className="text-base">{field.label}</CardTitle>
             {field.description && (
-              <p className="text-sm text-muted-foreground">{field.description}</p>
+              <p className="text-sm text-muted-foreground">
+                {field.description}
+              </p>
             )}
           </div>
-          <Button type="button" variant="outline" size="sm" onClick={addItem} disabled={field.disabled}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addItem}
+            disabled={field.disabled}
+          >
             <Plus className="h-4 w-4 mr-1" />
             Add Item
           </Button>
@@ -177,9 +249,17 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <GripVertical className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">Item {index + 1}</span>
+                    <span className="text-sm font-medium">
+                      Item {index + 1}
+                    </span>
                   </div>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => remove(index)} disabled={field.disabled}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => remove(index)}
+                    disabled={field.disabled}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -187,13 +267,17 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
               <CardContent>
                 {field.fields && field.fields.length === 1 ? (
                   <FormBuilderField
-                    field={{ ...field.fields[0], name: field.fields[0].name, label: field.fields[0].label || 'Value' }}
+                    field={{
+                      ...field.fields[0],
+                      name: field.fields[0].name,
+                      label: field.fields[0].label || 'Value',
+                    }}
                     control={control}
                     parentPath={`${fieldPath}.${index}`}
                   />
                 ) : field.fields ? (
                   <div className="grid gap-2 md:grid-cols-2">
-                    {field.fields.map(subField => (
+                    {field.fields.map((subField) => (
                       <FormBuilderField
                         key={subField.name}
                         field={subField}
@@ -204,12 +288,14 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
                   </div>
                 ) : (
                   <Input
-                    value={String(((value as unknown[] | undefined)?.[index] ?? ''))}
+                    value={String(
+                      (value as unknown[] | undefined)?.[index] ?? '',
+                    )}
                     onChange={(e) => {
-                      const current = (value as unknown[] | undefined) ?? []
-                      const newArray = [...current]
-                      newArray[index] = e.target.value
-                      onChange(newArray)
+                      const current = (value as unknown[] | undefined) ?? [];
+                      const newArray = [...current];
+                      newArray[index] = e.target.value;
+                      onChange(newArray);
                     }}
                     placeholder={`Item ${index + 1}`}
                     disabled={field.disabled}
@@ -221,5 +307,5 @@ export function ArrayField({ field, control, fieldPath, value, onChange }: Field
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

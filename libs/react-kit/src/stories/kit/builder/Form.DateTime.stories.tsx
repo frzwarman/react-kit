@@ -1,5 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { FormBuilder, type FormBuilderProps } from '../../../kit/builder/form/components/FormBuilder'
+import type { Meta, StoryObj } from '@storybook/react';
+import {
+  FormBuilder,
+  type FormBuilderProps,
+} from '../../../kit/builder/form/components/FormBuilder';
 
 const meta: Meta<typeof FormBuilder> = {
   title: 'Kit/Builder/Form',
@@ -8,11 +11,11 @@ const meta: Meta<typeof FormBuilder> = {
     controls: { expanded: true },
     backgrounds: { disable: true },
   },
-}
+};
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof FormBuilder>
+type Story = StoryObj<typeof FormBuilder>;
 
 export const DateTimeFields: Story = {
   name: 'Date/Time fields',
@@ -20,7 +23,8 @@ export const DateTimeFields: Story = {
     sections: [
       {
         title: 'Date & Time',
-        description: 'Examples of DateTimePicker, DateTimeRangePicker and TimeRangePicker fields',
+        description:
+          'Examples of DateTimePicker, DateTimeRangePicker and TimeRangePicker fields',
         variant: 'card',
         layout: 'grid',
         grid: { cols: 1, mdCols: 2, gap: 'gap-4' },
@@ -54,7 +58,7 @@ export const DateTimeFields: Story = {
     onSubmit: (data: unknown) => {
       // Showing output in console for demo
       // eslint-disable-next-line no-console
-      console.log('Submit (date/time):', data)
+      console.log('Submit (date/time):', data);
     },
     showActions: true,
   } satisfies Partial<FormBuilderProps>,
@@ -63,4 +67,4 @@ export const DateTimeFields: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};

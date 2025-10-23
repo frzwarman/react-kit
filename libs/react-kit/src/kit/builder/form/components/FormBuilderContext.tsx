@@ -13,17 +13,19 @@ interface DependencyState {
   hidden?: boolean;
 }
 
-export interface FormBuilderContextValue<TFieldValues extends FieldValues = FieldValues> {
+export interface FormBuilderContextValue<
+  TFieldValues extends FieldValues = FieldValues,
+> {
   control: Control<TFieldValues>;
   getValues: UseFormGetValues<TFieldValues>;
   setValue: UseFormSetValue<TFieldValues>;
   onFieldChange?: (
     name: Path<TFieldValues> | string,
     value: unknown,
-    allValues: TFieldValues
+    allValues: TFieldValues,
   ) => void;
   handleFieldDependencies: (
-    field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>
+    field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>,
   ) => DependencyState;
   handleFieldChange: (
     field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>,
@@ -32,10 +34,15 @@ export interface FormBuilderContextValue<TFieldValues extends FieldValues = Fiel
   ) => void;
 }
 
-const FormBuilderContext = createContext<FormBuilderContextValue<FieldValues> | null>(null);
+const FormBuilderContext =
+  createContext<FormBuilderContextValue<FieldValues> | null>(null);
 
-export function useFormBuilderContext<TFieldValues extends FieldValues = FieldValues>() {
-  const value = useContext(FormBuilderContext) as FormBuilderContextValue<TFieldValues> | null;
+export function useFormBuilderContext<
+  TFieldValues extends FieldValues = FieldValues,
+>() {
+  const value = useContext(
+    FormBuilderContext,
+  ) as FormBuilderContextValue<TFieldValues> | null;
   if (!value) {
     throw new Error('FormBuilderGroup must be used within a FormBuilder.');
   }

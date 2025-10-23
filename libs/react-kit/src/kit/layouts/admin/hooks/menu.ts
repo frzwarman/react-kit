@@ -1,7 +1,10 @@
-import React, { createContext, useContext } from 'react';
-import { AdminMenuContextValue, AdminMenuGroup } from '../types';
+import type React from 'react';
+import { createContext, useContext } from 'react';
+import type { AdminMenuContextValue, AdminMenuGroup } from '../types';
 
-export const AdminMenuContext = createContext<AdminMenuContextValue | null>(null);
+export const AdminMenuContext = createContext<AdminMenuContextValue | null>(
+  null,
+);
 
 export function useAdminSidebarMenu() {
   const ctx = useContext(AdminMenuContext);
@@ -11,7 +14,9 @@ export function useAdminSidebarMenu() {
     const noop = () => {};
     return {
       groups: [] as AdminMenuGroup[],
-      setGroups: noop as unknown as React.Dispatch<React.SetStateAction<AdminMenuGroup[]>>,
+      setGroups: noop as unknown as React.Dispatch<
+        React.SetStateAction<AdminMenuGroup[]>
+      >,
       registerGroup: noop as AdminMenuContextValue['registerGroup'],
       registerItem: noop as AdminMenuContextValue['registerItem'],
       clear: noop,
@@ -21,6 +26,7 @@ export function useAdminSidebarMenu() {
 }
 
 export function useAdminSidebarMenuRegistration() {
-  const { setGroups, registerGroup, registerItem, clear } = useAdminSidebarMenu();
+  const { setGroups, registerGroup, registerItem, clear } =
+    useAdminSidebarMenu();
   return { setGroups, registerGroup, registerItem, clear };
 }

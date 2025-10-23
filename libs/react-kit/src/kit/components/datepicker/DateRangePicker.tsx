@@ -4,11 +4,16 @@ import * as React from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '../../../shadcn/lib/utils';
 import { Button } from '../../../shadcn/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../../../shadcn/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../../../shadcn/ui/popover';
 import { Calendar } from '../../../shadcn/ui/calendar';
 import type { DateRange } from 'react-day-picker';
 
-export interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface DateRangePickerProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value?: DateRange | null;
   onChange?: (range: DateRange | null) => void;
   placeholder?: string;
@@ -35,22 +40,33 @@ export interface DateRangePickerProps extends Omit<React.HTMLAttributes<HTMLDivE
 }
 
 function sameDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
 }
 
 function isBefore(date: Date, min?: Date) {
-  return !!(min && date < new Date(min.getFullYear(), min.getMonth(), min.getDate()));
+  return !!(
+    min && date < new Date(min.getFullYear(), min.getMonth(), min.getDate())
+  );
 }
 
 function isAfter(date: Date, max?: Date) {
-  return !!(max && date > new Date(max.getFullYear(), max.getMonth(), max.getDate()));
+  return !!(
+    max && date > new Date(max.getFullYear(), max.getMonth(), max.getDate())
+  );
 }
 
 function startOfDay(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
-function inDisabled(date: Date, items?: Array<Date | { from: Date; to: Date }>) {
+function inDisabled(
+  date: Date,
+  items?: Array<Date | { from: Date; to: Date }>,
+) {
   if (!items || items.length === 0) return false;
   const d = startOfDay(date);
   for (const it of items) {
@@ -68,7 +84,7 @@ function inDisabled(date: Date, items?: Array<Date | { from: Date; to: Date }>) 
 function rangeContainsDisabled(
   from?: Date,
   to?: Date,
-  items?: Array<Date | { from: Date; to: Date }>
+  items?: Array<Date | { from: Date; to: Date }>,
 ) {
   if (!from || !to) return false;
   if (!items || items.length === 0) return false;
@@ -100,7 +116,8 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const isOpen = typeof props.open === 'boolean' ? props.open : internalOpen;
-  const setOpen = (o: boolean) => (props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o));
+  const setOpen = (o: boolean) =>
+    props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o);
 
   const isDisabled = (date: Date) => {
     if (isBefore(date, minDate) || isAfter(date, maxDate)) return true;
@@ -112,8 +129,8 @@ export function DateRangePicker({
     ? format
       ? format(value.from, value.to)
       : value.to
-      ? `${value.from.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' })} \t– ${value.to.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' })}`
-      : `${value.from.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' })} \t– …`
+        ? `${value.from.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' })} \t– ${value.to.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' })}`
+        : `${value.from.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' })} \t– …`
     : placeholder;
 
   // Draft (apply mode) — selection applies when clicking Update
@@ -146,7 +163,8 @@ export function DateRangePicker({
     const parts: string[] = [];
     const dd = digits.slice(0, Math.min(2, digits.length));
     if (dd) parts.push(dd);
-    const mm = digits.length > 2 ? digits.slice(2, Math.min(4, digits.length)) : '';
+    const mm =
+      digits.length > 2 ? digits.slice(2, Math.min(4, digits.length)) : '';
     if (mm) parts.push(mm);
     const yyyy = digits.length > 4 ? digits.slice(4) : '';
     if (yyyy) parts.push(yyyy);
@@ -164,8 +182,18 @@ export function DateRangePicker({
     if (dd < 1 || dd > lastDay) return undefined;
     const out = new Date(yyyy, mm - 1, dd);
     // bounds and disabled validation
-    if (minDate && out < new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate())) return undefined;
-    if (maxDate && out > new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate())) return undefined;
+    if (
+      minDate &&
+      out <
+        new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate())
+    )
+      return undefined;
+    if (
+      maxDate &&
+      out >
+        new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate())
+    )
+      return undefined;
     if (inDisabled(out, disabledDates)) return undefined;
     return out;
   };
@@ -196,23 +224,28 @@ export function DateRangePicker({
   const applyFromInput = () => {
     setFromTouched(true);
     if (!fromParsed) return;
-    setDraft((prev) => ({ from: fromParsed, to: prev?.to } as DateRange));
+    setDraft((prev) => ({ from: fromParsed, to: prev?.to }) as DateRange);
   };
   const applyToInput = () => {
     setToTouched(true);
     if (!toParsed) return;
-    setDraft((prev) => ({ from: prev?.from, to: toParsed } as DateRange));
+    setDraft((prev) => ({ from: prev?.from, to: toParsed }) as DateRange);
   };
 
   // If current draft is invalid (e.g., starts on a disabled day), hide it from the calendar selection
   const draftInvalidForSelection =
     (!!draft?.from && isDisabled(draft.from)) ||
     (!!draft?.to && isDisabled(draft.to)) ||
-    (!!draft?.from && !!draft?.to && rangeContainsDisabled(draft.from, draft.to, disabledDates));
-  const selectedRange = draftInvalidForSelection ? undefined : draft ?? undefined;
+    (!!draft?.from &&
+      !!draft?.to &&
+      rangeContainsDisabled(draft.from, draft.to, disabledDates));
+  const selectedRange = draftInvalidForSelection
+    ? undefined
+    : (draft ?? undefined);
 
   // Helpers for presets
-  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const startOfDay = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const startOfWeek = (d: Date) => {
     const s = startOfDay(d);
     return new Date(s.getFullYear(), s.getMonth(), s.getDate() - s.getDay()); // Sunday start
@@ -228,80 +261,93 @@ export function DateRangePicker({
     return out;
   };
   const defaultPresets: Array<{ label: string; getRange: () => DateRange }> = [
-    { label: 'Today', getRange: () => { const t = startOfDay(new Date()); return { from: clamp(t), to: clamp(t) }; } },
-    { label: 'Yesterday', getRange: () => { const t = startOfDay(new Date()); const y = new Date(t); y.setDate(t.getDate() - 1); return { from: clamp(y), to: clamp(y) }; } },
-      {
-        label: 'Last 7 days',
-        getRange: () => {
-          const end = startOfDay(new Date());
-          const start = new Date(end);
-          start.setDate(end.getDate() - 6);
-          return { from: clamp(start), to: clamp(end) };
-        },
+    {
+      label: 'Today',
+      getRange: () => {
+        const t = startOfDay(new Date());
+        return { from: clamp(t), to: clamp(t) };
       },
-      {
-        label: 'Last 14 days',
-        getRange: () => {
-          const end = startOfDay(new Date());
-          const start = new Date(end);
-          start.setDate(end.getDate() - 13);
-          return { from: clamp(start), to: clamp(end) };
-        },
+    },
+    {
+      label: 'Yesterday',
+      getRange: () => {
+        const t = startOfDay(new Date());
+        const y = new Date(t);
+        y.setDate(t.getDate() - 1);
+        return { from: clamp(y), to: clamp(y) };
       },
-      {
-        label: 'Last 30 days',
-        getRange: () => {
-          const end = startOfDay(new Date());
-          const start = new Date(end);
-          start.setDate(end.getDate() - 29);
-          return { from: clamp(start), to: clamp(end) };
-        },
+    },
+    {
+      label: 'Last 7 days',
+      getRange: () => {
+        const end = startOfDay(new Date());
+        const start = new Date(end);
+        start.setDate(end.getDate() - 6);
+        return { from: clamp(start), to: clamp(end) };
       },
-      {
-        label: 'This Week',
-        getRange: () => {
-          const now = new Date();
-          return { from: clamp(startOfWeek(now)), to: clamp(endOfWeek(now)) };
-        },
+    },
+    {
+      label: 'Last 14 days',
+      getRange: () => {
+        const end = startOfDay(new Date());
+        const start = new Date(end);
+        start.setDate(end.getDate() - 13);
+        return { from: clamp(start), to: clamp(end) };
       },
-      {
-        label: 'Last Week',
-        getRange: () => {
-          const now = new Date();
-          const last = new Date(now);
-          last.setDate(now.getDate() - 7);
-          return { from: clamp(startOfWeek(last)), to: clamp(endOfWeek(last)) };
-        },
+    },
+    {
+      label: 'Last 30 days',
+      getRange: () => {
+        const end = startOfDay(new Date());
+        const start = new Date(end);
+        start.setDate(end.getDate() - 29);
+        return { from: clamp(start), to: clamp(end) };
       },
-      {
-        label: 'This Month',
-        getRange: () => {
-          const now = new Date();
-          const from = new Date(now.getFullYear(), now.getMonth(), 1);
-          const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-          return { from: clamp(from), to: clamp(to) };
-        },
+    },
+    {
+      label: 'This Week',
+      getRange: () => {
+        const now = new Date();
+        return { from: clamp(startOfWeek(now)), to: clamp(endOfWeek(now)) };
       },
-      {
-        label: 'Last Month',
-        getRange: () => {
-          const now = new Date();
-          const from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-          const to = new Date(now.getFullYear(), now.getMonth(), 0);
-          return { from: clamp(from), to: clamp(to) };
-        },
+    },
+    {
+      label: 'Last Week',
+      getRange: () => {
+        const now = new Date();
+        const last = new Date(now);
+        last.setDate(now.getDate() - 7);
+        return { from: clamp(startOfWeek(last)), to: clamp(endOfWeek(last)) };
       },
-    ];
+    },
+    {
+      label: 'This Month',
+      getRange: () => {
+        const now = new Date();
+        const from = new Date(now.getFullYear(), now.getMonth(), 1);
+        const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        return { from: clamp(from), to: clamp(to) };
+      },
+    },
+    {
+      label: 'Last Month',
+      getRange: () => {
+        const now = new Date();
+        const from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const to = new Date(now.getFullYear(), now.getMonth(), 0);
+        return { from: clamp(from), to: clamp(to) };
+      },
+    },
+  ];
   const presets: Array<{ label: string; getRange: () => DateRange }> = (
-    props.presets ?? props.quickSelectors ?? defaultPresets
+    props.presets ??
+    props.quickSelectors ??
+    defaultPresets
   ).filter(Boolean);
 
   const eqRange = (a?: DateRange | null, b?: DateRange | null) => {
     if (!a?.from || !a?.to || !b?.from || !b?.to) return false;
-    return (
-      sameDay(a.from, b.from) &&
-      sameDay(a.to, b.to)
-    );
+    return sameDay(a.from, b.from) && sameDay(a.to, b.to);
   };
 
   return (
@@ -312,13 +358,21 @@ export function DateRangePicker({
             type="button"
             disabled={disabled}
             variant={buttonVariant}
-            className={cn('w-[280px] justify-start text-left font-normal', !value?.from && 'text-muted-foreground')}
+            className={cn(
+              'w-[280px] justify-start text-left font-normal',
+              !value?.from && 'text-muted-foreground',
+            )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {label}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-4" align="start" side={props.popoverSide ?? 'bottom'} sideOffset={8}>
+        <PopoverContent
+          className="w-auto p-4"
+          align="start"
+          side={props.popoverSide ?? 'bottom'}
+          sideOffset={8}
+        >
           <div className="flex gap-6 min-w-[900px]">
             <div className="flex-1 pr-2">
               {/* Inputs */}
@@ -332,7 +386,9 @@ export function DateRangePicker({
                   placeholder="dd/mm/yyyy"
                   className={cn(
                     'h-9 w-40 rounded-md border bg-background px-3 text-sm shadow-xs outline-hidden',
-                    fromInvalid ? 'border-destructive ring-1 ring-destructive/50' : 'border-input'
+                    fromInvalid
+                      ? 'border-destructive ring-1 ring-destructive/50'
+                      : 'border-input',
                   )}
                 />
                 <span className="text-muted-foreground">–</span>
@@ -345,7 +401,9 @@ export function DateRangePicker({
                   placeholder="dd/mm/yyyy"
                   className={cn(
                     'h-9 w-40 rounded-md border bg-background px-3 text-sm shadow-xs outline-hidden',
-                    toInvalid ? 'border-destructive ring-1 ring-destructive/50' : 'border-input'
+                    toInvalid
+                      ? 'border-destructive ring-1 ring-destructive/50'
+                      : 'border-input',
                   )}
                 />
               </div>
@@ -371,7 +429,11 @@ export function DateRangePicker({
                     return;
                   }
                   // If the selected span contains any disabled date, reset selection
-                  if (from && to && rangeContainsDisabled(from, to, disabledDates)) {
+                  if (
+                    from &&
+                    to &&
+                    rangeContainsDisabled(from, to, disabledDates)
+                  ) {
                     setDraft(null);
                     setFromTouched(true);
                     setToTouched(true);
@@ -407,7 +469,10 @@ export function DateRangePicker({
                         className="justify-between w-full"
                         onClick={() => {
                           // Ignore presets that include disabled dates
-                          if (rangeContainsDisabled(pr.from, pr.to, disabledDates)) return;
+                          if (
+                            rangeContainsDisabled(pr.from, pr.to, disabledDates)
+                          )
+                            return;
                           setDraft(pr);
                           setFromTouched(false);
                           setToTouched(false);
@@ -426,7 +491,14 @@ export function DateRangePicker({
           </div>
           {(props.showFooter ?? true) && (
             <div className="flex items-center justify-end gap-2 pt-3 mt-3 border-t">
-              <Button type="button" variant="ghost" onClick={() => { setDraft(value ?? null); setOpen(false); }}>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setDraft(value ?? null);
+                  setOpen(false);
+                }}
+              >
                 {props.cancelLabel ?? 'Cancel'}
               </Button>
               <Button

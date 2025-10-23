@@ -32,7 +32,9 @@ export const Disabled: Story = {
 export const WithIcon: Story = {
   render: () => (
     <div className="relative w-[280px]">
-      <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">@</span>
+      <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-muted-foreground">
+        @
+      </span>
       <Input className="pl-8" placeholder="username" />
     </div>
   ),

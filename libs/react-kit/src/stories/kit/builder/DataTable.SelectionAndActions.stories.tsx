@@ -1,6 +1,6 @@
-import React from 'react';
+import type React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { type ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { Trash2, Plus } from 'lucide-react';
 import { DataTable } from '../../../kit/builder/data-table';
 import { toast } from 'sonner';
@@ -13,7 +13,13 @@ interface Item {
 
 const columns: ColumnDef<Item>[] = [
   { accessorKey: 'name', header: 'Item' },
-  { accessorKey: 'price', header: 'Price', cell: ({ getValue }) => <span className="tabular-nums">${(getValue() as number).toFixed(2)}</span> },
+  {
+    accessorKey: 'price',
+    header: 'Price',
+    cell: ({ getValue }) => (
+      <span className="tabular-nums">${(getValue() as number).toFixed(2)}</span>
+    ),
+  },
 ];
 
 const data: Item[] = [
@@ -43,7 +49,15 @@ export const SelectableWithActions: Story = {
         showStandardActions
         onRefresh={() => new Promise((r) => setTimeout(r, 800))}
         actions={[
-          { key: 'create', label: 'New Item', icon: <Plus className="h-4 w-4" />, variant: 'outline', onClick: () => { toast.info('Create clicked') } },
+          {
+            key: 'create',
+            label: 'New Item',
+            icon: <Plus className="h-4 w-4" />,
+            variant: 'outline',
+            onClick: () => {
+              toast.info('Create clicked');
+            },
+          },
         ]}
         batchActions={[
           {

@@ -19,7 +19,15 @@ import {
   SidebarMenuBadge,
   SidebarMenuAction,
 } from '../../../shadcn/ui/sidebar';
-import { Inbox, Send, Star, Trash2, Folder, Settings2, Plus } from 'lucide-react';
+import {
+  Inbox,
+  Send,
+  Star,
+  Trash2,
+  Folder,
+  Settings2,
+  Plus,
+} from 'lucide-react';
 
 const meta: Meta<typeof Sidebar> = {
   title: 'Shadcn/UI/Sidebar',
@@ -111,7 +119,10 @@ export const BasicLayout: Story = {
         <SidebarInset>
           <div>
             <h3>Content Area</h3>
-            <p>Put any content here. This panel slides from the right and can be closed via the X button.</p>
+            <p>
+              Put any content here. This panel slides from the right and can be
+              closed via the X button.
+            </p>
           </div>
         </SidebarInset>
       </SidebarProvider>

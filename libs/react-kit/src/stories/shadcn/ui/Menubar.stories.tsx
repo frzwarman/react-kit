@@ -31,8 +31,12 @@ export const Basic: Story = {
       <MenubarMenu>
         <MenubarTrigger>File</MenubarTrigger>
         <MenubarContent>
-          <MenubarItem>New Tab <MenubarShortcut>⌘T</MenubarShortcut></MenubarItem>
-          <MenubarItem>New Window <MenubarShortcut>⌘N</MenubarShortcut></MenubarItem>
+          <MenubarItem>
+            New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem>
+            New Window <MenubarShortcut>⌘N</MenubarShortcut>
+          </MenubarItem>
           <MenubarSeparator />
           <MenubarSub>
             <MenubarSubTrigger>Share</MenubarSubTrigger>
@@ -42,14 +46,20 @@ export const Basic: Story = {
             </MenubarSubContent>
           </MenubarSub>
           <MenubarSeparator />
-          <MenubarItem>Close Window <MenubarShortcut>⌘W</MenubarShortcut></MenubarItem>
+          <MenubarItem>
+            Close Window <MenubarShortcut>⌘W</MenubarShortcut>
+          </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
         <MenubarTrigger>Edit</MenubarTrigger>
         <MenubarContent>
-          <MenubarItem>Undo <MenubarShortcut>⌘Z</MenubarShortcut></MenubarItem>
-          <MenubarItem>Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut></MenubarItem>
+          <MenubarItem>
+            Undo <MenubarShortcut>⌘Z</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem>
+            Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
+          </MenubarItem>
           <MenubarSeparator />
           <MenubarCheckboxItem checked>Show Ruler</MenubarCheckboxItem>
           <MenubarCheckboxItem>Show Toolbar</MenubarCheckboxItem>
@@ -64,8 +74,12 @@ export const Basic: Story = {
       <MenubarMenu>
         <MenubarTrigger>View</MenubarTrigger>
         <MenubarContent>
-          <MenubarItem>Reload <MenubarShortcut>⌘R</MenubarShortcut></MenubarItem>
-          <MenubarItem>Toggle Full Screen <MenubarShortcut>⌃⌘F</MenubarShortcut></MenubarItem>
+          <MenubarItem>
+            Reload <MenubarShortcut>⌘R</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem>
+            Toggle Full Screen <MenubarShortcut>⌃⌘F</MenubarShortcut>
+          </MenubarItem>
         </MenubarContent>
       </MenubarMenu>
     </Menubar>

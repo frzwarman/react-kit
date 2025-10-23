@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import { FileUploader } from '../index';
 import type { FileRecord } from '../kit/components/fileuploader/types';
@@ -7,14 +6,34 @@ import type { FileRecord } from '../kit/components/fileuploader/types';
 function isImage(name?: string, type?: string) {
   const t = (type || '').toLowerCase();
   const ext = (name?.split('.')?.pop() || '').toLowerCase();
-  return t.startsWith('image/') || ['png','jpg','jpeg','webp','gif','bmp','svg','heic','heif'].includes(ext);
+  return (
+    t.startsWith('image/') ||
+    [
+      'png',
+      'jpg',
+      'jpeg',
+      'webp',
+      'gif',
+      'bmp',
+      'svg',
+      'heic',
+      'heif',
+    ].includes(ext)
+  );
 }
 
-function mockUploaderFactory(options?: { minMs?: number; maxMs?: number; failRate?: number }) {
+function mockUploaderFactory(options?: {
+  minMs?: number;
+  maxMs?: number;
+  failRate?: number;
+}) {
   const minMs = options?.minMs ?? 800;
   const maxMs = options?.maxMs ?? 1800;
   const failRate = options?.failRate ?? 0;
-  return async (file: File, onProgress: (p: number) => void): Promise<Partial<FileRecord>> => {
+  return async (
+    file: File,
+    onProgress: (p: number) => void,
+  ): Promise<Partial<FileRecord>> => {
     const willFail = Math.random() < failRate;
     const total = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
     const start = Date.now();

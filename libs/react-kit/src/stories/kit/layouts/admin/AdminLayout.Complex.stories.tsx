@@ -10,7 +10,17 @@ import {
   createRoute,
   createRouter,
 } from '@tanstack/react-router';
-import { Home, ShoppingCart, Settings, Users, BarChart3, FileText, Shield, Bell, LifeBuoy } from 'lucide-react';
+import {
+  Home,
+  ShoppingCart,
+  Settings,
+  Users,
+  BarChart3,
+  FileText,
+  Shield,
+  Bell,
+  LifeBuoy,
+} from 'lucide-react';
 
 const meta: Meta<typeof AdminLayout> = {
   title: 'Kit/Layouts/Admin',
@@ -23,13 +33,25 @@ type Story = StoryObj<typeof AdminLayout>;
 type AdminLayoutStoryProps = React.ComponentProps<typeof AdminLayout>;
 
 function RegisterComplexMenus() {
-  const { registerGroup, registerItem, clear } = useAdminSidebarMenuRegistration();
+  const { registerGroup, registerItem, clear } =
+    useAdminSidebarMenuRegistration();
   useEffect(() => {
     clear();
     // Overview
     registerGroup({ id: 'overview', label: 'Overview' });
-    registerItem('overview', { id: 'home', title: 'Home', url: '/', icon: Home });
-    registerItem('overview', { id: 'reports', title: 'Reports', url: '/reports', icon: BarChart3, badge: 'New' });
+    registerItem('overview', {
+      id: 'home',
+      title: 'Home',
+      url: '/',
+      icon: Home,
+    });
+    registerItem('overview', {
+      id: 'reports',
+      title: 'Reports',
+      url: '/reports',
+      icon: BarChart3,
+      badge: 'New',
+    });
 
     // Management
     registerGroup({ id: 'management', label: 'Management' });
@@ -49,8 +71,16 @@ function RegisterComplexMenus() {
               title: 'Team Alpha',
               url: '/users/teams/alpha',
               children: [
-                { id: 'team-alpha-members', title: 'Members', url: '/users/teams/alpha/members' },
-                { id: 'team-alpha-settings', title: 'Settings', url: '/users/teams/alpha/settings' },
+                {
+                  id: 'team-alpha-members',
+                  title: 'Members',
+                  url: '/users/teams/alpha/members',
+                },
+                {
+                  id: 'team-alpha-settings',
+                  title: 'Settings',
+                  url: '/users/teams/alpha/settings',
+                },
               ],
             },
             { id: 'team-beta', title: 'Team Beta', url: '/users/teams/beta' },
@@ -64,12 +94,25 @@ function RegisterComplexMenus() {
       icon: ShoppingCart,
       children: [
         { id: 'orders-all', title: 'All Orders', url: '/orders' },
-        { id: 'orders-pending', title: 'Pending', url: '/orders/pending', badge: 5 },
-        { id: 'orders-completed', title: 'Completed', url: '/orders/completed' },
+        {
+          id: 'orders-pending',
+          title: 'Pending',
+          url: '/orders/pending',
+          badge: 5,
+        },
+        {
+          id: 'orders-completed',
+          title: 'Completed',
+          url: '/orders/completed',
+        },
       ],
     });
     // Action-only item
-    registerItem('management', { id: 'export', title: 'Export CSV', onClick: () => console.log('Export CSV') });
+    registerItem('management', {
+      id: 'export',
+      title: 'Export CSV',
+      onClick: () => console.log('Export CSV'),
+    });
 
     // Content
     registerGroup({ id: 'content', label: 'Content' });
@@ -79,20 +122,51 @@ function RegisterComplexMenus() {
       icon: FileText,
       children: [
         { id: 'articles-published', title: 'Published', url: '/articles' },
-        { id: 'articles-archived', title: 'Archived', url: '/articles/archived' },
+        {
+          id: 'articles-archived',
+          title: 'Archived',
+          url: '/articles/archived',
+        },
       ],
     });
-    registerItem('content', { id: 'drafts', title: 'Drafts', url: '/drafts', icon: FileText, badge: 7 });
+    registerItem('content', {
+      id: 'drafts',
+      title: 'Drafts',
+      url: '/drafts',
+      icon: FileText,
+      badge: 7,
+    });
 
     // System
     registerGroup({ id: 'system', label: 'System' });
-    registerItem('system', { id: 'alerts', title: 'Alerts', url: '/alerts', icon: Bell });
-    registerItem('system', { id: 'security', title: 'Security', url: '/security', icon: Shield, disabled: true });
-    registerItem('system', { id: 'support', title: 'Support', url: '/support', icon: LifeBuoy });
+    registerItem('system', {
+      id: 'alerts',
+      title: 'Alerts',
+      url: '/alerts',
+      icon: Bell,
+    });
+    registerItem('system', {
+      id: 'security',
+      title: 'Security',
+      url: '/security',
+      icon: Shield,
+      disabled: true,
+    });
+    registerItem('system', {
+      id: 'support',
+      title: 'Support',
+      url: '/support',
+      icon: LifeBuoy,
+    });
 
     // Settings
     registerGroup({ id: 'settings', label: 'Settings' });
-    registerItem('settings', { id: 'general', title: 'General', url: '/settings', icon: Settings });
+    registerItem('settings', {
+      id: 'general',
+      title: 'General',
+      url: '/settings',
+      icon: Settings,
+    });
   }, [registerGroup, registerItem, clear]);
   return null;
 }
@@ -147,7 +221,7 @@ function App(props: AdminLayoutStoryProps) {
           <p className="text-muted-foreground">This is the {title} page.</p>
         </div>
       ),
-    })
+    }),
   );
 
   const routeTree = rootRoute.addChildren([indexRoute, ...extraRoutes]);
@@ -161,8 +235,17 @@ export const Complex: Story = {
     <App
       sidebarHeaderIcon={Home}
       sidebarHeaderTitle={<span>Admin App</span>}
-      headerAfterTrigger={<input className="h-8 w-64 rounded-md border px-3 text-sm" placeholder="Quick search…" />}
-      headerAfterTheme={<button className="h-8 rounded-md border px-3 text-sm">Help</button>}
+      headerAfterTrigger={
+        <input
+          className="h-8 w-64 rounded-md border px-3 text-sm"
+          placeholder="Quick search…"
+        />
+      }
+      headerAfterTheme={
+        <button type="button" className="h-8 rounded-md border px-3 text-sm">
+          Help
+        </button>
+      }
     />
   ),
 };

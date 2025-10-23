@@ -4,10 +4,15 @@ import * as React from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '../../../shadcn/lib/utils';
 import { Button } from '../../../shadcn/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../../../shadcn/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../../../shadcn/ui/popover';
 import { Calendar } from '../../../shadcn/ui/calendar';
 
-export interface DatePickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface DatePickerProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value?: Date | null;
   onChange?: (date: Date | null) => void;
   placeholder?: string;
@@ -25,11 +30,15 @@ export interface DatePickerProps extends Omit<React.HTMLAttributes<HTMLDivElemen
 }
 
 function isBefore(date: Date, min?: Date) {
-  return !!(min && date < new Date(min.getFullYear(), min.getMonth(), min.getDate()));
+  return !!(
+    min && date < new Date(min.getFullYear(), min.getMonth(), min.getDate())
+  );
 }
 
 function isAfter(date: Date, max?: Date) {
-  return !!(max && date > new Date(max.getFullYear(), max.getMonth(), max.getDate()));
+  return !!(
+    max && date > new Date(max.getFullYear(), max.getMonth(), max.getDate())
+  );
 }
 
 function startOfDay(d: Date) {
@@ -37,10 +46,17 @@ function startOfDay(d: Date) {
 }
 
 function sameDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
 }
 
-function inDisabled(date: Date, items?: Array<Date | { from: Date; to: Date }>) {
+function inDisabled(
+  date: Date,
+  items?: Array<Date | { from: Date; to: Date }>,
+) {
   if (!items || items.length === 0) return false;
   const d = startOfDay(date);
   for (const it of items) {
@@ -70,7 +86,8 @@ export function DatePicker({
 }: DatePickerProps) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const isOpen = typeof props.open === 'boolean' ? props.open : internalOpen;
-  const setOpen = (o: boolean) => props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o);
+  const setOpen = (o: boolean) =>
+    props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o);
 
   const isDisabled = (date: Date) => {
     if (isBefore(date, minDate) || isAfter(date, maxDate)) return true;
@@ -81,7 +98,11 @@ export function DatePicker({
   const label = value
     ? format
       ? format(value)
-      : value.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' })
+      : value.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: '2-digit',
+        })
     : placeholder;
 
   return (
@@ -92,7 +113,10 @@ export function DatePicker({
             type="button"
             disabled={disabled}
             variant={buttonVariant}
-            className={cn('w-[240px] justify-start text-left font-normal', !value && 'text-muted-foreground')}
+            className={cn(
+              'w-[240px] justify-start text-left font-normal',
+              !value && 'text-muted-foreground',
+            )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {label}

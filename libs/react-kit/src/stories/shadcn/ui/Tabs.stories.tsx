@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../shadcn/ui/tabs';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '../../../shadcn/ui/tabs';
 
 const meta: Meta<typeof Tabs> = {
   title: 'Shadcn/UI/Tabs',
@@ -17,7 +22,9 @@ export const Basic: Story = {
         <TabsTrigger value="account">Account</TabsTrigger>
         <TabsTrigger value="password">Password</TabsTrigger>
       </TabsList>
-      <TabsContent value="account">Make changes to your account here.</TabsContent>
+      <TabsContent value="account">
+        Make changes to your account here.
+      </TabsContent>
       <TabsContent value="password">Change your password here.</TabsContent>
     </Tabs>
   ),

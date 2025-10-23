@@ -1,7 +1,18 @@
-import { type Table } from '@tanstack/react-table';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import type { Table } from '@tanstack/react-table';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react';
 import { Button } from '../../../../shadcn/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../shadcn/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../../../shadcn/ui/select';
 
 export interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -10,9 +21,12 @@ export interface DataTablePaginationProps<TData> {
 
 export function DataTablePagination<TData>({
   table,
-  paginationVariant = 'full'
+  paginationVariant = 'full',
 }: DataTablePaginationProps<TData>) {
-  const pagination = table.getState().pagination ?? { pageIndex: 0, pageSize: 10 };
+  const pagination = table.getState().pagination ?? {
+    pageIndex: 0,
+    pageSize: 10,
+  };
 
   return (
     <div className="flex items-center justify-between px-2">

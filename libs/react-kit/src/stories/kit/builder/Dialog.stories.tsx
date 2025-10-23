@@ -58,20 +58,26 @@ export const CustomExample: Story = {
         <Button
           variant="secondary"
           onClick={async () => {
-            const val = await open<string>(({ close }) => (
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-foreground">Custom Modal</h3>
-                <p className="text-sm text-muted-foreground">You can render anything here and call close(value) to resolve.</p>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => close(undefined)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={() => close('done')}>
-                    Confirm
-                  </Button>
+            const val = await open<string>(
+              ({ close }) => (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-foreground">
+                    Custom Modal
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    You can render anything here and call close(value) to
+                    resolve.
+                  </p>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => close(undefined)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={() => close('done')}>Confirm</Button>
+                  </div>
                 </div>
-              </div>
-            ), { preventCloseOnInteractOutside: true });
+              ),
+              { preventCloseOnInteractOutside: true },
+            );
             // eslint-disable-next-line no-console
             console.log('custom result:', val);
           }}

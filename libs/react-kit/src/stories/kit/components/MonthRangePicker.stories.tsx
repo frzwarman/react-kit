@@ -18,7 +18,9 @@ type Story = StoryObj<typeof MonthRangePicker>;
 export const Basic: Story = {
   name: 'Basic',
   render: () => {
-    const [range, setRange] = React.useState<{ start: Date; end: Date } | undefined>({
+    const [range, setRange] = React.useState<
+      { start: Date; end: Date } | undefined
+    >({
       start: new Date(new Date().getFullYear(), 0),
       end: new Date(new Date().getFullYear(), 11),
     });
@@ -45,7 +47,9 @@ export const Basic: Story = {
 export const WithQuickSelectorsAndConstraints: Story = {
   name: 'With quick selectors + constraints',
   render: () => {
-    const [range, setRange] = React.useState<{ start: Date; end: Date } | undefined>();
+    const [range, setRange] = React.useState<
+      { start: Date; end: Date } | undefined
+    >();
 
     const now = new Date();
     const minDate = new Date(now.getFullYear() - 1, 0); // Jan last year
@@ -64,7 +68,10 @@ export const WithQuickSelectorsAndConstraints: Story = {
       },
       {
         label: 'Last 6 months',
-        startMonth: new Date(now.getFullYear(), Math.max(0, now.getMonth() - 5)),
+        startMonth: new Date(
+          now.getFullYear(),
+          Math.max(0, now.getMonth() - 5),
+        ),
         endMonth: new Date(now.getFullYear(), now.getMonth()),
       },
     ];
@@ -87,10 +94,22 @@ export const WithQuickSelectorsAndConstraints: Story = {
           quickSelectors={customSelectors}
           showQuickSelectors
           callbacks={{ yearLabel: (y) => `${y}` }}
-          variant={{ calendar: { main: 'ghost', selected: 'default' }, chevrons: 'outline' }}
+          variant={{
+            calendar: { main: 'ghost', selected: 'default' },
+            chevrons: 'outline',
+          }}
         />
         <div className="text-xs text-muted-foreground">
-          Allowed: {minDate.toLocaleString(undefined, { month: 'short', year: 'numeric' })} → {maxDate.toLocaleString(undefined, { month: 'short', year: 'numeric' })}
+          Allowed:{' '}
+          {minDate.toLocaleString(undefined, {
+            month: 'short',
+            year: 'numeric',
+          })}{' '}
+          →{' '}
+          {maxDate.toLocaleString(undefined, {
+            month: 'short',
+            year: 'numeric',
+          })}
         </div>
       </div>
     );

@@ -1,14 +1,26 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../../../shadcn/ui/select'
-import type { FieldRenderProps } from './types'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../../../../shadcn/ui/select';
+import type { FieldRenderProps } from './types';
 
-const NULL_SENTINEL = '__NULL__'
+const NULL_SENTINEL = '__NULL__';
 
-export function SelectField({ field, value, onChange, className }: FieldRenderProps) {
-  const toUiValue = (val: unknown) => (val === null || val === undefined ? NULL_SENTINEL : String(val))
+export function SelectField({
+  field,
+  value,
+  onChange,
+  className,
+}: FieldRenderProps) {
+  const toUiValue = (val: unknown) =>
+    val === null || val === undefined ? NULL_SENTINEL : String(val);
   const fromUiValue = (val: string) => {
-    const match = field.options?.find(opt => toUiValue(opt.value) === val)
-    return match ? match.value : null
-  }
+    const match = field.options?.find((opt) => toUiValue(opt.value) === val);
+    return match ? match.value : null;
+  };
 
   return (
     <Select
@@ -20,12 +32,15 @@ export function SelectField({ field, value, onChange, className }: FieldRenderPr
         <SelectValue placeholder={field.placeholder} />
       </SelectTrigger>
       <SelectContent>
-        {field.options?.map(option => (
-          <SelectItem key={toUiValue(option.value)} value={toUiValue(option.value)}>
+        {field.options?.map((option) => (
+          <SelectItem
+            key={toUiValue(option.value)}
+            value={toUiValue(option.value)}
+          >
             {option.label}
           </SelectItem>
         ))}
       </SelectContent>
     </Select>
-  )
+  );
 }

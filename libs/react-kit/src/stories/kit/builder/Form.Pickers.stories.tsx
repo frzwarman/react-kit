@@ -1,5 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { FormBuilder, type FormBuilderProps } from '../../../kit/builder/form/components/FormBuilder'
+import type { Meta, StoryObj } from '@storybook/react';
+import {
+  FormBuilder,
+  type FormBuilderProps,
+} from '../../../kit/builder/form/components/FormBuilder';
 
 const meta: Meta<typeof FormBuilder> = {
   title: 'Kit/Builder/Form',
@@ -8,11 +11,11 @@ const meta: Meta<typeof FormBuilder> = {
     controls: { expanded: true },
     backgrounds: { disable: true },
   },
-}
+};
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof FormBuilder>
+type Story = StoryObj<typeof FormBuilder>;
 
 export const Pickers: Story = {
   name: 'Pickers (Date, Date Range, Month, Month Range)',
@@ -20,7 +23,8 @@ export const Pickers: Story = {
     sections: [
       {
         title: 'Pickers',
-        description: 'Showcase of DatePicker, DateRangePicker, MonthPicker, and MonthRangePicker via FormBuilder fields',
+        description:
+          'Showcase of DatePicker, DateRangePicker, MonthPicker, and MonthRangePicker via FormBuilder fields',
         variant: 'card',
         layout: 'grid',
         grid: { cols: 1, mdCols: 2, gap: 'gap-4' },
@@ -59,7 +63,7 @@ export const Pickers: Story = {
       },
     ],
     onSubmit: (data: unknown) => {
-      console.log('Submit (pickers):', data)
+      console.log('Submit (pickers):', data);
     },
     showActions: true,
   } satisfies Partial<FormBuilderProps>,
@@ -68,4 +72,4 @@ export const Pickers: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};

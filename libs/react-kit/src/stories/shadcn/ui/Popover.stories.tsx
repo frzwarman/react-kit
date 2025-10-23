@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import { Popover, PopoverTrigger, PopoverContent } from '../../../shadcn/ui/popover';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '../../../shadcn/ui/popover';
 import { Button } from '../../../shadcn/ui/button';
 
 const meta: Meta<typeof Popover> = {
@@ -21,7 +25,9 @@ export const Basic: Story = {
       <PopoverContent className="w-64">
         <div className="space-y-2">
           <h4 className="font-medium leading-none">Dimensions</h4>
-          <p className="text-sm text-muted-foreground">Set the dimensions for the layer.</p>
+          <p className="text-sm text-muted-foreground">
+            Set the dimensions for the layer.
+          </p>
         </div>
       </PopoverContent>
     </Popover>

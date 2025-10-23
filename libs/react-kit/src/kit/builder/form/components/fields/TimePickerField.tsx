@@ -1,14 +1,19 @@
-import * as React from 'react'
-import type { FieldRenderProps } from './types'
-import { TimePicker } from '../../../../components/timepicker/TimePicker'
+import * as React from 'react';
+import type { FieldRenderProps } from './types';
+import { TimePicker } from '../../../../components/timepicker/TimePicker';
 
-export function TimePickerField({ field, value, onChange, className }: FieldRenderProps) {
+export function TimePickerField({
+  field,
+  value,
+  onChange,
+  className,
+}: FieldRenderProps) {
   const v = React.useMemo(() => {
-    if (!value) return null
-    if (value instanceof Date) return value
-    const d = new Date(value as string)
-    return Number.isNaN(d.getTime()) ? null : d
-  }, [value])
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }, [value]);
 
   return (
     <TimePicker
@@ -24,7 +29,7 @@ export function TimePickerField({ field, value, onChange, className }: FieldRend
       cancelLabel={field.cancelLabel}
       applyLabel={field.applyLabel}
     />
-  )
+  );
 }
 
-export default TimePickerField
+export default TimePickerField;

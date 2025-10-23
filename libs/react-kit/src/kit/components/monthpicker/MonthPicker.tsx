@@ -107,10 +107,10 @@ function MonthCal({
   onYearForward,
 }: MonthCalProps) {
   const [year, setYear] = React.useState<number>(
-    selectedMonth?.getFullYear() ?? new Date().getFullYear()
+    selectedMonth?.getFullYear() ?? new Date().getFullYear(),
   );
   const [month, setMonth] = React.useState<number>(
-    selectedMonth?.getMonth() ?? new Date().getMonth()
+    selectedMonth?.getMonth() ?? new Date().getMonth(),
   );
   const [menuYear, setMenuYear] = React.useState<number>(year);
 
@@ -135,7 +135,7 @@ function MonthCal({
             }}
             className={cn(
               buttonVariants({ variant: variant?.chevrons ?? 'outline' }),
-              'inline-flex items-center justify-center h-7 w-7 p-0 absolute left-1'
+              'inline-flex items-center justify-center h-7 w-7 p-0 absolute left-1',
             )}
           >
             <ChevronLeft className="opacity-50 h-4 w-4" />
@@ -148,7 +148,7 @@ function MonthCal({
             }}
             className={cn(
               buttonVariants({ variant: variant?.chevrons ?? 'outline' }),
-              'inline-flex items-center justify-center h-7 w-7 p-0 absolute right-1'
+              'inline-flex items-center justify-center h-7 w-7 p-0 absolute right-1',
             )}
           >
             <ChevronRight className="opacity-50 h-4 w-4" />
@@ -157,10 +157,10 @@ function MonthCal({
       </div>
       <table className="w-full border-collapse space-y-1">
         <tbody>
-          {MONTHS.map((monthRow, a) => {
+          {MONTHS.map((monthRow) => {
+            const rowKey = monthRow.map((month) => month.number).join('-');
             return (
-              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-              <tr key={`row-${a}`} className="flex w-full mt-2">
+              <tr key={rowKey} className="flex w-full mt-2">
                 {monthRow.map((m) => {
                   return (
                     <td
@@ -188,7 +188,8 @@ function MonthCal({
                             : false) ||
                           (disabledDatesMapped
                             ? disabledDatesMapped?.some(
-                                (d) => d.year === menuYear && d.month === m.number
+                                (d) =>
+                                  d.year === menuYear && d.month === m.number,
                               )
                             : false)
                         }
@@ -196,10 +197,10 @@ function MonthCal({
                           buttonVariants({
                             variant:
                               month === m.number && menuYear === year
-                                ? variant?.calendar?.selected ?? 'default'
-                                : variant?.calendar?.main ?? 'ghost',
+                                ? (variant?.calendar?.selected ?? 'default')
+                                : (variant?.calendar?.main ?? 'ghost'),
                           }),
-                          'h-full w-full p-0 font-normal aria-selected:opacity-100'
+                          'h-full w-full p-0 font-normal aria-selected:opacity-100',
                         )}
                       >
                         {callbacks?.monthLabel

@@ -22,19 +22,27 @@ function applyThemeMode(useDark: boolean) {
 
 // Dynamically import source theme CSS so Vite + @tailwindcss/vite process it
 const themeModules = (
-  import.meta as unknown as { glob: (p: string) => Record<string, () => Promise<unknown>> }
+  import.meta as unknown as {
+    glob: (p: string) => Record<string, () => Promise<unknown>>;
+  }
 ).glob('../src/kit/themes/*.css');
 
-function findThemeNode(name: string): HTMLStyleElement | HTMLLinkElement | null {
+function findThemeNode(
+  name: string,
+): HTMLStyleElement | HTMLLinkElement | null {
   const suffix = `/src/kit/themes/${name}.css`;
   // Vite dev: <style data-vite-dev-id=".../src/kit/themes/<name>.css">
-  const styles = document.querySelectorAll<HTMLStyleElement>('style[data-vite-dev-id]');
+  const styles = document.querySelectorAll<HTMLStyleElement>(
+    'style[data-vite-dev-id]',
+  );
   for (const s of Array.from(styles)) {
     const id = s.getAttribute('data-vite-dev-id') || '';
     if (id.endsWith(suffix)) return s;
   }
   // Vite prod (or CSS extracted): <link rel="stylesheet" href="...<name>.css">
-  const links = document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"][href]');
+  const links = document.querySelectorAll<HTMLLinkElement>(
+    'link[rel="stylesheet"][href]',
+  );
   for (const l of Array.from(links)) {
     const href = l.getAttribute('href') || '';
     if (href.includes(`${name}.css`)) return l;
@@ -105,8 +113,8 @@ const preview: Preview = {
         items: [
           { value: 'default', title: 'Default' },
           { value: 'minimal-modern', title: 'Minimal Modern' },
-          { value: 'spotify', title: 'Spotify'},
-          { value: 'clean-slate', title: 'Clean Slate'},
+          { value: 'spotify', title: 'Spotify' },
+          { value: 'clean-slate', title: 'Clean Slate' },
         ],
         dynamicTitle: true,
       },
@@ -125,7 +133,7 @@ const preview: Preview = {
       codePanel: true,
       source: {
         codePanel: true,
-      }
+      },
     },
     // Let our CSS variables control the canvas background
     backgrounds: { disable: true },
@@ -175,13 +183,13 @@ const preview: Preview = {
       const wrapperClass = isDocs
         ? 'bg-background text-foreground w-full'
         : shouldCenter
-        ? 'bg-background text-foreground min-h-screen flex items-center justify-center overflow-y-auto'
-        : 'bg-background text-foreground min-h-screen overflow-y-auto';
+          ? 'bg-background text-foreground min-h-screen flex items-center justify-center overflow-y-auto'
+          : 'bg-background text-foreground min-h-screen overflow-y-auto';
       const StoryComponent = Story as unknown as React.ComponentType;
       return React.createElement(
         'div',
         { className: wrapperClass },
-        React.createElement(StoryComponent)
+        React.createElement(StoryComponent),
       );
     }) as Decorator,
   ],

@@ -27,8 +27,14 @@ function ControlledDemo() {
   const [checked, setChecked] = useState<boolean>(false);
   return (
     <div className="flex items-center space-x-2">
-      <Checkbox id="controlled" checked={checked} onCheckedChange={(v) => setChecked(Boolean(v))} />
-      <Label htmlFor="controlled">Controlled: {checked ? 'checked' : 'unchecked'}</Label>
+      <Checkbox
+        id="controlled"
+        checked={checked}
+        onCheckedChange={(v) => setChecked(Boolean(v))}
+      />
+      <Label htmlFor="controlled">
+        Controlled: {checked ? 'checked' : 'unchecked'}
+      </Label>
     </div>
   );
 }
@@ -38,7 +44,9 @@ export const Controlled: Story = {
 };
 
 function IndeterminateDemo() {
-  const [state, setState] = useState<true | false | 'indeterminate'>('indeterminate');
+  const [state, setState] = useState<true | false | 'indeterminate'>(
+    'indeterminate',
+  );
   return (
     <div className="flex items-center space-x-2">
       <Checkbox

@@ -61,7 +61,9 @@ export const Destructive: Story = {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction className={buttonVariants({ variant: 'destructive' })}>
+          <AlertDialogAction
+            className={buttonVariants({ variant: 'destructive' })}
+          >
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -23,11 +23,17 @@ type Story = StoryObj<typeof AdminLayout>;
 type AdminLayoutStoryProps = React.ComponentProps<typeof AdminLayout>;
 
 function RegisterMenus() {
-  const { registerGroup, registerItem, clear } = useAdminSidebarMenuRegistration();
+  const { registerGroup, registerItem, clear } =
+    useAdminSidebarMenuRegistration();
   useEffect(() => {
     clear();
     registerGroup({ id: 'overview', label: 'Overview' });
-    registerItem('overview', { id: 'home', title: 'Home', url: '/', icon: Home });
+    registerItem('overview', {
+      id: 'home',
+      title: 'Home',
+      url: '/',
+      icon: Home,
+    });
   }, [registerGroup, registerItem, clear]);
   return null;
 }
@@ -43,7 +49,11 @@ function App(props: AdminLayoutStoryProps) {
       </ThemeProvider>
     ),
   });
-  const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: () => <div className="p-6">Home</div> });
+  const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/',
+    component: () => <div className="p-6">Home</div>,
+  });
   const routeTree = rootRoute.addChildren([indexRoute]);
   const router = createRouter({ routeTree, basepath: '/iframe.html' });
   return <RouterProvider router={router} />;
@@ -53,11 +63,23 @@ export const HeaderSlots: Story = {
   name: 'Header slots (after trigger/theme)',
   render: () => (
     <App
-      headerAfterTrigger={<input className="h-8 w-64 rounded-md border px-3 text-sm" placeholder="Search…" />}
+      headerAfterTrigger={
+        <input
+          className="h-8 w-64 rounded-md border px-3 text-sm"
+          placeholder="Search…"
+        />
+      }
       headerAfterTheme={
         <div className="flex items-center gap-2">
-          <button className="h-8 rounded-md border px-3 text-sm">Invite</button>
-          <button className="h-8 rounded-md bg-primary px-3 text-sm text-primary-foreground">New</button>
+          <button type="button" className="h-8 rounded-md border px-3 text-sm">
+            Invite
+          </button>
+          <button
+            type="button"
+            className="h-8 rounded-md bg-primary px-3 text-sm text-primary-foreground"
+          >
+            New
+          </button>
         </div>
       }
     />

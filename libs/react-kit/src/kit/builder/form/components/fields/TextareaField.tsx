@@ -1,7 +1,12 @@
-import { Textarea } from '../../../../../shadcn/ui/textarea'
-import type { FieldRenderProps } from './types'
+import { Textarea } from '../../../../../shadcn/ui/textarea';
+import type { FieldRenderProps } from './types';
 
-export function TextareaField({ field, value, onChange, className }: FieldRenderProps) {
+export function TextareaField({
+  field,
+  value,
+  onChange,
+  className,
+}: FieldRenderProps) {
   return (
     <Textarea
       className={className}
@@ -11,5 +16,5 @@ export function TextareaField({ field, value, onChange, className }: FieldRender
       onChange={(e) => onChange(e.target.value)}
       rows={4}
     />
-  )
+  );
 }

@@ -18,8 +18,18 @@ export const Basic: Story = {
       <Toaster richColors position="top-right" />
       <div className="flex flex-wrap gap-2">
         <Button onClick={() => toast('Hello from Sonner!')}>Default</Button>
-        <Button variant="secondary" onClick={() => toast.success('Saved successfully')}>Success</Button>
-        <Button variant="destructive" onClick={() => toast.error('Something went wrong')}>Error</Button>
+        <Button
+          variant="secondary"
+          onClick={() => toast.success('Saved successfully')}
+        >
+          Success
+        </Button>
+        <Button
+          variant="destructive"
+          onClick={() => toast.error('Something went wrong')}
+        >
+          Error
+        </Button>
         <Button
           variant="outline"
           onClick={() =>

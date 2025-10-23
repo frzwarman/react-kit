@@ -1,4 +1,4 @@
-import * as React from 'react';
+import type * as React from 'react';
 
 export type LoginProps = {
   // Application title shown above the form (e.g., "Acme Inc")
@@ -50,13 +50,19 @@ export function Login({
   children,
 }: LoginProps) {
   return (
-    <div className={['grid min-h-dvh grid-cols-1 md:grid-cols-2', className].filter(Boolean).join(' ')}>
+    <div
+      className={['grid min-h-dvh grid-cols-1 md:grid-cols-2', className]
+        .filter(Boolean)
+        .join(' ')}
+    >
       {/* Left column: form section */}
       <div className="flex items-center justify-center p-6 md:p-10">
         <div className="w-full max-w-md">
           {/* Title */}
           <div className="mb-6 text-center">
-            <h1 className="text-2xl font-bold leading-tight tracking-tight">{appTitle}</h1>
+            <h1 className="text-2xl font-bold leading-tight tracking-tight">
+              {appTitle}
+            </h1>
             {subtitle ? (
               <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
             ) : null}
@@ -70,7 +76,10 @@ export function Login({
             {forgotPasswordHref ? (
               <div className="text-center text-sm">
                 {forgotPasswordLabel}{' '}
-                <a href={forgotPasswordHref} className="underline underline-offset-4">
+                <a
+                  href={forgotPasswordHref}
+                  className="underline underline-offset-4"
+                >
                   {forgotPasswordLinkLabel}
                 </a>
               </div>

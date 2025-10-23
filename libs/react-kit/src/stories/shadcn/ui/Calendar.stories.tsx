@@ -15,7 +15,12 @@ function CalendarSingleStory() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   return (
     <div className="p-2">
-      <Calendar mode="single" selected={date} onSelect={setDate} className="rounded-md border" />
+      <Calendar
+        mode="single"
+        selected={date}
+        onSelect={setDate}
+        className="rounded-md border"
+      />
       <div className="text-sm text-muted-foreground mt-2">
         Selected: {date ? date.toDateString() : '—'}
       </div>

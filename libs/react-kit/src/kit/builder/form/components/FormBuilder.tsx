@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import {
-  useWatch,
-  type FieldValues,
-  type Path,
-} from 'react-hook-form';
+import { useWatch, type FieldValues, type Path } from 'react-hook-form';
 import { cn } from '../../../../shadcn/lib/utils';
 import { Button } from '../../../../shadcn/ui/button';
 import SectionBuilder from '../../section/SectionBuilder';
@@ -95,7 +91,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
 
   const handleFieldDependencies = useCallback(
     (
-      field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>
+      field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>,
     ) => {
       if (!hasDependencies || !field.dependencies) return {};
 
@@ -121,7 +117,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
           case 'setValue':
             if (conditionMet && dep.value !== undefined) {
               const currentValue = getValues(
-                field.name as unknown as Path<TFieldValues>
+                field.name as unknown as Path<TFieldValues>,
               );
               if (currentValue !== dep.value) {
                 // Defer the update to an effect to prevent state changes during render
@@ -137,7 +133,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
 
       return result;
     },
-    [hasDependencies, watchedValues, getValues]
+    [hasDependencies, watchedValues, getValues],
   );
 
   // Flush any pending setValue updates after watchedValues change
@@ -173,7 +169,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
         field.onChange(value, extras, setValue, getValues);
       }
     },
-    [setValue, getValues]
+    [setValue, getValues],
   );
 
   const handleFormSubmit = useCallback(
@@ -184,7 +180,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
         console.error('Form submission error:', error);
       }
     },
-    [onSubmit]
+    [onSubmit],
   );
 
   const handleReset = useCallback(() => {
@@ -210,7 +206,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
       handleFieldChange,
       onFieldChange,
       getValues,
-    ]
+    ],
   );
 
   const contextValue = useMemo(
@@ -222,7 +218,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
         onFieldChange,
         handleFieldDependencies,
         handleFieldChange,
-      } satisfies FormBuilderContextValue<TFieldValues>),
+      }) satisfies FormBuilderContextValue<TFieldValues>,
     [
       control,
       getValues,
@@ -230,7 +226,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
       onFieldChange,
       handleFieldDependencies,
       handleFieldChange,
-    ]
+    ],
   );
 
   return (
@@ -250,7 +246,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
                 'flex flex-col sm:flex-row gap-3',
                 showActionsSeparator && 'pt-6',
                 showActionsSeparator && 'border-t',
-                actionsClassName
+                actionsClassName,
               )}
             >
               <Button

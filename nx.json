@@ -10,7 +10,8 @@
       "!{projectRoot}/tsconfig.spec.json",
       "!{projectRoot}/src/test-setup.[jt]s",
       "!{projectRoot}/**/*.stories.@(js|jsx|ts|tsx|mdx)",
-      "!{projectRoot}/.storybook/**/*"
+      "!{projectRoot}/.storybook/**/*",
+      "!{projectRoot}/biome.json"
     ],
     "sharedGlobals": []
   },
@@ -94,9 +95,7 @@
     }
   },
   "release": {
-    "projects": [
-      "@k3-universe/react-kit"
-    ],
+    "projects": ["@k3-universe/react-kit"],
     "changelog": {
       "automaticFromRef": true
     }

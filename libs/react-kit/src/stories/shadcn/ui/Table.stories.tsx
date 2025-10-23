@@ -11,7 +11,13 @@ import {
 } from '../../../shadcn/ui/table';
 import { Input } from '../../../shadcn/ui/input';
 import { Button } from '../../../shadcn/ui/button';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '../../../shadcn/ui/select';
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from '../../../shadcn/ui/select';
 import { Checkbox } from '../../../shadcn/ui/checkbox';
 
 const meta: Meta<typeof Table> = {
@@ -67,20 +73,28 @@ type Invoice = {
 };
 
 function formatCurrency(cents: number) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100);
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(cents / 100);
 }
 
 const SAMPLE_DATA: Invoice[] = [
-  { id: 'INV001', status: 'Paid',        method: 'Credit Card',   amount: 25000 },
-  { id: 'INV002', status: 'Processing',  method: 'PayPal',        amount: 15000 },
-  { id: 'INV003', status: 'Unpaid',      method: 'Bank Transfer', amount: 35000 },
-  { id: 'INV004', status: 'Paid',        method: 'Credit Card',   amount: 12000 },
-  { id: 'INV005', status: 'Unpaid',      method: 'PayPal',        amount: 9800 },
-  { id: 'INV006', status: 'Processing',  method: 'Bank Transfer', amount: 44000 },
-  { id: 'INV007', status: 'Paid',        method: 'Credit Card',   amount: 199900 },
-  { id: 'INV008', status: 'Processing',  method: 'PayPal',        amount: 5600 },
-  { id: 'INV009', status: 'Unpaid',      method: 'Credit Card',   amount: 7600 },
-  { id: 'INV010', status: 'Paid',        method: 'Bank Transfer', amount: 87500 },
+  { id: 'INV001', status: 'Paid', method: 'Credit Card', amount: 25000 },
+  { id: 'INV002', status: 'Processing', method: 'PayPal', amount: 15000 },
+  { id: 'INV003', status: 'Unpaid', method: 'Bank Transfer', amount: 35000 },
+  { id: 'INV004', status: 'Paid', method: 'Credit Card', amount: 12000 },
+  { id: 'INV005', status: 'Unpaid', method: 'PayPal', amount: 9800 },
+  {
+    id: 'INV006',
+    status: 'Processing',
+    method: 'Bank Transfer',
+    amount: 44000,
+  },
+  { id: 'INV007', status: 'Paid', method: 'Credit Card', amount: 199900 },
+  { id: 'INV008', status: 'Processing', method: 'PayPal', amount: 5600 },
+  { id: 'INV009', status: 'Unpaid', method: 'Credit Card', amount: 7600 },
+  { id: 'INV010', status: 'Paid', method: 'Bank Transfer', amount: 87500 },
 ];
 
 type SortKey = keyof Pick<Invoice, 'id' | 'status' | 'method' | 'amount'>;
@@ -100,8 +114,12 @@ function useSortedFilteredPagedData(
   const filtered = useMemo(() => {
     const q = opts.query.trim().toLowerCase();
     return data.filter((row) => {
-      const matchesQuery = q ? row.id.toLowerCase().includes(q) || row.method.toLowerCase().includes(q) : true;
-      const matchesStatus = opts.status === 'all' ? true : row.status === opts.status;
+      const matchesQuery = q
+        ? row.id.toLowerCase().includes(q) ||
+          row.method.toLowerCase().includes(q)
+        : true;
+      const matchesStatus =
+        opts.status === 'all' ? true : row.status === opts.status;
       return matchesQuery && matchesStatus;
     });
   }, [data, opts.query, opts.status]);
@@ -161,8 +179,10 @@ function TableAdvancedDemo() {
 
   // Selection helpers
   const pageIds = rows.map((r) => r.id);
-  const allPageSelected = pageIds.length > 0 && pageIds.every((id) => selected.has(id));
-  const somePageSelected = pageIds.some((id) => selected.has(id)) && !allPageSelected;
+  const allPageSelected =
+    pageIds.length > 0 && pageIds.every((id) => selected.has(id));
+  const somePageSelected =
+    pageIds.some((id) => selected.has(id)) && !allPageSelected;
   function toggleAllOnPage(checked: boolean) {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -195,7 +215,13 @@ function TableAdvancedDemo() {
           }}
           className="w-60"
         />
-        <Select value={status} onValueChange={(v) => { setPage(0); setStatus(v as StatusFilter); }}>
+        <Select
+          value={status}
+          onValueChange={(v) => {
+            setPage(0);
+            setStatus(v as StatusFilter);
+          }}
+        >
           <SelectTrigger className="w-44">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
@@ -206,7 +232,13 @@ function TableAdvancedDemo() {
             <SelectItem value="Unpaid">Unpaid</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={String(pageSize)} onValueChange={(v) => { setPage(0); setPageSize(parseInt(v, 10)); }}>
+        <Select
+          value={String(pageSize)}
+          onValueChange={(v) => {
+            setPage(0);
+            setPageSize(parseInt(v, 10));
+          }}
+        >
           <SelectTrigger className="w-36">
             <SelectValue placeholder="Page size" />
           </SelectTrigger>
@@ -224,7 +256,9 @@ function TableAdvancedDemo() {
             <strong>{selected.size}</strong> selected
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => setSelected(new Set())}>Clear selection</Button>
+            <Button variant="outline" onClick={() => setSelected(new Set())}>
+              Clear selection
+            </Button>
             <Button variant="default">Bulk action</Button>
           </div>
         </div>
@@ -237,7 +271,9 @@ function TableAdvancedDemo() {
             <TableHead className="w-10">
               <Checkbox
                 checked={somePageSelected ? 'indeterminate' : allPageSelected}
-                onCheckedChange={(v) => toggleAllOnPage(v === 'indeterminate' ? true : Boolean(v))}
+                onCheckedChange={(v) =>
+                  toggleAllOnPage(v === 'indeterminate' ? true : Boolean(v))
+                }
                 aria-label="Select all on page"
               />
             </TableHead>
@@ -276,12 +312,17 @@ function TableAdvancedDemo() {
               <TableCell className="font-medium">{row.id}</TableCell>
               <TableCell>{row.status}</TableCell>
               <TableCell>{row.method}</TableCell>
-              <TableCell className="text-right">{formatCurrency(row.amount)}</TableCell>
+              <TableCell className="text-right">
+                {formatCurrency(row.amount)}
+              </TableCell>
             </TableRow>
           ))}
           {rows.length === 0 && (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-muted-foreground">
+              <TableCell
+                colSpan={5}
+                className="text-center text-muted-foreground"
+              >
                 No results
               </TableCell>
             </TableRow>
@@ -290,18 +331,36 @@ function TableAdvancedDemo() {
       </Table>
 
       <div className="flex items-center justify-between gap-2">
-        <div className="text-sm text-muted-foreground">Page {page + 1} of {totalPages}</div>
+        <div className="text-sm text-muted-foreground">
+          Page {page + 1} of {totalPages}
+        </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setPage(0)} disabled={page === 0}>
+          <Button
+            variant="outline"
+            onClick={() => setPage(0)}
+            disabled={page === 0}
+          >
             « First
           </Button>
-          <Button variant="outline" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}>
+          <Button
+            variant="outline"
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+          >
             ‹ Prev
           </Button>
-          <Button variant="outline" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}>
+          <Button
+            variant="outline"
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={page >= totalPages - 1}
+          >
             Next ›
           </Button>
-          <Button variant="outline" onClick={() => setPage(totalPages - 1)} disabled={page >= totalPages - 1}>
+          <Button
+            variant="outline"
+            onClick={() => setPage(totalPages - 1)}
+            disabled={page >= totalPages - 1}
+          >
             Last »
           </Button>
         </div>

@@ -1,5 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../../shadcn/ui/card';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '../../../shadcn/ui/card';
 import { Button } from '../../../shadcn/ui/button';
 
 const meta: Meta<typeof Card> = {
@@ -19,7 +26,9 @@ export const Basic: Story = {
         <CardDescription>Deploy your new project in one-click.</CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Card content goes here. You can place forms, text, or other elements.</p>
+        <p>
+          Card content goes here. You can place forms, text, or other elements.
+        </p>
       </CardContent>
       <CardFooter className="flex justify-between">
         <Button variant="outline">Cancel</Button>

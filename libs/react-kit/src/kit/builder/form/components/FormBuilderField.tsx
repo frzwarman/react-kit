@@ -29,20 +29,31 @@ import {
 
 export interface FormBuilderFieldProps<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends string | Path<TFieldValues> = Path<TFieldValues>
+  TName extends string | Path<TFieldValues> = Path<TFieldValues>,
 > {
   field: FormBuilderFieldConfig<TFieldValues, TName>;
   control: Control<TFieldValues>;
   onChange?: (value: unknown, ...extras: unknown[]) => void;
-  onFieldChange?: (name: import('react-hook-form').Path<TFieldValues> | string, value: unknown, allValues: TFieldValues) => void;
+  onFieldChange?: (
+    name: import('react-hook-form').Path<TFieldValues> | string,
+    value: unknown,
+    allValues: TFieldValues,
+  ) => void;
   parentPath?: string;
 }
 
 export function FormBuilderField<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends string | Path<TFieldValues> = Path<TFieldValues>
->({ field, control, onChange, parentPath }: FormBuilderFieldProps<TFieldValues, TName>) {
-  const fieldPath = parentPath ? `${parentPath}.${field.name}` : (field.name as string);
+  TName extends string | Path<TFieldValues> = Path<TFieldValues>,
+>({
+  field,
+  control,
+  onChange,
+  parentPath,
+}: FormBuilderFieldProps<TFieldValues, TName>) {
+  const fieldPath = parentPath
+    ? `${parentPath}.${field.name}`
+    : (field.name as string);
 
   const {
     field: controllerField,
@@ -53,12 +64,15 @@ export function FormBuilderField<
     disabled: field.disabled,
   });
 
-  const handleChange = useCallback((value: unknown, ...extras: unknown[]) => {
-    // Only patch the RHF value with the first argument (the canonical value)
-    controllerField.onChange(value);
-    // Forward any extra metadata upstream (e.g., option, raw)
-    onChange?.(value, ...extras);
-  }, [controllerField, onChange]);
+  const handleChange = useCallback(
+    (value: unknown, ...extras: unknown[]) => {
+      // Only patch the RHF value with the first argument (the canonical value)
+      controllerField.onChange(value);
+      // Forward any extra metadata upstream (e.g., option, raw)
+      onChange?.(value, ...extras);
+    },
+    [controllerField, onChange],
+  );
   const baseClassName = cn(
     error && 'border-destructive focus-visible:ring-destructive',
     field.className,
@@ -306,7 +320,7 @@ export function FormBuilderField<
           fieldPath,
           control,
           value: controllerField.value,
-          handleChange
+          handleChange,
         });
       default:
         return (
@@ -329,13 +343,22 @@ export function FormBuilderField<
   // For checkbox/switch, label is handled inside the specific field component
   if (field.type === 'checkbox' || field.type === 'switch') {
     return (
-      <div className={cn('space-y-2', field.gridCols && `md:col-span-${field.gridCols}`)}>
+      <div
+        className={cn(
+          'space-y-2',
+          field.gridCols && `md:col-span-${field.gridCols}`,
+        )}
+      >
         {renderField()}
         {field.description && (
           <p className="text-sm text-muted-foreground">{field.description}</p>
         )}
         {error && (
-          <p className="text-sm font-medium text-destructive" role="alert" aria-live="polite">
+          <p
+            className="text-sm font-medium text-destructive"
+            role="alert"
+            aria-live="polite"
+          >
             {error.message}
           </p>
         )}
@@ -347,13 +370,22 @@ export function FormBuilderField<
   const placement = field.labelPlacement ?? 'stacked';
   if (placement === 'hidden' || field.type === 'array') {
     return (
-      <div className={cn('space-y-2', field.gridCols && `md:col-span-${field.gridCols}`)}>
+      <div
+        className={cn(
+          'space-y-2',
+          field.gridCols && `md:col-span-${field.gridCols}`,
+        )}
+      >
         {renderField()}
         {field.description && (
           <p className="text-sm text-muted-foreground">{field.description}</p>
         )}
         {error && (
-          <p className="text-sm font-medium text-destructive" role="alert" aria-live="polite">
+          <p
+            className="text-sm font-medium text-destructive"
+            role="alert"
+            aria-live="polite"
+          >
             {error.message}
           </p>
         )}
@@ -363,7 +395,12 @@ export function FormBuilderField<
 
   if (placement === 'inline') {
     return (
-      <div className={cn('space-y-1', field.gridCols && `md:col-span-${field.gridCols}`)}>
+      <div
+        className={cn(
+          'space-y-1',
+          field.gridCols && `md:col-span-${field.gridCols}`,
+        )}
+      >
         <div className="flex items-center gap-2">
           <Label htmlFor={fieldPath} className="text-sm font-medium">
             {field.label}
@@ -375,7 +412,11 @@ export function FormBuilderField<
           <p className="text-sm text-muted-foreground">{field.description}</p>
         )}
         {error && (
-          <p className="text-sm font-medium text-destructive" role="alert" aria-live="polite">
+          <p
+            className="text-sm font-medium text-destructive"
+            role="alert"
+            aria-live="polite"
+          >
             {error.message}
           </p>
         )}
@@ -385,7 +426,12 @@ export function FormBuilderField<
 
   // stacked (default)
   return (
-    <div className={cn('space-y-2', field.gridCols && `md:col-span-${field.gridCols}`)}>
+    <div
+      className={cn(
+        'space-y-2',
+        field.gridCols && `md:col-span-${field.gridCols}`,
+      )}
+    >
       <Label htmlFor={fieldPath} className="text-sm font-medium">
         {field.label}
         {field.required && <span className="text-destructive ml-1">*</span>}
@@ -395,7 +441,11 @@ export function FormBuilderField<
         <p className="text-sm text-muted-foreground">{field.description}</p>
       )}
       {error && (
-        <p className="text-sm font-medium text-destructive" role="alert" aria-live="polite">
+        <p
+          className="text-sm font-medium text-destructive"
+          role="alert"
+          aria-live="polite"
+        >
           {error.message}
         </p>
       )}

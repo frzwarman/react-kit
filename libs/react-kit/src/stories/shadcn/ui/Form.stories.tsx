@@ -55,7 +55,11 @@ function ValidatedFormDemo() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="you@example.com" {...field} />
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>We’ll never share your email.</FormDescription>
                 <FormMessage />
@@ -87,4 +91,3 @@ function ValidatedFormDemo() {
 export const WithValidation: Story = {
   render: () => <ValidatedFormDemo />,
 };
-

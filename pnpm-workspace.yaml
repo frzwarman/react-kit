@@ -3,8 +3,8 @@ packages:
   - libs/*
 
 onlyBuiltDependencies:
+  - '@biomejs/biome'
   - '@swc/core'
-  - nx
   - '@tailwindcss/oxide'
   - esbuild
-
+  - nx

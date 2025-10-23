@@ -1,9 +1,15 @@
-import { Input } from '../../../../../shadcn/ui/input'
-import type { FieldRenderProps } from './types'
+import { Input } from '../../../../../shadcn/ui/input';
+import type { FieldRenderProps } from './types';
 
-export function TextField({ field, fieldPath, value, onChange, className }: FieldRenderProps) {
+export function TextField({
+  field,
+  fieldPath,
+  value,
+  onChange,
+  className,
+}: FieldRenderProps) {
   const type: 'text' | 'email' | 'password' =
-    field.type === 'email' || field.type === 'password' ? field.type : 'text'
+    field.type === 'email' || field.type === 'password' ? field.type : 'text';
   return (
     <Input
       id={fieldPath}
@@ -14,5 +20,5 @@ export function TextField({ field, fieldPath, value, onChange, className }: Fiel
       value={(value as string) || ''}
       onChange={(e) => onChange(e.target.value)}
     />
-  )
+  );
 }

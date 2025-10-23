@@ -1,6 +1,6 @@
-import React from 'react';
+import type React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { type ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '../../../kit/builder/data-table';
 
 // Simple type for demo
@@ -33,9 +33,19 @@ const columns: ColumnDef<Person>[] = [
 ];
 
 const data: Person[] = [
-  { id: '1', name: 'Alice Johnson', email: 'alice@example.com', status: 'active' },
+  {
+    id: '1',
+    name: 'Alice Johnson',
+    email: 'alice@example.com',
+    status: 'active',
+  },
   { id: '2', name: 'Bob Smith', email: 'bob@example.com', status: 'inactive' },
-  { id: '3', name: 'Carol White', email: 'carol@example.com', status: 'active' },
+  {
+    id: '3',
+    name: 'Carol White',
+    email: 'carol@example.com',
+    status: 'active',
+  },
 ];
 
 const meta: Meta<typeof DataTable<Person, unknown>> = {

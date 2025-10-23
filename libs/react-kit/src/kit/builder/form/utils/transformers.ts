@@ -6,7 +6,7 @@ export const transformers = {
       if (Array.isArray(obj)) {
         return obj
           .map(clean)
-          .filter(item => item !== null && item !== undefined);
+          .filter((item) => item !== null && item !== undefined);
       }
 
       if (obj && typeof obj === 'object') {
@@ -47,11 +47,11 @@ export const transformers = {
           result[key] = parseValue(obj[key], [...path, key]);
 
           if (
-            numberFields.includes(currentPath)
-            && typeof result[key] === 'string'
+            numberFields.includes(currentPath) &&
+            typeof result[key] === 'string'
           ) {
             const num = Number(result[key]);
-            if (!isNaN(num)) {
+            if (!Number.isNaN(num)) {
               result[key] = num;
             }
           }

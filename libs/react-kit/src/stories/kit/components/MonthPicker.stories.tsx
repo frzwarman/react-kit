@@ -18,13 +18,20 @@ type Story = StoryObj<typeof MonthPicker>;
 export const Basic: Story = {
   name: 'Basic',
   render: () => {
-    const [selected, setSelected] = React.useState<Date | undefined>(new Date());
+    const [selected, setSelected] = React.useState<Date | undefined>(
+      new Date(),
+    );
 
     return (
       <div className="p-6">
         <div className="mb-4">
           <div className="text-sm text-muted-foreground">Selected month</div>
-          <div className="font-medium">{selected?.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</div>
+          <div className="font-medium">
+            {selected?.toLocaleString(undefined, {
+              month: 'long',
+              year: 'numeric',
+            })}
+          </div>
         </div>
         <MonthPicker
           selectedMonth={selected}
@@ -46,7 +53,9 @@ export const Basic: Story = {
 export const WithConstraints: Story = {
   name: 'With constraints',
   render: () => {
-    const [selected, setSelected] = React.useState<Date | undefined>(new Date());
+    const [selected, setSelected] = React.useState<Date | undefined>(
+      new Date(),
+    );
 
     const now = new Date();
     const minDate = new Date(now.getFullYear(), 2); // Mar this year
@@ -60,7 +69,12 @@ export const WithConstraints: Story = {
       <div className="p-6 space-y-4">
         <div>
           <div className="text-sm text-muted-foreground">Selected month</div>
-          <div className="font-medium">{selected?.toLocaleString(undefined, { month: 'long', year: 'numeric' })}</div>
+          <div className="font-medium">
+            {selected?.toLocaleString(undefined, {
+              month: 'long',
+              year: 'numeric',
+            })}
+          </div>
         </div>
         <MonthPicker
           selectedMonth={selected}
@@ -69,10 +83,16 @@ export const WithConstraints: Story = {
           maxDate={maxDate}
           disabledDates={disabledDates}
           callbacks={{ yearLabel: (y) => `FY ${y}`, monthLabel: (m) => m.name }}
-          variant={{ calendar: { main: 'ghost', selected: 'default' }, chevrons: 'outline' }}
+          variant={{
+            calendar: { main: 'ghost', selected: 'default' },
+            chevrons: 'outline',
+          }}
         />
         <div className="text-xs text-muted-foreground">
-          Allowed months: {minDate.toLocaleString(undefined, { month: 'short' })} - {maxDate.toLocaleString(undefined, { month: 'short' })} ({minDate.getFullYear()})
+          Allowed months:{' '}
+          {minDate.toLocaleString(undefined, { month: 'short' })} -{' '}
+          {maxDate.toLocaleString(undefined, { month: 'short' })} (
+          {minDate.getFullYear()})
         </div>
       </div>
     );

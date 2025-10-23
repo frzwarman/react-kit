@@ -1,6 +1,6 @@
-import type { Accept } from "react-dropzone";
+import type { Accept } from 'react-dropzone';
 
-export type FileUploadStatus = "idle" | "uploading" | "success" | "error";
+export type FileUploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
 export type FileRecord = {
   id?: string | number;
@@ -22,7 +22,7 @@ export type FileRecord = {
   meta?: Record<string, unknown>;
 };
 
-export type FileUploaderLayout = "grid" | "list";
+export type FileUploaderLayout = 'grid' | 'list';
 
 export type FileUploaderProps = {
   /** Controlled value of files */

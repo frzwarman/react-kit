@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FormBuilder, type FormBuilderProps } from '../../../kit/builder/form/components/FormBuilder';
+import {
+  FormBuilder,
+  type FormBuilderProps,
+} from '../../../kit/builder/form/components/FormBuilder';
 
 const meta: Meta<typeof FormBuilder> = {
   title: 'Kit/Builder/Form',
@@ -25,12 +28,41 @@ export const BasicUsage: Story = {
         layout: 'grid',
         grid: { cols: 1, mdCols: 2, gap: 'gap-4' },
         fields: [
-          { name: 'firstName', label: 'First name', type: 'text', required: true },
-          { name: 'lastName', label: 'Last name', type: 'text', required: true },
+          {
+            name: 'firstName',
+            label: 'First name',
+            type: 'text',
+            required: true,
+          },
+          {
+            name: 'lastName',
+            label: 'Last name',
+            type: 'text',
+            required: true,
+          },
           { name: 'email', label: 'Email', type: 'email', required: true },
-          { name: 'newsletter', label: 'Subscribe to newsletter', type: 'checkbox', defaultValue: false, gridCols: 2 },
-          { name: 'darkMode', label: 'Enable dark mode', type: 'switch', defaultValue: false, gridCols: 2 },
-          { name: 'darkModeStacked', label: 'Enable dark mode (stacked)', type: 'switch', defaultValue: true, labelPlacement: 'stacked', gridCols: 2 },
+          {
+            name: 'newsletter',
+            label: 'Subscribe to newsletter',
+            type: 'checkbox',
+            defaultValue: false,
+            gridCols: 2,
+          },
+          {
+            name: 'darkMode',
+            label: 'Enable dark mode',
+            type: 'switch',
+            defaultValue: false,
+            gridCols: 2,
+          },
+          {
+            name: 'darkModeStacked',
+            label: 'Enable dark mode (stacked)',
+            type: 'switch',
+            defaultValue: true,
+            labelPlacement: 'stacked',
+            gridCols: 2,
+          },
         ],
       },
     ],

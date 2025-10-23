@@ -4,7 +4,11 @@ import * as React from 'react';
 import { Clock } from 'lucide-react';
 import { cn } from '../../../shadcn/lib/utils';
 import { Button } from '../../../shadcn/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../../../shadcn/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../../../shadcn/ui/popover';
 import {
   Select,
   SelectContent,
@@ -20,7 +24,8 @@ export interface TimeRangePickerValue {
   to?: Date | null;
 }
 
-export interface TimeRangePickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface TimeRangePickerProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value?: TimeRangePickerValue | null;
   onChange?: (range: TimeRangePickerValue | null) => void;
   placeholder?: string;
@@ -60,9 +65,29 @@ function TimeUnitSelector({
   value: Date | null | undefined;
   onChange: (next: Date | null) => void;
 }) {
-  const hours = React.useMemo(() => (hourCycle === 12 ? Array.from({ length: 12 }, (_, i) => i + 1) : Array.from({ length: 24 }, (_, i) => i)), [hourCycle]);
-  const minutes = React.useMemo(() => Array.from({ length: Math.ceil(60 / minuteStep) }, (_, i) => i * minuteStep), [minuteStep]);
-  const seconds = React.useMemo(() => Array.from({ length: Math.ceil(60 / secondStep) }, (_, i) => i * secondStep), [secondStep]);
+  const hours = React.useMemo(
+    () =>
+      hourCycle === 12
+        ? Array.from({ length: 12 }, (_, i) => i + 1)
+        : Array.from({ length: 24 }, (_, i) => i),
+    [hourCycle],
+  );
+  const minutes = React.useMemo(
+    () =>
+      Array.from(
+        { length: Math.ceil(60 / minuteStep) },
+        (_, i) => i * minuteStep,
+      ),
+    [minuteStep],
+  );
+  const seconds = React.useMemo(
+    () =>
+      Array.from(
+        { length: Math.ceil(60 / secondStep) },
+        (_, i) => i * secondStep,
+      ),
+    [secondStep],
+  );
   const selectedHour = React.useMemo(() => {
     if (!value) return hourCycle === 12 ? 12 : 0;
     const h = value.getHours();
@@ -70,21 +95,33 @@ function TimeUnitSelector({
   }, [value, hourCycle]);
   const selectedMinute = value?.getMinutes() ?? 0;
   const selectedSecond = value?.getSeconds() ?? 0;
-  const selectedPeriod: 'AM' | 'PM' = value && value.getHours() >= 12 ? 'PM' : 'AM';
+  const selectedPeriod: 'AM' | 'PM' =
+    value && value.getHours() >= 12 ? 'PM' : 'AM';
 
-  const setPart = (part: 'hour' | 'minute' | 'second' | 'period', v: number | 'AM' | 'PM') => {
+  const setPart = (
+    part: 'hour' | 'minute' | 'second' | 'period',
+    v: number | 'AM' | 'PM',
+  ) => {
     const base = value
       ? new Date(value)
       : (() => {
           const n = new Date();
-          return new Date(n.getFullYear(), n.getMonth(), n.getDate(), 0, 0, 0, 0);
+          return new Date(
+            n.getFullYear(),
+            n.getMonth(),
+            n.getDate(),
+            0,
+            0,
+            0,
+            0,
+          );
         })();
     if (part === 'hour') {
       let h = Number(v);
       if (hourCycle === 12) {
         const isPM = base.getHours() >= 12;
         h = h % 12;
-        base.setHours(isPM ? (h === 12 ? 12 : h + 12) : (h === 12 ? 0 : h));
+        base.setHours(isPM ? (h === 12 ? 12 : h + 12) : h === 12 ? 0 : h);
       } else {
         base.setHours(h);
       }
@@ -108,13 +145,19 @@ function TimeUnitSelector({
       <div className="flex items-end gap-2">
         <div className="w-24">
           <div className="mb-1 block text-xs text-muted-foreground">Hour</div>
-          <Select disabled={disabled} value={String(selectedHour)} onValueChange={(v) => setPart('hour', Number(v))}>
+          <Select
+            disabled={disabled}
+            value={String(selectedHour)}
+            onValueChange={(v) => setPart('hour', Number(v))}
+          >
             <SelectTrigger aria-label={`${label} hour`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {hours.map((h) => (
-                <SelectItem key={h} value={String(h)}>{hourCycle === 12 ? h : pad2(h)}</SelectItem>
+                <SelectItem key={h} value={String(h)}>
+                  {hourCycle === 12 ? h : pad2(h)}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -122,14 +165,22 @@ function TimeUnitSelector({
 
         {(precision === 'minute' || precision === 'second') && (
           <div className="w-24">
-            <div className="mb-1 block text-xs text-muted-foreground">Minute</div>
-            <Select disabled={disabled} value={String(selectedMinute - (selectedMinute % minuteStep))} onValueChange={(v) => setPart('minute', Number(v))}>
+            <div className="mb-1 block text-xs text-muted-foreground">
+              Minute
+            </div>
+            <Select
+              disabled={disabled}
+              value={String(selectedMinute - (selectedMinute % minuteStep))}
+              onValueChange={(v) => setPart('minute', Number(v))}
+            >
               <SelectTrigger aria-label={`${label} minute`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {minutes.map((m) => (
-                  <SelectItem key={m} value={String(m)}>{pad2(m)}</SelectItem>
+                  <SelectItem key={m} value={String(m)}>
+                    {pad2(m)}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -138,14 +189,22 @@ function TimeUnitSelector({
 
         {precision === 'second' && (
           <div className="w-24">
-            <div className="mb-1 block text-xs text-muted-foreground">Second</div>
-            <Select disabled={disabled} value={String(selectedSecond - (selectedSecond % secondStep))} onValueChange={(v) => setPart('second', Number(v))}>
+            <div className="mb-1 block text-xs text-muted-foreground">
+              Second
+            </div>
+            <Select
+              disabled={disabled}
+              value={String(selectedSecond - (selectedSecond % secondStep))}
+              onValueChange={(v) => setPart('second', Number(v))}
+            >
               <SelectTrigger aria-label={`${label} second`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {seconds.map((s) => (
-                  <SelectItem key={s} value={String(s)}>{pad2(s)}</SelectItem>
+                  <SelectItem key={s} value={String(s)}>
+                    {pad2(s)}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -154,8 +213,14 @@ function TimeUnitSelector({
 
         {hourCycle === 12 && (
           <div className="w-24">
-            <div className="mb-1 block text-xs text-muted-foreground">Period</div>
-            <Select disabled={disabled} value={selectedPeriod} onValueChange={(v) => setPart('period', v as 'AM' | 'PM')}>
+            <div className="mb-1 block text-xs text-muted-foreground">
+              Period
+            </div>
+            <Select
+              disabled={disabled}
+              value={selectedPeriod}
+              onValueChange={(v) => setPart('period', v as 'AM' | 'PM')}
+            >
               <SelectTrigger aria-label={`${label} period`}>
                 <SelectValue />
               </SelectTrigger>
@@ -187,8 +252,11 @@ export function TimeRangePicker({
 }: TimeRangePickerProps) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const isOpen = typeof props.open === 'boolean' ? props.open : internalOpen;
-  const setOpen = (o: boolean) => (props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o));
-  const [draft, setDraft] = React.useState<TimeRangePickerValue | null>(value ?? null);
+  const setOpen = (o: boolean) =>
+    props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o);
+  const [draft, setDraft] = React.useState<TimeRangePickerValue | null>(
+    value ?? null,
+  );
 
   React.useEffect(() => {
     if (isOpen) setDraft(value ?? null);
@@ -198,12 +266,16 @@ export function TimeRangePicker({
     const f = draft?.from ?? value?.from ?? null;
     const t = draft?.to ?? value?.to ?? null;
     if (format) return format(f ?? null, t ?? null);
-    const fs = f ? (hourCycle === 12
-      ? `${((f.getHours() % 12) || 12)}:${pad2(f.getMinutes())}${precision === 'second' ? `:${pad2(f.getSeconds())}` : ''} ${f.getHours() >= 12 ? 'PM' : 'AM'}`
-      : `${pad2(f.getHours())}:${pad2(f.getMinutes())}${precision === 'second' ? `:${pad2(f.getSeconds())}` : ''}`) : null;
-    const ts = t ? (hourCycle === 12
-      ? `${((t.getHours() % 12) || 12)}:${pad2(t.getMinutes())}${precision === 'second' ? `:${pad2(t.getSeconds())}` : ''} ${t.getHours() >= 12 ? 'PM' : 'AM'}`
-      : `${pad2(t.getHours())}:${pad2(t.getMinutes())}${precision === 'second' ? `:${pad2(t.getSeconds())}` : ''}`) : null;
+    const fs = f
+      ? hourCycle === 12
+        ? `${f.getHours() % 12 || 12}:${pad2(f.getMinutes())}${precision === 'second' ? `:${pad2(f.getSeconds())}` : ''} ${f.getHours() >= 12 ? 'PM' : 'AM'}`
+        : `${pad2(f.getHours())}:${pad2(f.getMinutes())}${precision === 'second' ? `:${pad2(f.getSeconds())}` : ''}`
+      : null;
+    const ts = t
+      ? hourCycle === 12
+        ? `${t.getHours() % 12 || 12}:${pad2(t.getMinutes())}${precision === 'second' ? `:${pad2(t.getSeconds())}` : ''} ${t.getHours() >= 12 ? 'PM' : 'AM'}`
+        : `${pad2(t.getHours())}:${pad2(t.getMinutes())}${precision === 'second' ? `:${pad2(t.getSeconds())}` : ''}`
+      : null;
     return fs && ts ? `${fs} – ${ts}` : placeholder;
   }, [draft, value, format, hourCycle, precision, placeholder]);
 
@@ -215,7 +287,10 @@ export function TimeRangePicker({
             type="button"
             disabled={disabled}
             variant={buttonVariant}
-            className={cn('w-[280px] justify-start text-left font-normal', !value && 'text-muted-foreground')}
+            className={cn(
+              'w-[280px] justify-start text-left font-normal',
+              !value && 'text-muted-foreground',
+            )}
           >
             <Clock className="mr-2 h-4 w-4" />
             {label}
@@ -226,7 +301,9 @@ export function TimeRangePicker({
             <TimeUnitSelector
               label="From"
               value={draft?.from ?? null}
-              onChange={(d) => setDraft((prev) => ({ ...(prev ?? {}), from: d }))}
+              onChange={(d) =>
+                setDraft((prev) => ({ ...(prev ?? {}), from: d }))
+              }
               hourCycle={hourCycle}
               precision={precision}
               minuteStep={minuteStep}

@@ -5,7 +5,7 @@ export const commonValidations = {
   email: z.string().email('Please enter a valid email address'),
   phone: z
     .string()
-    .regex(/^[\+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number'),
+    .regex(/^[+]?[1-9][\d]{0,15}$/, 'Please enter a valid phone number'),
   url: z.string().url('Please enter a valid URL'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   strongPassword: z

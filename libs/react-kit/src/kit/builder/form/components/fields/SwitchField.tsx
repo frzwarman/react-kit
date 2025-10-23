@@ -1,13 +1,19 @@
-import { Switch } from '../../../../../shadcn/ui/switch'
-import { Label } from '../../../../../shadcn/ui/label'
-import { cn } from '../../../../../shadcn/lib/utils'
-import type { FieldRenderProps } from './types'
+import { Switch } from '../../../../../shadcn/ui/switch';
+import { Label } from '../../../../../shadcn/ui/label';
+import { cn } from '../../../../../shadcn/lib/utils';
+import type { FieldRenderProps } from './types';
 
-export function SwitchField({ field, fieldPath, value, onChange, className }: FieldRenderProps) {
-  const placement = field.labelPlacement ?? 'inline'
+export function SwitchField({
+  field,
+  fieldPath,
+  value,
+  onChange,
+  className,
+}: FieldRenderProps) {
+  const placement = field.labelPlacement ?? 'inline';
 
   if (placement === 'stacked') {
-    const labelId = `${fieldPath}-label`
+    const labelId = `${fieldPath}-label`;
     return (
       <div className="space-y-2">
         <Label id={labelId} className="text-sm font-medium">
@@ -23,7 +29,7 @@ export function SwitchField({ field, fieldPath, value, onChange, className }: Fi
           className={cn(className)}
         />
       </div>
-    )
+    );
   }
 
   if (placement === 'hidden') {
@@ -35,7 +41,7 @@ export function SwitchField({ field, fieldPath, value, onChange, className }: Fi
         disabled={field.disabled}
         className={cn(className)}
       />
-    )
+    );
   }
 
   return (
@@ -47,10 +53,13 @@ export function SwitchField({ field, fieldPath, value, onChange, className }: Fi
         disabled={field.disabled}
         className={cn(className)}
       />
-      <Label htmlFor={fieldPath} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      <Label
+        htmlFor={fieldPath}
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
         {field.label}
         {field.required && <span className="text-destructive ml-1">*</span>}
       </Label>
     </div>
-  )
+  );
 }

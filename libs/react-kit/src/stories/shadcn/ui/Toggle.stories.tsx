@@ -21,10 +21,18 @@ function ToggleDemo() {
       <Toggle aria-label="Toggle bold" pressed={bold} onPressedChange={setBold}>
         <Bold />
       </Toggle>
-      <Toggle aria-label="Toggle italic" pressed={italic} onPressedChange={setItalic}>
+      <Toggle
+        aria-label="Toggle italic"
+        pressed={italic}
+        onPressedChange={setItalic}
+      >
         <Italic />
       </Toggle>
-      <Toggle aria-label="Toggle underline" pressed={underline} onPressedChange={setUnderline}>
+      <Toggle
+        aria-label="Toggle underline"
+        pressed={underline}
+        onPressedChange={setUnderline}
+      >
         <Underline />
       </Toggle>
     </div>

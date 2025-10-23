@@ -1,14 +1,19 @@
-import * as React from 'react'
-import type { FieldRenderProps } from './types'
-import { DatePicker } from '../../../../components/datepicker/DatePicker'
+import * as React from 'react';
+import type { FieldRenderProps } from './types';
+import { DatePicker } from '../../../../components/datepicker/DatePicker';
 
-export function DatePickerField({ field, value, onChange, className }: FieldRenderProps) {
+export function DatePickerField({
+  field,
+  value,
+  onChange,
+  className,
+}: FieldRenderProps) {
   const v = React.useMemo(() => {
-    if (!value) return null
-    if (value instanceof Date) return value
-    const d = new Date(value as string)
-    return Number.isNaN(d.getTime()) ? null : d
-  }, [value])
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }, [value]);
 
   return (
     <DatePicker
@@ -20,5 +25,5 @@ export function DatePickerField({ field, value, onChange, className }: FieldRend
       disabledDates={field.disabledDates}
       buttonVariant="outline"
     />
-  )
+  );
 }

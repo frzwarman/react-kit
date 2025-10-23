@@ -4,10 +4,15 @@ import * as React from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '../../../shadcn/lib/utils';
 import { Button } from '../../../shadcn/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../../../shadcn/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../../../shadcn/ui/popover';
 import { MonthPicker } from './MonthPicker';
 
-export interface MonthInputProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface MonthInputProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value?: Date | null;
   onChange?: (date: Date | null) => void;
   placeholder?: string;
@@ -42,7 +47,8 @@ export function MonthInput({
 }: MonthInputProps) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const isOpen = typeof props.open === 'boolean' ? props.open : internalOpen;
-  const setOpen = (o: boolean) => (props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o));
+  const setOpen = (o: boolean) =>
+    props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o);
   const [draft, setDraft] = React.useState<Date | null>(value ?? null);
 
   React.useEffect(() => {
@@ -66,7 +72,10 @@ export function MonthInput({
             type="button"
             disabled={disabled}
             variant={buttonVariant}
-            className={cn('w-[240px] justify-start text-left font-normal', !value && 'text-muted-foreground')}
+            className={cn(
+              'w-[240px] justify-start text-left font-normal',
+              !value && 'text-muted-foreground',
+            )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {label}

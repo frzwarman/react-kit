@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import SectionBuilder from '../../../kit/builder/section/SectionBuilder';
-import type { SectionLeaf, SectionNode } from '../../../kit/builder/section/types';
+import type {
+  SectionLeaf,
+  SectionNode,
+} from '../../../kit/builder/section/types';
 
 const meta: Meta<typeof SectionBuilder> = {
   title: 'Kit/Builder/Section',
@@ -35,8 +38,16 @@ export const TabsLayout: Story = {
               layout: 'grid',
               grid: { cols: 1, mdCols: 12, gap: 'gap-4' },
               children: [
-                { key: 't1', content: demoBox('Overview content A'), span: { md: 6 } },
-                { key: 't2', content: demoBox('Overview content B'), span: { md: 6 } },
+                {
+                  key: 't1',
+                  content: demoBox('Overview content A'),
+                  span: { md: 6 },
+                },
+                {
+                  key: 't2',
+                  content: demoBox('Overview content B'),
+                  span: { md: 6 },
+                },
               ],
             },
           },
@@ -55,9 +66,21 @@ export const TabsLayout: Story = {
                   layout: 'grid',
                   grid: { cols: 1, mdCols: 12 },
                   children: [
-                    { key: 'd1', content: demoBox('Detail 1'), span: { md: 4 } },
-                    { key: 'd2', content: demoBox('Detail 2'), span: { md: 4 } },
-                    { key: 'd3', content: demoBox('Detail 3'), span: { md: 4 } },
+                    {
+                      key: 'd1',
+                      content: demoBox('Detail 1'),
+                      span: { md: 4 },
+                    },
+                    {
+                      key: 'd2',
+                      content: demoBox('Detail 2'),
+                      span: { md: 4 },
+                    },
+                    {
+                      key: 'd3',
+                      content: demoBox('Detail 3'),
+                      span: { md: 4 },
+                    },
                   ],
                 } as unknown as SectionNode,
               ],
@@ -74,7 +97,11 @@ export default meta;
 
 function demoBox(text: string, className?: string) {
   return (
-    <div className={['rounded border p-3 text-sm', className].filter(Boolean).join(' ')}>
+    <div
+      className={['rounded border p-3 text-sm', className]
+        .filter(Boolean)
+        .join(' ')}
+    >
       {text}
     </div>
   );
@@ -156,7 +183,13 @@ export const FlexLayout: Story = {
         title: 'Horizontal flex with wrap',
         variant: 'card',
         layout: 'flex',
-        flex: { direction: 'row', wrap: true, gap: 'gap-3', align: 'start', justify: 'start' },
+        flex: {
+          direction: 'row',
+          wrap: true,
+          gap: 'gap-3',
+          align: 'start',
+          justify: 'start',
+        },
         children: [
           { key: 'f1', content: demoBox('Item 1'), className: 'w-56' },
           { key: 'f2', content: demoBox('Item 2'), className: 'w-56' },
@@ -219,14 +252,28 @@ export const CustomLeafRenderer: Story = {
         layout: 'grid',
         grid: { cols: 1, mdCols: 12 },
         children: [
-          { key: 'x', label: 'Name', labelLayout: 'inline', content: 'Jane Doe', span: { md: 6 } },
-          { key: 'y', label: 'Email', labelLayout: 'inline', content: 'jane@example.com', span: { md: 6 } },
+          {
+            key: 'x',
+            label: 'Name',
+            labelLayout: 'inline',
+            content: 'Jane Doe',
+            span: { md: 6 },
+          },
+          {
+            key: 'y',
+            label: 'Email',
+            labelLayout: 'inline',
+            content: 'jane@example.com',
+            span: { md: 6 },
+          },
         ],
       },
     ] satisfies SectionNode[],
     renderLeaf: (leaf) => (
       <div className="rounded border p-3">
-        <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{leaf.label ?? 'Field'}</div>
+        <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          {leaf.label ?? 'Field'}
+        </div>
         <div className="text-sm">{leaf.content}</div>
       </div>
     ),

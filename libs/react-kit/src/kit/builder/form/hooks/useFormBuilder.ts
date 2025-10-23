@@ -2,22 +2,29 @@ import { useMemo } from 'react';
 import { useForm, type FieldValues, type UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { FormBuilderFieldConfig, FormBuilderSectionConfig } from '../types';
+import type {
+  FormBuilderFieldConfig,
+  FormBuilderSectionConfig,
+} from '../types';
 
-export interface UseFormBuilderOptions<TFieldValues extends FieldValues = FieldValues> {
+export interface UseFormBuilderOptions<
+  TFieldValues extends FieldValues = FieldValues,
+> {
   sections: FormBuilderSectionConfig<TFieldValues>[];
   defaultValues?: Partial<TFieldValues>;
   schema?: z.ZodType<TFieldValues>;
 }
 
-export interface UseFormBuilderReturn<TFieldValues extends FieldValues = FieldValues> {
+export interface UseFormBuilderReturn<
+  TFieldValues extends FieldValues = FieldValues,
+> {
   form: UseFormReturn<TFieldValues>;
   sections: FormBuilderSectionConfig<TFieldValues>[];
   schema: z.ZodType<unknown>;
 }
 
 export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
-  options: UseFormBuilderOptions<TFieldValues>
+  options: UseFormBuilderOptions<TFieldValues>,
 ): UseFormBuilderReturn<TFieldValues> {
   const { sections, defaultValues, schema: providedSchema } = options;
 
@@ -26,7 +33,7 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
     if (providedSchema) return providedSchema;
 
     const generateFieldSchema = (
-      field: FormBuilderFieldConfig<TFieldValues, string>
+      field: FormBuilderFieldConfig<TFieldValues, string>,
     ): z.ZodType<unknown> => {
       if (field.validation && field.validation instanceof z.ZodType) {
         return field.validation;
@@ -43,9 +50,12 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
 
         switch (field.type) {
           case 'email':
-            baseSchema = z.string().email(
-              (validationObj.email as { message?: string })?.message || 'Invalid email address'
-            );
+            baseSchema = z
+              .string()
+              .email(
+                (validationObj.email as { message?: string })?.message ||
+                  'Invalid email address',
+              );
             break;
           case 'number':
             baseSchema = z.number();
@@ -60,10 +70,17 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
             // Check if field supports multiple values
             if ((field as { multiple?: boolean }).multiple) {
               // Multiple: array of string/number/boolean
-              baseSchema = z.array(z.union([z.string(), z.number(), z.boolean()]));
+              baseSchema = z.array(
+                z.union([z.string(), z.number(), z.boolean()]),
+              );
             } else {
               // Single: string, number, boolean, or null (when empty)
-              baseSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
+              baseSchema = z.union([
+                z.string(),
+                z.number(),
+                z.boolean(),
+                z.null(),
+              ]);
             }
             break;
           case 'file':
@@ -80,10 +97,12 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
           case 'time_range':
           case 'date_time_range':
           case 'month_range':
-            baseSchema = z.object({
-              from: z.date().optional().nullable(),
-              to: z.date().optional().nullable(),
-            }).nullable();
+            baseSchema = z
+              .object({
+                from: z.date().optional().nullable(),
+                to: z.date().optional().nullable(),
+              })
+              .nullable();
             break;
           default:
             baseSchema = z.string();
@@ -92,25 +111,25 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
         if (validationObj.min && baseSchema instanceof z.ZodNumber) {
           baseSchema = baseSchema.min(
             (validationObj.min as { value: number }).value,
-            (validationObj.min as { message?: string }).message
+            (validationObj.min as { message?: string }).message,
           );
         }
         if (validationObj.max && baseSchema instanceof z.ZodNumber) {
           baseSchema = baseSchema.max(
             (validationObj.max as { value: number }).value,
-            (validationObj.max as { message?: string }).message
+            (validationObj.max as { message?: string }).message,
           );
         }
         if (validationObj.minLength && baseSchema instanceof z.ZodString) {
           baseSchema = baseSchema.min(
             (validationObj.minLength as { value: number }).value,
-            (validationObj.minLength as { message?: string }).message
+            (validationObj.minLength as { message?: string }).message,
           );
         }
         if (validationObj.maxLength && baseSchema instanceof z.ZodString) {
           baseSchema = baseSchema.max(
             (validationObj.maxLength as { value: number }).value,
-            (validationObj.maxLength as { message?: string }).message
+            (validationObj.maxLength as { message?: string }).message,
           );
         }
         // Array item count constraints
@@ -129,7 +148,11 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
             );
           }
           // If required and file field, enforce at least 1 item when no explicit minItems
-          if (field.type === 'file' && field.required && !validationObj.minItems) {
+          if (
+            field.type === 'file' &&
+            field.required &&
+            !validationObj.minItems
+          ) {
             arr = arr.min(1, `${field.label} requires at least 1 file`);
           }
           baseSchema = arr;
@@ -143,14 +166,17 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
         // For required fields, add validation
         // For string fields, enforce non-empty when required (only if minLength not already set)
         if (baseSchema instanceof z.ZodString && !validationObj.minLength) {
-          baseSchema = baseSchema.min(1, `${field.label || field.name} is required`);
+          baseSchema = baseSchema.min(
+            1,
+            `${field.label || field.name} is required`,
+          );
         }
 
         // For union fields (select/radio/autocomplete), add refinement for required validation
         if (baseSchema instanceof z.ZodUnion) {
           baseSchema = baseSchema.refine(
             (val) => val !== null && val !== undefined,
-            { message: `${field.label || field.name} is required` }
+            { message: `${field.label || field.name} is required` },
           );
         }
 
@@ -182,10 +208,17 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
           // Check if field supports multiple values
           if ((field as { multiple?: boolean }).multiple) {
             // Multiple: array of string/number/boolean
-            fieldSchema = z.array(z.union([z.string(), z.number(), z.boolean()]));
+            fieldSchema = z.array(
+              z.union([z.string(), z.number(), z.boolean()]),
+            );
           } else {
             // Single: string, number, boolean, or null (when empty)
-            fieldSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
+            fieldSchema = z.union([
+              z.string(),
+              z.number(),
+              z.boolean(),
+              z.null(),
+            ]);
           }
           break;
         case 'file': {
@@ -210,10 +243,12 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
         case 'time_range':
         case 'date_time_range':
         case 'month_range':
-          fieldSchema = z.object({
-            from: z.date().optional().nullable(),
-            to: z.date().optional().nullable(),
-          }).nullable();
+          fieldSchema = z
+            .object({
+              from: z.date().optional().nullable(),
+              to: z.date().optional().nullable(),
+            })
+            .nullable();
           break;
         case 'object':
           if (field.fields) {
@@ -258,14 +293,17 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
 
       // For array fields (multiple select/autocomplete), enforce at least 1 item when required
       if (fieldSchema instanceof z.ZodArray) {
-        fieldSchema = fieldSchema.min(1, `${fieldLabel} requires at least 1 selection`);
+        fieldSchema = fieldSchema.min(
+          1,
+          `${fieldLabel} requires at least 1 selection`,
+        );
       }
 
       // For union fields (single select/radio/autocomplete), add refinement for required validation
       if (fieldSchema instanceof z.ZodUnion) {
         fieldSchema = fieldSchema.refine(
           (val) => val !== null && val !== undefined,
-          { message: `${fieldLabel} is required` }
+          { message: `${fieldLabel} is required` },
         );
       }
 
@@ -296,9 +334,13 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
 
   // Generate default values from field configs
   const generatedDefaultValues = useMemo(() => {
-    const values: Record<string, unknown> = { ...((defaultValues ?? {}) as Record<string, unknown>) };
+    const values: Record<string, unknown> = {
+      ...((defaultValues ?? {}) as Record<string, unknown>),
+    };
 
-    const processFields = (fields: FormBuilderFieldConfig<TFieldValues, string>[]) => {
+    const processFields = (
+      fields: FormBuilderFieldConfig<TFieldValues, string>[],
+    ) => {
       for (const field of fields) {
         // Skip if value already exists
         if (values[field.name] !== undefined) {
@@ -387,8 +429,15 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
   // Create form with validation
   const form = useForm<TFieldValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(generatedSchema as any) as unknown as import('react-hook-form').Resolver<TFieldValues, any, TFieldValues>,
-    defaultValues: generatedDefaultValues as unknown as import('react-hook-form').DefaultValues<TFieldValues>,
+    resolver: zodResolver(
+      generatedSchema as any,
+    ) as unknown as import('react-hook-form').Resolver<
+      TFieldValues,
+      any,
+      TFieldValues
+    >,
+    defaultValues:
+      generatedDefaultValues as unknown as import('react-hook-form').DefaultValues<TFieldValues>,
   });
 
   return {

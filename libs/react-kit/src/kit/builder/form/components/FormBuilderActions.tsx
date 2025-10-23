@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Button } from '../../../../shadcn/ui/button';
 import { cn } from '../../../../shadcn/lib/utils';
 

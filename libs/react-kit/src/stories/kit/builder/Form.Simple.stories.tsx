@@ -1,6 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { FormBuilder } from '../../../kit/builder/form/components/FormBuilder';
-import { createSection, createField, commonValidations } from '../../../kit/builder/form/utils';
+import {
+  createSection,
+  createField,
+  commonValidations,
+} from '../../../kit/builder/form/utils';
 
 const meta: Meta<typeof FormBuilder> = {
   title: 'Kit/Builder/Form',
@@ -21,7 +25,7 @@ export const SimpleExample: Story = {
     const handleSubmit = (data: unknown) => {
       console.log('Form submitted:', data);
     };
-  
+
     const sections = [
       createSection.card('Contact Information', [
         createField.text('name', 'Full Name', {
@@ -65,17 +69,22 @@ export const SimpleExample: Story = {
         }),
       ]),
     ];
-  
+
     return (
       <div className="max-w-2xl mx-auto p-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Contact Us</h1>
           <p className="text-gray-600 mt-2">
-            Fill out the form below and we'll get back to you as soon as possible.
+            Fill out the form below and we'll get back to you as soon as
+            possible.
           </p>
         </div>
-  
-        <FormBuilder sections={sections} onSubmit={handleSubmit} className="space-y-6" />
+
+        <FormBuilder
+          sections={sections}
+          onSubmit={handleSubmit}
+          className="space-y-6"
+        />
       </div>
     );
   },

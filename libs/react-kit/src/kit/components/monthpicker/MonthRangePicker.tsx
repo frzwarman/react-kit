@@ -11,8 +11,8 @@ const addMonths = (input: Date, months: number) => {
   date.setDate(
     Math.min(
       input.getDate(),
-      getDaysInMonth(date.getFullYear(), date.getMonth() + 1)
-    )
+      getDaysInMonth(date.getFullYear(), date.getMonth() + 1),
+    ),
   );
   return date;
 };
@@ -174,16 +174,16 @@ function MonthRangeCal({
   onYearForward,
 }: MonthRangeCalProps) {
   const [startYear, setStartYear] = React.useState<number>(
-    selectedMonthRange?.start.getFullYear() ?? new Date().getFullYear()
+    selectedMonthRange?.start.getFullYear() ?? new Date().getFullYear(),
   );
   const [startMonth, setStartMonth] = React.useState<number>(
-    selectedMonthRange?.start?.getMonth() ?? new Date().getMonth()
+    selectedMonthRange?.start?.getMonth() ?? new Date().getMonth(),
   );
   const [endYear, setEndYear] = React.useState<number>(
-    selectedMonthRange?.end?.getFullYear() ?? new Date().getFullYear() + 1
+    selectedMonthRange?.end?.getFullYear() ?? new Date().getFullYear() + 1,
   );
   const [endMonth, setEndMonth] = React.useState<number>(
-    selectedMonthRange?.end?.getMonth() ?? new Date().getMonth()
+    selectedMonthRange?.end?.getMonth() ?? new Date().getMonth(),
   );
   const [rangePending, setRangePending] = React.useState<boolean>(false);
   const [endLocked, setEndLocked] = React.useState<boolean>(true);
@@ -207,7 +207,7 @@ function MonthRangeCal({
               }}
               className={cn(
                 buttonVariants({ variant: variant?.chevrons ?? 'outline' }),
-                'inline-flex items-center justify-center h-7 w-7 p-0 absolute left-1'
+                'inline-flex items-center justify-center h-7 w-7 p-0 absolute left-1',
               )}
             >
               <ChevronLeft className="opacity-50 h-4 w-4" />
@@ -220,7 +220,7 @@ function MonthRangeCal({
               }}
               className={cn(
                 buttonVariants({ variant: variant?.chevrons ?? 'outline' }),
-                'inline-flex items-center justify-center h-7 w-7 p-0 absolute right-1'
+                'inline-flex items-center justify-center h-7 w-7 p-0 absolute right-1',
               )}
             >
               <ChevronRight className="opacity-50 h-4 w-4" />
@@ -234,10 +234,12 @@ function MonthRangeCal({
         </div>
         <table className="w-full border-collapse space-y-1">
           <tbody>
-            {MONTHS.map((monthRow, a) => {
+            {MONTHS.map((monthRow) => {
+              const rowKey = monthRow
+                .map((month) => `${month.yearOffset}-${month.number}`)
+                .join('-');
               return (
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                <tr key={`row-${a}`} className="flex w-full mt-2">
+                <tr key={rowKey} className="flex w-full mt-2">
                   {monthRow.map((m, i) => {
                     return (
                       <td
@@ -255,13 +257,13 @@ function MonthRangeCal({
                                       m.number < endMonth)) &&
                                   (rangePending || endLocked)
                                   ? 'text-accent-foreground bg-accent'
-                                  : ''
+                                  : '',
                               ),
                               menuYear + m.yearOffset === startYear &&
                                 m.number === startMonth &&
                                 (rangePending || endLocked)
                                 ? 'text-accent-foreground bg-accent rounded-l-md'
-                                : ''
+                                : '',
                             ),
                             menuYear + m.yearOffset === endYear &&
                               m.number === endMonth &&
@@ -269,9 +271,9 @@ function MonthRangeCal({
                               menuYear + m.yearOffset >= startYear &&
                               m.number >= startMonth
                               ? 'text-accent-foreground bg-accent rounded-r-md'
-                              : ''
+                              : '',
                           ),
-                          i === 3 ? 'mr-2' : i === 4 ? 'ml-2' : ''
+                          i === 3 ? 'mr-2' : i === 4 ? 'ml-2' : '',
                         )}
                         onMouseEnter={() => {
                           if (rangePending && !endLocked) {
@@ -297,7 +299,7 @@ function MonthRangeCal({
                                 setEndMonth(m.number);
                                 if (onStartMonthSelect)
                                   onStartMonthSelect(
-                                    new Date(menuYear + m.yearOffset, m.number)
+                                    new Date(menuYear + m.yearOffset, m.number),
                                   );
                               } else {
                                 setRangePending(false);
@@ -309,7 +311,7 @@ function MonthRangeCal({
                                     start: new Date(startYear, startMonth),
                                     end: new Date(
                                       menuYear + m.yearOffset,
-                                      m.number
+                                      m.number,
                                     ),
                                   });
                               }
@@ -322,7 +324,7 @@ function MonthRangeCal({
                               setEndMonth(m.number);
                               if (onStartMonthSelect)
                                 onStartMonthSelect(
-                                  new Date(menuYear + m.yearOffset, m.number)
+                                  new Date(menuYear + m.yearOffset, m.number),
                                 );
                             }
                           }}
@@ -350,10 +352,10 @@ function MonthRangeCal({
                                 (endMonth === m.number &&
                                   menuYear + m.yearOffset === endYear &&
                                   !rangePending)
-                                  ? variant?.calendar?.selected ?? 'default'
-                                  : variant?.calendar?.main ?? 'ghost',
+                                  ? (variant?.calendar?.selected ?? 'default')
+                                  : (variant?.calendar?.main ?? 'ghost'),
                             }),
-                            'h-full w-full p-0 font-normal aria-selected:opacity-100'
+                            'h-full w-full p-0 font-normal aria-selected:opacity-100',
                           )}
                         >
                           {callbacks?.monthLabel

@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Button, buttonVariants } from '../../../shadcn/ui/button';
 import {
   DropdownMenu,
@@ -37,7 +37,7 @@ export type PageDropdownAction = {
   type: 'dropdown';
   key?: string;
   trigger: Omit<PageButtonAction, 'type'>;
-  items: (PageDropdownActionItem | { type: 'separator'; key?: string; })[];
+  items: (PageDropdownActionItem | { type: 'separator'; key?: string })[];
 };
 
 export type PageAction = PageButtonAction | PageDropdownAction;
@@ -65,7 +65,16 @@ const widthToClass: Record<PageContainerWidth, string> = {
 
 function renderAction(action: PageAction) {
   if (action.type === 'button') {
-    const { label, onClick, variant, size, leftIcon, rightIcon, disabled, className } = action;
+    const {
+      label,
+      onClick,
+      variant,
+      size,
+      leftIcon,
+      rightIcon,
+      disabled,
+      className,
+    } = action;
     return (
       <Button
         key={action.key ?? String(label)}
@@ -90,7 +99,7 @@ function renderAction(action: PageAction) {
           type="button"
           className={cn(
             buttonVariants({ variant: trigger.variant, size: trigger.size }),
-            trigger.className
+            trigger.className,
           )}
           onClick={trigger.onClick}
           disabled={trigger.disabled}
@@ -143,8 +152,19 @@ export function Page({
 }: PageProps) {
   return (
     <div className={cn('w-full', className)}>
-      <div className={cn('px-4 sm:px-6 lg:px-8', widthToClass[containerWidth], 'mx-auto')}>
-        <header className={cn('flex items-start justify-between gap-3 py-6', headerClassName)}>
+      <div
+        className={cn(
+          'px-4 sm:px-6 lg:px-8',
+          widthToClass[containerWidth],
+          'mx-auto',
+        )}
+      >
+        <header
+          className={cn(
+            'flex items-start justify-between gap-3 py-6',
+            headerClassName,
+          )}
+        >
           <div className="flex min-w-0 flex-col gap-1">
             <h1 className="text-2xl font-semibold leading-none tracking-tight text-foreground">
               {title}

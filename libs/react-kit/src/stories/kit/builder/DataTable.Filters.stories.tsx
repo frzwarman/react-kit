@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { type ColumnDef } from '@tanstack/react-table';
+import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '../../../kit/builder/data-table';
 import { createSection, createField } from '../../../kit/builder/form';
 import { toast } from 'sonner';
@@ -16,7 +17,11 @@ const columns: ColumnDef<Order>[] = [
   { accessorKey: 'id', header: 'Order #' },
   { accessorKey: 'customer', header: 'Customer' },
   { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'total', header: 'Total', cell: ({ getValue }) => `$${(getValue() as number).toFixed(2)}` },
+  {
+    accessorKey: 'total',
+    header: 'Total',
+    cell: ({ getValue }) => `$${(getValue() as number).toFixed(2)}`,
+  },
 ];
 
 const allData: Order[] = [
@@ -28,15 +33,19 @@ const allData: Order[] = [
 ];
 
 const filterSections = [
-  createSection.card('Find orders', [
-    createField.text('customer', 'Customer'),
-    createField.select('status', 'Status', [
-      { label: 'Any', value: null },
-      { label: 'Pending', value: 'pending' },
-      { label: 'Paid', value: 'paid' },
-      { label: 'Shipped', value: 'shipped' },
-    ]),
-  ], { grid: { cols: 3 } }),
+  createSection.card(
+    'Find orders',
+    [
+      createField.text('customer', 'Customer'),
+      createField.select('status', 'Status', [
+        { label: 'Any', value: null },
+        { label: 'Pending', value: 'pending' },
+        { label: 'Paid', value: 'paid' },
+        { label: 'Shipped', value: 'shipped' },
+      ]),
+    ],
+    { grid: { cols: 3 } },
+  ),
 ];
 
 const meta: Meta<typeof DataTable<Order, unknown>> = {
@@ -53,7 +62,11 @@ export const WithFilters: Story = {
     const [values, setValues] = useState<Record<string, unknown>>({});
 
     const filtered = allData.filter((o) => {
-      const byCustomer = values.customer ? o.customer.toLowerCase().includes(String(values.customer).toLowerCase()) : true;
+      const byCustomer = values.customer
+        ? o.customer
+            .toLowerCase()
+            .includes(String(values.customer).toLowerCase())
+        : true;
       const byStatus = values.status ? o.status === values.status : true;
       return byCustomer && byStatus;
     });
@@ -68,7 +81,16 @@ export const WithFilters: Story = {
           formFilters={filterSections}
           formFilterValues={values}
           onFormFilterChange={setValues}
-          actions={[{ key: 'export', label: 'Export', variant: 'outline', onClick: () => { toast.info('Export...') } }]}
+          actions={[
+            {
+              key: 'export',
+              label: 'Export',
+              variant: 'outline',
+              onClick: () => {
+                toast.info('Export...');
+              },
+            },
+          ]}
         />
       </div>
     );

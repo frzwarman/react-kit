@@ -1,8 +1,13 @@
-import type { FieldRenderProps } from './types'
-import { FileUploader } from '../../../../components/fileuploader/FileUploader'
+import type { FieldRenderProps } from './types';
+import { FileUploader } from '../../../../components/fileuploader/FileUploader';
 
-export function FileField({ field, value, onChange, className }: FieldRenderProps) {
-  const files = Array.isArray(value) ? value : []
+export function FileField({
+  field,
+  value,
+  onChange,
+  className,
+}: FieldRenderProps) {
+  const files = Array.isArray(value) ? value : [];
   return (
     <FileUploader
       className={className}
@@ -22,5 +27,5 @@ export function FileField({ field, value, onChange, className }: FieldRenderProp
       onRetry={field.fileOnRetry}
       onRetryAll={field.fileOnRetryAll}
     />
-  )
+  );
 }

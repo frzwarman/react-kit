@@ -28,22 +28,47 @@ export const Basic: Story = {
           <NavigationMenuContent>
             <div className="grid w-[400px] gap-3 p-3 md:w-[500px] md:grid-cols-2">
               <NavigationMenuLink asChild>
-                <a className="rounded-md border p-3" href="https://example.com/analytics">Analytics</a>
+                <a
+                  className="rounded-md border p-3"
+                  href="https://example.com/analytics"
+                >
+                  Analytics
+                </a>
               </NavigationMenuLink>
               <NavigationMenuLink asChild>
-                <a className="rounded-md border p-3" href="https://example.com/engagement">Engagement</a>
+                <a
+                  className="rounded-md border p-3"
+                  href="https://example.com/engagement"
+                >
+                  Engagement
+                </a>
               </NavigationMenuLink>
               <NavigationMenuLink asChild>
-                <a className="rounded-md border p-3" href="https://example.com/security">Security</a>
+                <a
+                  className="rounded-md border p-3"
+                  href="https://example.com/security"
+                >
+                  Security
+                </a>
               </NavigationMenuLink>
               <NavigationMenuLink asChild>
-                <a className="rounded-md border p-3" href="https://example.com/integrations">Integrations</a>
+                <a
+                  className="rounded-md border p-3"
+                  href="https://example.com/integrations"
+                >
+                  Integrations
+                </a>
               </NavigationMenuLink>
             </div>
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuLink href="https://example.com/pricing" className="rounded-md px-4 py-2">Pricing</NavigationMenuLink>
+          <NavigationMenuLink
+            href="https://example.com/pricing"
+            className="rounded-md px-4 py-2"
+          >
+            Pricing
+          </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
       <NavigationMenuIndicator />

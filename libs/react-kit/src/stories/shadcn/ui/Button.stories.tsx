@@ -31,7 +31,9 @@ export const Sizes: Story = {
       <Button size="default">Default</Button>
       <Button size="lg">Large</Button>
       <Button size="icon" aria-label="icon" className="rounded-full">
-        <span role="img" aria-label="waving hand">👋</span>
+        <span role="img" aria-label="waving hand">
+          👋
+        </span>
       </Button>
     </div>
   ),

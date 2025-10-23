@@ -1,5 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { FormBuilder, type FormBuilderProps } from '../../../kit/builder/form/components/FormBuilder'
+import type { Meta, StoryObj } from '@storybook/react';
+import {
+  FormBuilder,
+  type FormBuilderProps,
+} from '../../../kit/builder/form/components/FormBuilder';
 
 const meta: Meta<typeof FormBuilder> = {
   title: 'Kit/Builder/Form',
@@ -8,11 +11,11 @@ const meta: Meta<typeof FormBuilder> = {
     controls: { expanded: true },
     backgrounds: { disable: true },
   },
-}
+};
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof FormBuilder>
+type Story = StoryObj<typeof FormBuilder>;
 
 export const ArrayCardLayout: Story = {
   name: 'Array - Card layout',
@@ -44,7 +47,7 @@ export const ArrayCardLayout: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};
 
 export const ArrayTableLayout: Story = {
   name: 'Array - Table layout',
@@ -52,7 +55,8 @@ export const ArrayTableLayout: Story = {
     sections: [
       {
         title: 'Table Layout',
-        description: 'Array items are displayed in a table with configurable colors',
+        description:
+          'Array items are displayed in a table with configurable colors',
         layout: 'grid',
         grid: { cols: 1, gap: 'gap-4' },
         fields: [
@@ -67,7 +71,12 @@ export const ArrayTableLayout: Story = {
               rowAltBgClass: 'bg-teal-50',
             },
             fields: [
-              { name: 'product', label: 'Product', type: 'text', required: true },
+              {
+                name: 'product',
+                label: 'Product',
+                type: 'text',
+                required: true,
+              },
               { name: 'price', label: 'Price', type: 'number', required: true },
             ],
           },
@@ -82,7 +91,7 @@ export const ArrayTableLayout: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};
 
 export const ArrayCustomLayout: Story = {
   name: 'Array - Custom renderer',
@@ -103,7 +112,13 @@ export const ArrayCustomLayout: Story = {
             label: 'Items (custom)',
             defaultValue: [],
             arrayLayout: 'custom',
-            arrayRender: ({ value: _value = [], rows = [], addItem, removeItem, disabled }) => {
+            arrayRender: ({
+              value: _value = [],
+              rows = [],
+              addItem,
+              removeItem,
+              disabled,
+            }) => {
               return (
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
@@ -117,11 +132,18 @@ export const ArrayCustomLayout: Story = {
                     </button>
                   </div>
                   <div className="space-y-2">
-                    <div className="text-xs text-muted-foreground">Rows: {rows.length}</div>
+                    <div className="text-xs text-muted-foreground">
+                      Rows: {rows.length}
+                    </div>
                     {Array.isArray(rows) && rows.length > 0 ? (
                       rows.map((row: { id: string }, i: number) => (
-                        <div key={row.id ?? i} className="flex items-center gap-3 border rounded-md p-3">
-                          <span className="text-sm text-muted-foreground">Row {i + 1}</span>
+                        <div
+                          key={row.id ?? i}
+                          className="flex items-center gap-3 border rounded-md p-3"
+                        >
+                          <span className="text-sm text-muted-foreground">
+                            Row {i + 1}
+                          </span>
                           <button
                             type="button"
                             className="ml-auto btn btn-destructive"
@@ -132,11 +154,13 @@ export const ArrayCustomLayout: Story = {
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-muted-foreground">No items. Click Add Item.</p>
+                      <p className="text-sm text-muted-foreground">
+                        No items. Click Add Item.
+                      </p>
                     )}
                   </div>
                 </div>
-              )
+              );
             },
           },
         ],
@@ -150,4 +174,4 @@ export const ArrayCustomLayout: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};

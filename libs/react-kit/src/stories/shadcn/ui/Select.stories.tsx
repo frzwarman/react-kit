@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../../../shadcn/ui/select';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '../../../shadcn/ui/select';
 import { Label } from '../../../shadcn/ui/label';
 
 const meta: Meta<typeof Select> = {

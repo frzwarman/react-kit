@@ -4,7 +4,11 @@ import * as React from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '../../../shadcn/lib/utils';
 import { Button } from '../../../shadcn/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../../../shadcn/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../../../shadcn/ui/popover';
 import { Calendar } from '../../../shadcn/ui/calendar';
 import {
   Select,
@@ -16,7 +20,8 @@ import {
 
 export type TimePrecision = 'hour' | 'minute' | 'second';
 
-export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface DateTimePickerProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value?: Date | null;
   onChange?: (date: Date | null) => void;
   placeholder?: string;
@@ -38,14 +43,22 @@ export interface DateTimePickerProps extends Omit<React.HTMLAttributes<HTMLDivEl
   clearLabel?: string; // default 'Clear'
 }
 
-const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const startOfDay = (d: Date) =>
+  new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const pad2 = (n: number) => String(n).padStart(2, '0');
 const isBefore = (date: Date, min?: Date) => !!(min && date < startOfDay(min));
 const isAfter = (date: Date, max?: Date) => !!(max && date > startOfDay(max));
 function sameDay(a: Date, b: Date) {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
 }
-function inDisabled(date: Date, items?: Array<Date | { from: Date; to: Date }>) {
+function inDisabled(
+  date: Date,
+  items?: Array<Date | { from: Date; to: Date }>,
+) {
   if (!items || items.length === 0) return false;
   const d = startOfDay(date);
   for (const it of items) {
@@ -77,9 +90,29 @@ function TimeSelectors({
   secondStep: number;
   disabled?: boolean;
 }) {
-  const hours = React.useMemo(() => (hourCycle === 12 ? Array.from({ length: 12 }, (_, i) => i + 1) : Array.from({ length: 24 }, (_, i) => i)), [hourCycle]);
-  const minutes = React.useMemo(() => Array.from({ length: Math.ceil(60 / minuteStep) }, (_, i) => i * minuteStep), [minuteStep]);
-  const seconds = React.useMemo(() => Array.from({ length: Math.ceil(60 / secondStep) }, (_, i) => i * secondStep), [secondStep]);
+  const hours = React.useMemo(
+    () =>
+      hourCycle === 12
+        ? Array.from({ length: 12 }, (_, i) => i + 1)
+        : Array.from({ length: 24 }, (_, i) => i),
+    [hourCycle],
+  );
+  const minutes = React.useMemo(
+    () =>
+      Array.from(
+        { length: Math.ceil(60 / minuteStep) },
+        (_, i) => i * minuteStep,
+      ),
+    [minuteStep],
+  );
+  const seconds = React.useMemo(
+    () =>
+      Array.from(
+        { length: Math.ceil(60 / secondStep) },
+        (_, i) => i * secondStep,
+      ),
+    [secondStep],
+  );
   const selectedHour = React.useMemo(() => {
     if (!value) return hourCycle === 12 ? 12 : 0;
     const h = value.getHours();
@@ -87,21 +120,33 @@ function TimeSelectors({
   }, [value, hourCycle]);
   const selectedMinute = value?.getMinutes() ?? 0;
   const selectedSecond = value?.getSeconds() ?? 0;
-  const selectedPeriod: 'AM' | 'PM' = value && value.getHours() >= 12 ? 'PM' : 'AM';
+  const selectedPeriod: 'AM' | 'PM' =
+    value && value.getHours() >= 12 ? 'PM' : 'AM';
 
-  const setPart = (part: 'hour' | 'minute' | 'second' | 'period', v: number | 'AM' | 'PM') => {
+  const setPart = (
+    part: 'hour' | 'minute' | 'second' | 'period',
+    v: number | 'AM' | 'PM',
+  ) => {
     const base = value
       ? new Date(value)
       : (() => {
           const n = new Date();
-          return new Date(n.getFullYear(), n.getMonth(), n.getDate(), 0, 0, 0, 0);
+          return new Date(
+            n.getFullYear(),
+            n.getMonth(),
+            n.getDate(),
+            0,
+            0,
+            0,
+            0,
+          );
         })();
     if (part === 'hour') {
       let h = Number(v);
       if (hourCycle === 12) {
         const isPM = base.getHours() >= 12;
         h = h % 12;
-        base.setHours(isPM ? (h === 12 ? 12 : h + 12) : (h === 12 ? 0 : h));
+        base.setHours(isPM ? (h === 12 ? 12 : h + 12) : h === 12 ? 0 : h);
       } else {
         base.setHours(h);
       }
@@ -123,13 +168,19 @@ function TimeSelectors({
     <div className="flex items-end gap-2">
       <div className="w-24">
         <div className="mb-1 block text-xs text-muted-foreground">Hour</div>
-        <Select disabled={disabled} value={String(selectedHour)} onValueChange={(v) => setPart('hour', Number(v))}>
+        <Select
+          disabled={disabled}
+          value={String(selectedHour)}
+          onValueChange={(v) => setPart('hour', Number(v))}
+        >
           <SelectTrigger aria-label="Hour">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {hours.map((h) => (
-              <SelectItem key={h} value={String(h)}>{hourCycle === 12 ? h : pad2(h)}</SelectItem>
+              <SelectItem key={h} value={String(h)}>
+                {hourCycle === 12 ? h : pad2(h)}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -138,13 +189,19 @@ function TimeSelectors({
       {(precision === 'minute' || precision === 'second') && (
         <div className="w-24">
           <div className="mb-1 block text-xs text-muted-foreground">Minute</div>
-          <Select disabled={disabled} value={String(selectedMinute - (selectedMinute % minuteStep))} onValueChange={(v) => setPart('minute', Number(v))}>
+          <Select
+            disabled={disabled}
+            value={String(selectedMinute - (selectedMinute % minuteStep))}
+            onValueChange={(v) => setPart('minute', Number(v))}
+          >
             <SelectTrigger aria-label="Minute">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {minutes.map((m) => (
-                <SelectItem key={m} value={String(m)}>{pad2(m)}</SelectItem>
+                <SelectItem key={m} value={String(m)}>
+                  {pad2(m)}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -154,13 +211,19 @@ function TimeSelectors({
       {precision === 'second' && (
         <div className="w-24">
           <div className="mb-1 block text-xs text-muted-foreground">Second</div>
-          <Select disabled={disabled} value={String(selectedSecond - (selectedSecond % secondStep))} onValueChange={(v) => setPart('second', Number(v))}>
+          <Select
+            disabled={disabled}
+            value={String(selectedSecond - (selectedSecond % secondStep))}
+            onValueChange={(v) => setPart('second', Number(v))}
+          >
             <SelectTrigger aria-label="Second">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {seconds.map((s) => (
-                <SelectItem key={s} value={String(s)}>{pad2(s)}</SelectItem>
+                <SelectItem key={s} value={String(s)}>
+                  {pad2(s)}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -170,7 +233,11 @@ function TimeSelectors({
       {hourCycle === 12 && (
         <div className="w-24">
           <div className="mb-1 block text-xs text-muted-foreground">Period</div>
-          <Select disabled={disabled} value={selectedPeriod} onValueChange={(v) => setPart('period', v as 'AM' | 'PM')}>
+          <Select
+            disabled={disabled}
+            value={selectedPeriod}
+            onValueChange={(v) => setPart('period', v as 'AM' | 'PM')}
+          >
             <SelectTrigger aria-label="Period">
               <SelectValue />
             </SelectTrigger>
@@ -203,7 +270,8 @@ export function DateTimePicker({
 }: DateTimePickerProps) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const isOpen = typeof props.open === 'boolean' ? props.open : internalOpen;
-  const setOpen = (o: boolean) => (props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o));
+  const setOpen = (o: boolean) =>
+    props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o);
   const [draft, setDraft] = React.useState<Date | null>(value ?? null);
 
   React.useEffect(() => {
@@ -218,13 +286,18 @@ export function DateTimePicker({
 
   const fmtLabel = (d: Date | null): string => {
     if (!d) return placeholder;
-    const dateStr = d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' });
+    const dateStr = d.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    });
     const h = d.getHours();
     const m = d.getMinutes();
     const s = d.getSeconds();
-    const timeStr = hourCycle === 12
-      ? `${((h % 12) || 12)}:${pad2(m)}${timePrecision === 'second' ? `:${pad2(s)}` : ''} ${h >= 12 ? 'PM' : 'AM'}`
-      : `${pad2(h)}:${pad2(m)}${timePrecision === 'second' ? `:${pad2(s)}` : ''}`;
+    const timeStr =
+      hourCycle === 12
+        ? `${h % 12 || 12}:${pad2(m)}${timePrecision === 'second' ? `:${pad2(s)}` : ''} ${h >= 12 ? 'PM' : 'AM'}`
+        : `${pad2(h)}:${pad2(m)}${timePrecision === 'second' ? `:${pad2(s)}` : ''}`;
     return `${dateStr} ${timeStr}`;
   };
 
@@ -238,7 +311,10 @@ export function DateTimePicker({
             type="button"
             disabled={disabled}
             variant={buttonVariant}
-            className={cn('w-[280px] justify-start text-left font-normal', !value && 'text-muted-foreground')}
+            className={cn(
+              'w-[280px] justify-start text-left font-normal',
+              !value && 'text-muted-foreground',
+            )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {label}
@@ -255,10 +331,26 @@ export function DateTimePicker({
                 if (isDisabled(d)) return;
                 // preserve time parts if exist
                 if (draft) {
-                  const nd = new Date(d.getFullYear(), d.getMonth(), d.getDate(), draft.getHours(), draft.getMinutes(), draft.getSeconds());
+                  const nd = new Date(
+                    d.getFullYear(),
+                    d.getMonth(),
+                    d.getDate(),
+                    draft.getHours(),
+                    draft.getMinutes(),
+                    draft.getSeconds(),
+                  );
                   setDraft(nd);
                 } else {
-                  setDraft(new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0));
+                  setDraft(
+                    new Date(
+                      d.getFullYear(),
+                      d.getMonth(),
+                      d.getDate(),
+                      0,
+                      0,
+                      0,
+                    ),
+                  );
                 }
               }}
               defaultMonth={draft ?? new Date()}
@@ -267,7 +359,9 @@ export function DateTimePicker({
               showOutsideDays
             />
             <div>
-              <div className="mb-1 block text-xs text-muted-foreground">Time</div>
+              <div className="mb-1 block text-xs text-muted-foreground">
+                Time
+              </div>
               <TimeSelectors
                 value={draft}
                 onChange={(d) => setDraft(d)}
@@ -282,11 +376,23 @@ export function DateTimePicker({
 
           {(props.showFooter ?? true) && (
             <div className="flex items-center justify-between gap-2 p-2 border-t">
-              <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)} disabled={disabled}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setOpen(false)}
+                disabled={disabled}
+              >
                 {props.cancelLabel ?? 'Cancel'}
               </Button>
               <div className="flex gap-2">
-                <Button type="button" variant="ghost" size="sm" onClick={() => onChange?.(null)} disabled={disabled}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onChange?.(null)}
+                  disabled={disabled}
+                >
                   {props.clearLabel ?? 'Clear'}
                 </Button>
                 <Button

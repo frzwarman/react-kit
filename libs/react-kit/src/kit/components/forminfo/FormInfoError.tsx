@@ -22,7 +22,7 @@ const ignoredKeys = new Set(['message', 'type', 'types', 'ref']);
 
 function collectMessages(
   errors: FieldErrors<FieldValues> | undefined,
-  parentPath: string[] = []
+  parentPath: string[] = [],
 ): ErrorMessage[] {
   if (!errors) return [];
 
@@ -35,9 +35,10 @@ function collectMessages(
   for (const [key, value] of entries) {
     if (!value) continue;
 
-    const currentPath = typeof key === 'string' && key === 'root'
-      ? parentPath
-      : [...parentPath, String(key)];
+    const currentPath =
+      typeof key === 'string' && key === 'root'
+        ? parentPath
+        : [...parentPath, String(key)];
 
     if (typeof value === 'object') {
       if ('message' in value && value.message) {
@@ -63,12 +64,15 @@ function collectMessages(
           : Object.entries(value);
 
         const nestedEntries = source.filter(
-          ([nestedKey]) => !ignoredKeys.has(nestedKey)
+          ([nestedKey]) => !ignoredKeys.has(nestedKey),
         );
 
         if (nestedEntries.length > 0) {
-          const nested: Record<string, unknown> = Object.fromEntries(nestedEntries);
-          messages.push(...collectMessages(nested as FieldErrors<FieldValues>, currentPath));
+          const nested: Record<string, unknown> =
+            Object.fromEntries(nestedEntries);
+          messages.push(
+            ...collectMessages(nested as FieldErrors<FieldValues>, currentPath),
+          );
         }
       }
     }
@@ -84,11 +88,21 @@ export function FormInfoError<TFieldValues extends FieldValues = FieldValues>({
   className,
   showFieldPath = true,
 }: FormInfoErrorProps<TFieldValues>) {
-  const messages = collectMessages(errors as FieldErrors<FieldValues> | undefined);
+  const messages = collectMessages(
+    errors as FieldErrors<FieldValues> | undefined,
+  );
 
   if (messages.length === 0) {
     return null;
   }
+
+  const keyOccurrences = new Map<string, number>();
+  const getMessageKey = (path: string, message: string) => {
+    const baseKey = [path, message].filter(Boolean).join(':') || message;
+    const occurrence = keyOccurrences.get(baseKey) ?? 0;
+    keyOccurrences.set(baseKey, occurrence + 1);
+    return occurrence === 0 ? baseKey : `${baseKey}:${occurrence}`;
+  };
 
   return (
     <Alert variant="destructive" className={cn('gap-2', className)}>
@@ -99,12 +113,13 @@ export function FormInfoError<TFieldValues extends FieldValues = FieldValues>({
             {title ?? 'Please review the following issues'}
           </AlertTitle>
           <AlertDescription>
-            {description ?? 'Some fields need your attention before continuing.'}
+            {description ??
+              'Some fields need your attention before continuing.'}
           </AlertDescription>
         </div>
         <ul className="grid gap-1 text-sm text-destructive">
-          {messages.map(({ path, message }, index) => (
-            <li key={`${path}-${index}`} className="leading-snug">
+          {messages.map(({ path, message }) => (
+            <li key={getMessageKey(path, message)} className="leading-snug">
               {showFieldPath && path ? (
                 <span className="font-medium">{path}: </span>
               ) : null}

@@ -23,11 +23,17 @@ type Story = StoryObj<typeof AdminLayout>;
 type AdminLayoutStoryProps = React.ComponentProps<typeof AdminLayout>;
 
 function RegisterMenus() {
-  const { registerGroup, registerItem, clear } = useAdminSidebarMenuRegistration();
+  const { registerGroup, registerItem, clear } =
+    useAdminSidebarMenuRegistration();
   useEffect(() => {
     clear();
     registerGroup({ id: 'overview', label: 'Overview' });
-    registerItem('overview', { id: 'home', title: 'Home', url: '/', icon: Home });
+    registerItem('overview', {
+      id: 'home',
+      title: 'Home',
+      url: '/',
+      icon: Home,
+    });
   }, [registerGroup, registerItem, clear]);
   return null;
 }
@@ -43,7 +49,11 @@ function App(props: AdminLayoutStoryProps) {
       </ThemeProvider>
     ),
   });
-  const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: () => <div className="p-6">Home</div> });
+  const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/',
+    component: () => <div className="p-6">Home</div>,
+  });
   const routeTree = rootRoute.addChildren([indexRoute]);
   const router = createRouter({ routeTree, basepath: '/iframe.html' });
   return <RouterProvider router={router} />;
@@ -56,7 +66,11 @@ export const CustomSidebarHeaderComponent: Story = {
       sidebarHeader={
         <div className="px-4 py-3">
           <div className="flex items-center gap-2">
-            <img src="https://dummyimage.com/32x32/000/fff.png&text=A" alt="Logo" className="h-8 w-8 rounded" />
+            <img
+              src="https://dummyimage.com/32x32/000/fff.png&text=A"
+              alt="Logo"
+              className="h-8 w-8 rounded"
+            />
             <span className="font-semibold">My Admin</span>
           </div>
         </div>

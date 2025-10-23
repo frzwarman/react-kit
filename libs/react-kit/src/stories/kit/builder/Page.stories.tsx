@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Page, type PageAction } from '../../../kit/builder/page';
 import { Button } from '../../../shadcn/ui/button';
-import { Plus, Download, MoreHorizontal, RefreshCw, Trash2 } from 'lucide-react';
+import {
+  Plus,
+  Download,
+  MoreHorizontal,
+  RefreshCw,
+  Trash2,
+} from 'lucide-react';
 
 const meta: Meta<typeof Page> = {
   title: 'kit/Builder/Page',
@@ -15,7 +21,11 @@ type Story = StoryObj<typeof Page>;
 export const Basic: Story = {
   name: 'Basic',
   render: () => (
-    <Page title="Orders" subtitle="Manage and review customer orders" containerWidth="lg">
+    <Page
+      title="Orders"
+      subtitle="Manage and review customer orders"
+      containerWidth="lg"
+    >
       <div className="rounded-md border bg-card p-6 text-sm text-muted-foreground">
         Page content goes here.
       </div>
@@ -49,15 +59,29 @@ export const WithActions: Story = {
           leftIcon: <MoreHorizontal className="h-4 w-4" />,
         },
         items: [
-          { label: 'Refresh', leftIcon: <RefreshCw className="h-4 w-4" />, onSelect: () => console.log('refresh') },
+          {
+            label: 'Refresh',
+            leftIcon: <RefreshCw className="h-4 w-4" />,
+            onSelect: () => console.log('refresh'),
+          },
           { type: 'separator' },
-          { label: 'Delete selected', leftIcon: <Trash2 className="h-4 w-4" />, destructive: true, onSelect: () => console.log('delete') },
+          {
+            label: 'Delete selected',
+            leftIcon: <Trash2 className="h-4 w-4" />,
+            destructive: true,
+            onSelect: () => console.log('delete'),
+          },
         ],
       },
     ];
 
     return (
-      <Page title="Orders" subtitle="Manage and review customer orders" actions={actions} containerWidth="xl">
+      <Page
+        title="Orders"
+        subtitle="Manage and review customer orders"
+        actions={actions}
+        containerWidth="xl"
+      >
         <div className="rounded-md border bg-card p-6 text-sm text-muted-foreground">
           Content with actions.
         </div>
@@ -76,7 +100,9 @@ export const WithFooter: Story = {
       footerLeft={<span className="text-xs">Last updated 2 hours ago</span>}
       footerRight={
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => console.log('cancel')}>Cancel</Button>
+          <Button variant="outline" onClick={() => console.log('cancel')}>
+            Cancel
+          </Button>
           <Button onClick={() => console.log('save')}>Save changes</Button>
         </div>
       }

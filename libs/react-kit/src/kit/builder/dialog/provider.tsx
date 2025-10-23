@@ -1,4 +1,11 @@
-import React, { createContext, useCallback, use, useMemo, useRef, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  use,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,18 +32,24 @@ export type CustomModalOptions = {
   // Optional size/placement pass-through to DialogContent if needed later
 };
 
-type CustomRenderer<T = unknown> = (api: { close: (value?: T) => void }) => React.ReactNode;
+type CustomRenderer<T = unknown> = (api: {
+  close: (value?: T) => void;
+}) => React.ReactNode;
 
 interface DialogContextValue {
   confirm: (opts?: ConfirmOptions) => Promise<boolean>;
-  open: <T = unknown>(render: CustomRenderer<T>, opts?: CustomModalOptions) => Promise<T | undefined>;
+  open: <T = unknown>(
+    render: CustomRenderer<T>,
+    opts?: CustomModalOptions,
+  ) => Promise<T | undefined>;
 }
 
 const DialogContext = createContext<DialogContextValue | null>(null);
 
 export function useDialogController(): DialogContextValue {
   const ctx = use(DialogContext);
-  if (!ctx) throw new Error('useDialogController must be used within DialogProvider');
+  if (!ctx)
+    throw new Error('useDialogController must be used within DialogProvider');
   return ctx;
 }
 
@@ -45,8 +58,11 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
   const resolverRef = useRef<((value: unknown) => void) | null>(null);
   const [mode, setMode] = useState<'confirm' | 'custom' | null>(null);
   const [confirmOpts, setConfirmOpts] = useState<ConfirmOptions>({});
-  const [customRender, setCustomRender] = useState<CustomRenderer<unknown> | null>(null);
-  const [customOpts, setCustomOpts] = useState<CustomModalOptions | undefined>(undefined);
+  const [customRender, setCustomRender] =
+    useState<CustomRenderer<unknown> | null>(null);
+  const [customOpts, setCustomOpts] = useState<CustomModalOptions | undefined>(
+    undefined,
+  );
 
   const confirm = useCallback((options?: ConfirmOptions) => {
     setConfirmOpts(options ?? {});
@@ -57,15 +73,18 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const openCustom = useCallback(<T,>(render: CustomRenderer<T>, options?: CustomModalOptions) => {
-    setCustomRender(() => render as unknown as CustomRenderer<unknown>);
-    setCustomOpts(options);
-    setMode('custom');
-    setOpen(true);
-    return new Promise<T | undefined>((resolve) => {
-      resolverRef.current = resolve as (value: unknown) => void;
-    });
-  }, []);
+  const openCustom = useCallback(
+    <T,>(render: CustomRenderer<T>, options?: CustomModalOptions) => {
+      setCustomRender(() => render as unknown as CustomRenderer<unknown>);
+      setCustomOpts(options);
+      setMode('custom');
+      setOpen(true);
+      return new Promise<T | undefined>((resolve) => {
+        resolverRef.current = resolve as (value: unknown) => void;
+      });
+    },
+    [],
+  );
 
   const handleClose = useCallback((result: unknown) => {
     setOpen(false);
@@ -76,7 +95,10 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
     setMode(null);
   }, []);
 
-  const value = useMemo<DialogContextValue>(() => ({ confirm, open: openCustom }), [confirm, openCustom]);
+  const value = useMemo<DialogContextValue>(
+    () => ({ confirm, open: openCustom }),
+    [confirm, openCustom],
+  );
 
   const {
     title: cTitle = 'Are you sure?',
@@ -95,19 +117,29 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
       {children}
       {/* Confirm Dialog */}
       {mode === 'confirm' && (
-        <AlertDialog open={open} onOpenChange={o => !o && handleClose(false)}>
+        <AlertDialog open={open} onOpenChange={(o) => !o && handleClose(false)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-foreground">{cTitle}</AlertDialogTitle>
+              <AlertDialogTitle className="text-foreground">
+                {cTitle}
+              </AlertDialogTitle>
               {cDesc ? (
-                <AlertDialogDescription className="text-muted-foreground">{cDesc}</AlertDialogDescription>
+                <AlertDialogDescription className="text-muted-foreground">
+                  {cDesc}
+                </AlertDialogDescription>
               ) : null}
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="text-foreground" onClick={() => handleClose(false)}>
+              <AlertDialogCancel
+                className="text-foreground"
+                onClick={() => handleClose(false)}
+              >
                 {cCancelText}
               </AlertDialogCancel>
-              <AlertDialogAction className={actionClass} onClick={() => handleClose(true)}>
+              <AlertDialogAction
+                className={actionClass}
+                onClick={() => handleClose(true)}
+              >
                 {cConfirmText}
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -117,15 +149,12 @@ export function DialogProvider({ children }: { children: React.ReactNode }) {
 
       {/* Custom Modal */}
       {mode === 'custom' && customRender && (
-        <Dialog
-          open={open}
-          onOpenChange={o => !o && handleClose(undefined)}
-        >
+        <Dialog open={open} onOpenChange={(o) => !o && handleClose(undefined)}>
           <DialogContent
-            onEscapeKeyDown={e => {
+            onEscapeKeyDown={(e) => {
               if (customOpts?.preventCloseOnEscape) e.preventDefault();
             }}
-            onInteractOutside={e => {
+            onInteractOutside={(e) => {
               if (customOpts?.preventCloseOnInteractOutside) e.preventDefault();
             }}
           >

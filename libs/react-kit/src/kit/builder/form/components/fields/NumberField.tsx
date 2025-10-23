@@ -1,7 +1,12 @@
-import { Input } from '../../../../../shadcn/ui/input'
-import type { FieldRenderProps } from './types'
+import { Input } from '../../../../../shadcn/ui/input';
+import type { FieldRenderProps } from './types';
 
-export function NumberField({ field, value, onChange, className }: FieldRenderProps) {
+export function NumberField({
+  field,
+  value,
+  onChange,
+  className,
+}: FieldRenderProps) {
   return (
     <Input
       className={className}
@@ -11,5 +16,5 @@ export function NumberField({ field, value, onChange, className }: FieldRenderPr
       value={(value as number | string) ?? ''}
       onChange={(e) => onChange(Number(e.target.value))}
     />
-  )
+  );
 }

@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { type Column } from '@tanstack/react-table';
+import type { Column } from '@tanstack/react-table';
 import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from 'lucide-react';
 import { cn } from '../../../../shadcn/lib/utils';
 import { Button } from '../../../../shadcn/ui/button';
@@ -10,9 +9,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../../../../shadcn/ui/dropdown-menu';
+import type { HTMLAttributes } from 'react';
 
 export interface DataTableColumnHeaderProps<TData, TValue>
-  extends React.HTMLAttributes<HTMLDivElement> {
+  extends HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   label?: string;
 }
@@ -23,7 +23,7 @@ export function DataTableColumnHeader<TData, TValue>({
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
   label = (column.columnDef.meta as { label?: string })?.label ?? label;
-  
+
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{label}</div>;
   }
@@ -32,7 +32,11 @@ export function DataTableColumnHeader<TData, TValue>({
     <div className={cn('flex items-center gap-2', className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="data-[state=open]:bg-accent -ml-3 h-8">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="data-[state=open]:bg-accent -ml-3 h-8"
+          >
             <span>{label}</span>
             {column.getIsSorted() === 'desc' ? (
               <ArrowDown className="ml-2 size-4" />

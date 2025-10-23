@@ -19,7 +19,7 @@ export type AdminMenuContextValue = {
   groups: AdminMenuGroup[];
   setGroups: React.Dispatch<React.SetStateAction<AdminMenuGroup[]>>;
   registerGroup: (
-    group: Omit<AdminMenuGroup, 'items'> & { items?: AdminMenuItem[] }
+    group: Omit<AdminMenuGroup, 'items'> & { items?: AdminMenuItem[] },
   ) => void;
   registerItem: (groupId: string, item: AdminMenuItem) => void;
   clear: () => void;

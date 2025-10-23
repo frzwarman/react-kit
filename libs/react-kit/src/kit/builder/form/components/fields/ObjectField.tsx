@@ -1,10 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from '../../../../../shadcn/ui/card'
-import { cn } from '../../../../../shadcn/lib/utils'
-import type { FieldRenderProps } from './types'
-import { FormBuilderField } from '../FormBuilderField'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../../../../../shadcn/ui/card';
+import { cn } from '../../../../../shadcn/lib/utils';
+import type { FieldRenderProps } from './types';
+import { FormBuilderField } from '../FormBuilderField';
 
 export function ObjectField({ field, control, fieldPath }: FieldRenderProps) {
-  if (!field.fields) return null
+  if (!field.fields) return null;
   return (
     <Card className={cn(field.className)}>
       <CardHeader className="pb-3">
@@ -15,7 +20,7 @@ export function ObjectField({ field, control, fieldPath }: FieldRenderProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
-          {field.fields.map(subField => (
+          {field.fields.map((subField) => (
             <FormBuilderField
               key={subField.name}
               field={subField}
@@ -26,5 +31,5 @@ export function ObjectField({ field, control, fieldPath }: FieldRenderProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

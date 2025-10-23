@@ -1,32 +1,42 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { FormBuilder, type FormBuilderProps } from '../../../kit/builder/form/components/FormBuilder'
-import type { FileRecord } from '../../../kit/components/fileuploader/types'
+import type { Meta, StoryObj } from '@storybook/react';
+import {
+  FormBuilder,
+  type FormBuilderProps,
+} from '../../../kit/builder/form/components/FormBuilder';
+import type { FileRecord } from '../../../kit/components/fileuploader/types';
 
 // Simple mocked uploader with progress + optional failure
-function mockUploader(options?: { minMs?: number; maxMs?: number; failRate?: number }) {
-  const minMs = options?.minMs ?? 700
-  const maxMs = options?.maxMs ?? 1600
-  const failRate = options?.failRate ?? 0.15
-  return async (file: File, onProgress: (pct: number) => void): Promise<Partial<FileRecord>> => {
-    const willFail = Math.random() < failRate
-    const total = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs
-    const start = Date.now()
+function mockUploader(options?: {
+  minMs?: number;
+  maxMs?: number;
+  failRate?: number;
+}) {
+  const minMs = options?.minMs ?? 700;
+  const maxMs = options?.maxMs ?? 1600;
+  const failRate = options?.failRate ?? 0.15;
+  return async (
+    file: File,
+    onProgress: (pct: number) => void,
+  ): Promise<Partial<FileRecord>> => {
+    const willFail = Math.random() < failRate;
+    const total = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
+    const start = Date.now();
     return new Promise((resolve, reject) => {
       const iv = setInterval(() => {
-        const elapsed = Date.now() - start
-        const pct = Math.min(100, Math.round((elapsed / total) * 100))
-        onProgress(pct)
+        const elapsed = Date.now() - start;
+        const pct = Math.min(100, Math.round((elapsed / total) * 100));
+        onProgress(pct);
         if (pct >= 100) {
-          clearInterval(iv)
+          clearInterval(iv);
           if (willFail) {
-            reject(new Error('Simulated upload error'))
+            reject(new Error('Simulated upload error'));
           } else {
-            resolve({ id: `${file.name}-${Date.now()}` })
+            resolve({ id: `${file.name}-${Date.now()}` });
           }
         }
-      }, 150)
-    })
-  }
+      }, 150);
+    });
+  };
 }
 
 const meta: Meta<typeof FormBuilder> = {
@@ -36,11 +46,11 @@ const meta: Meta<typeof FormBuilder> = {
     controls: { expanded: true },
     backgrounds: { disable: true },
   },
-}
+};
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof FormBuilder>
+type Story = StoryObj<typeof FormBuilder>;
 
 export const FileUploaderForm: Story = {
   name: 'File Uploader',
@@ -48,7 +58,8 @@ export const FileUploaderForm: Story = {
     sections: [
       {
         title: 'Attachments',
-        description: 'Demonstrates the FileUploader field integrated with FormBuilder',
+        description:
+          'Demonstrates the FileUploader field integrated with FormBuilder',
         variant: 'card',
         layout: 'grid',
         grid: { cols: 1, mdCols: 2, gap: 'gap-4' },
@@ -113,7 +124,7 @@ export const FileUploaderForm: Story = {
       docs: [] as FileRecord[],
     },
     onSubmit: (data: unknown) => {
-      console.log('Submit (FileUploader form):', data)
+      console.log('Submit (FileUploader form):', data);
     },
     showActions: true,
   } satisfies Partial<FormBuilderProps>,
@@ -122,4 +133,4 @@ export const FileUploaderForm: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};

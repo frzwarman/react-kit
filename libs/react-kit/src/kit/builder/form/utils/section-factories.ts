@@ -1,4 +1,7 @@
-import type { FormBuilderFieldConfig, FormBuilderSectionConfig } from '../types';
+import type {
+  FormBuilderFieldConfig,
+  FormBuilderSectionConfig,
+} from '../types';
 
 // Section factory functions
 export const createSection = {

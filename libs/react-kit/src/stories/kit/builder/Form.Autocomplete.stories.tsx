@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { FormBuilder } from '../../../kit/builder/form/components/FormBuilder'
-import { type FormBuilderProps } from '../../../kit/builder/form/types'
+import type { Meta, StoryObj } from '@storybook/react';
+import { FormBuilder } from '../../../kit/builder/form/components/FormBuilder';
+import type { FormBuilderProps } from '../../../kit/builder/form/types';
 
 const meta: Meta<typeof FormBuilder> = {
   title: 'Kit/Builder/Form',
@@ -9,11 +9,11 @@ const meta: Meta<typeof FormBuilder> = {
     controls: { expanded: true },
     backgrounds: { disable: true },
   },
-}
+};
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof FormBuilder>
+type Story = StoryObj<typeof FormBuilder>;
 
 const CITY_OPTIONS = [
   { label: 'New York', value: 'nyc' },
@@ -26,7 +26,7 @@ const CITY_OPTIONS = [
   { label: 'Boston', value: 'bos' },
   { label: 'Denver', value: 'den' },
   { label: 'Portland', value: 'pdx' },
-]
+];
 
 export const SingleAutocomplete: Story = {
   name: 'Autocomplete - Single select (clearable + custom allowed)',
@@ -52,7 +52,7 @@ export const SingleAutocomplete: Story = {
       },
     ],
     onSubmit: (data: unknown) => {
-      console.log('Submit (single):', data)
+      console.log('Submit (single):', data);
     },
     showActions: true,
   } satisfies Partial<FormBuilderProps>,
@@ -61,7 +61,7 @@ export const SingleAutocomplete: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};
 
 // ---- Server edit page (prefilled IDs -> fetch labels) ----
 const ALL_SERVER_OPTIONS = Array.from({ length: 100 }).map((_, i) => ({
@@ -70,22 +70,32 @@ const ALL_SERVER_OPTIONS = Array.from({ length: 100 }).map((_, i) => ({
 }));
 
 function makeServerFetcher(all = ALL_SERVER_OPTIONS, minLatency = 250) {
-  return async ({ search, page = 1, pageSize = 10 }: { search: string; page?: number; pageSize: number; }) => {
+  return async ({
+    search,
+    page = 1,
+    pageSize = 10,
+  }: {
+    search: string;
+    page?: number;
+    pageSize: number;
+  }) => {
     const q = (search || '').toLowerCase();
-    const filtered = q ? all.filter(o => o.label.toLowerCase().includes(q)) : all;
+    const filtered = q
+      ? all.filter((o) => o.label.toLowerCase().includes(q))
+      : all;
     const start = (page - 1) * pageSize;
     const slice = filtered.slice(start, start + pageSize);
     const hasMore = start + pageSize < filtered.length;
-    await new Promise(r => setTimeout(r, minLatency));
+    await new Promise((r) => setTimeout(r, minLatency));
     return { items: slice, hasMore, nextCursor: null };
   };
 }
 
 async function loadSelectedByIds(values: Array<string | number>) {
   // Simulate server lookup for labels by ID
-  await new Promise(r => setTimeout(r, 150));
-  const nums = values.map(v => (typeof v === 'string' ? Number(v) : v));
-  return ALL_SERVER_OPTIONS.filter(o => nums.includes(o.value));
+  await new Promise((r) => setTimeout(r, 150));
+  const nums = values.map((v) => (typeof v === 'string' ? Number(v) : v));
+  return ALL_SERVER_OPTIONS.filter((o) => nums.includes(o.value));
 }
 
 export const ServerEditPrefilledByIds: Story = {
@@ -113,7 +123,9 @@ export const ServerEditPrefilledByIds: Story = {
             // Provide resolver to fetch labels for the current values
             loadSelected: loadSelectedByIds,
             // Pre-seed labels so chips render labels immediately on load
-            initialSelectedOptions: ALL_SERVER_OPTIONS.filter(o => [2, 5, 17].includes(o.value)),
+            initialSelectedOptions: ALL_SERVER_OPTIONS.filter((o) =>
+              [2, 5, 17].includes(o.value),
+            ),
           },
         ],
       },
@@ -123,7 +135,7 @@ export const ServerEditPrefilledByIds: Story = {
       cities: [2, 5, 17],
     },
     onSubmit: (data: unknown) => {
-      console.log('Submit (server edit):', data)
+      console.log('Submit (server edit):', data);
     },
     showActions: true,
   } satisfies Partial<FormBuilderProps>,
@@ -132,7 +144,7 @@ export const ServerEditPrefilledByIds: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};
 
 export const MultiAutocompleteChips: Story = {
   name: 'Autocomplete - Multi select with chips',
@@ -159,7 +171,7 @@ export const MultiAutocompleteChips: Story = {
       },
     ],
     onSubmit: (data: unknown) => {
-      console.log('Submit (multi):', data)
+      console.log('Submit (multi):', data);
     },
     showActions: true,
   } satisfies Partial<FormBuilderProps>,
@@ -168,7 +180,7 @@ export const MultiAutocompleteChips: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};
 
 export const TaggingAutocomplete: Story = {
   name: 'Autocomplete - Tagging (no options, custom values)',
@@ -196,7 +208,7 @@ export const TaggingAutocomplete: Story = {
       },
     ],
     onSubmit: (data: unknown) => {
-      console.log('Submit (tagging):', data)
+      console.log('Submit (tagging):', data);
     },
     showActions: true,
   } satisfies Partial<FormBuilderProps>,
@@ -205,4 +217,4 @@ export const TaggingAutocomplete: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};

@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { HoverCard, HoverCardTrigger, HoverCardContent } from '../../../shadcn/ui/hover-card';
+import {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+} from '../../../shadcn/ui/hover-card';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../shadcn/ui/avatar';
 import { Button } from '../../../shadcn/ui/button';
 
@@ -16,7 +20,9 @@ export const Basic: Story = {
   render: () => (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <Button variant="link" className="px-0">@shadcn</Button>
+        <Button variant="link" className="px-0">
+          @shadcn
+        </Button>
       </HoverCardTrigger>
       <HoverCardContent className="w-80">
         <div className="flex space-x-4">

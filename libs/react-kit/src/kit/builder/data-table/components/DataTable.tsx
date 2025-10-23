@@ -15,13 +15,29 @@ import {
 import { Loader2, RefreshCw } from 'lucide-react';
 import * as React from 'react';
 import { cn } from '../../../../shadcn/lib/utils';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../../../shadcn/ui/accordion';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '../../../../shadcn/ui/accordion';
 import { Button } from '../../../../shadcn/ui/button';
 import { Checkbox } from '../../../../shadcn/ui/checkbox';
 import { Skeleton } from '../../../../shadcn/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../../shadcn/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../../../../shadcn/ui/table';
 import { FormBuilder, type FormBuilderSectionConfig } from '../../form';
-import type { DataTableAction, DataTableBatchAction, DataTableFiltersProp } from '../types';
+import type {
+  DataTableAction,
+  DataTableBatchAction,
+  DataTableFiltersProp,
+} from '../types';
 import { DataTablePagination } from './DataTablePagination';
 import { DataTableViewOptions } from './DataTableViewOptions';
 
@@ -102,51 +118,68 @@ export function DataTable<TData, TValue>({
   filterTitle,
   filterShowActionsSeparator,
 }: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
-  const [internalSortingState, setInternalSortingState] = React.useState<SortingState>([]);
-  const [internalFiltersState, setInternalFiltersState] = React.useState<ColumnFiltersState>([]);
-  const [internalPaginationState, setInternalPaginationState] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
-  const [internalVisibilityState, setInternalVisibilityState] = React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({});
+  const [internalSortingState, setInternalSortingState] =
+    React.useState<SortingState>([]);
+  const [internalFiltersState, setInternalFiltersState] =
+    React.useState<ColumnFiltersState>([]);
+  const [internalPaginationState, setInternalPaginationState] =
+    React.useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+  const [internalVisibilityState, setInternalVisibilityState] =
+    React.useState<VisibilityState>({});
 
   const effectiveSortingState = sortingState ?? internalSortingState;
   const effectiveFiltersState = columnFiltersState ?? internalFiltersState;
-  const effectiveVisibilityState = columnVisibilityState ?? internalVisibilityState;
+  const effectiveVisibilityState =
+    columnVisibilityState ?? internalVisibilityState;
   const effectivePaginationState = paginationState ?? internalPaginationState;
 
   const isPaginationEnabled = pagination;
-  const isManualPaginationEnabled = paginationState !== undefined && onPaginationChange !== undefined;
+  const isManualPaginationEnabled =
+    paginationState !== undefined && onPaginationChange !== undefined;
   const isSortingEnabled = sorting;
   const isColumnFiltersEnabled = columnFilters;
   const isColumnVisibilityEnabled = columnVisibility;
 
   // Build selection-aware columns by injecting a selection column at the start
-  const selectionColumn = React.useMemo<ColumnDef<TData, unknown>>(() => ({
-    id: '__select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-        onCheckedChange={val => table.toggleAllPageRowsSelected(!!val)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={val => row.toggleSelected(!!val)}
-        aria-label="Select row"
-        onClick={e => e.stopPropagation()}
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-    size: 32,
-    minSize: 32,
-    maxSize: 32,
-  }), []);
+  const selectionColumn = React.useMemo<ColumnDef<TData, unknown>>(
+    () => ({
+      id: '__select',
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+          onCheckedChange={(val) => table.toggleAllPageRowsSelected(!!val)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(val) => row.toggleSelected(!!val)}
+          aria-label="Select row"
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 32,
+      minSize: 32,
+      maxSize: 32,
+    }),
+    [],
+  );
 
   const renderedColumns = React.useMemo(
-    () => (selectable ? [selectionColumn as unknown as ColumnDef<TData, TValue>, ...columns] : columns),
-    [selectable, selectionColumn, columns]
+    () =>
+      selectable
+        ? [selectionColumn as unknown as ColumnDef<TData, TValue>, ...columns]
+        : columns,
+    [selectable, selectionColumn, columns],
   );
 
   const table = useReactTable({
@@ -168,23 +201,49 @@ export function DataTable<TData, TValue>({
     manualPagination: isManualPaginationEnabled,
     enableSorting: isSortingEnabled,
     enableColumnFilters: isColumnFiltersEnabled,
-    onSortingChange: isSortingEnabled ? updater => {
-      const next = typeof updater === 'function' ? (updater as (old: SortingState) => SortingState)(effectiveSortingState) : updater;
-      setInternalSortingState(next);
-      onSortingChange?.(next);
-    } : undefined,
-    onColumnFiltersChange: isColumnFiltersEnabled ? updater => {
-      const next = typeof updater === 'function' ? (updater as (old: ColumnFiltersState) => ColumnFiltersState)(effectiveFiltersState) : updater;
-      setInternalFiltersState(next);
-      onColumnFiltersChange?.(next);
-    } : undefined,
-    onPaginationChange: isPaginationEnabled ? updater => {
-      const next = typeof updater === 'function' ? (updater as (old: PaginationState) => PaginationState)(effectivePaginationState) : updater;
-      setInternalPaginationState(next);
-      onPaginationChange?.(next);
-    } : undefined,
-    onColumnVisibilityChange: updater => {
-      const next = typeof updater === 'function' ? (updater as (old: VisibilityState) => VisibilityState)(effectiveVisibilityState) : updater;
+    onSortingChange: isSortingEnabled
+      ? (updater) => {
+          const next =
+            typeof updater === 'function'
+              ? (updater as (old: SortingState) => SortingState)(
+                  effectiveSortingState,
+                )
+              : updater;
+          setInternalSortingState(next);
+          onSortingChange?.(next);
+        }
+      : undefined,
+    onColumnFiltersChange: isColumnFiltersEnabled
+      ? (updater) => {
+          const next =
+            typeof updater === 'function'
+              ? (updater as (old: ColumnFiltersState) => ColumnFiltersState)(
+                  effectiveFiltersState,
+                )
+              : updater;
+          setInternalFiltersState(next);
+          onColumnFiltersChange?.(next);
+        }
+      : undefined,
+    onPaginationChange: isPaginationEnabled
+      ? (updater) => {
+          const next =
+            typeof updater === 'function'
+              ? (updater as (old: PaginationState) => PaginationState)(
+                  effectivePaginationState,
+                )
+              : updater;
+          setInternalPaginationState(next);
+          onPaginationChange?.(next);
+        }
+      : undefined,
+    onColumnVisibilityChange: (updater) => {
+      const next =
+        typeof updater === 'function'
+          ? (updater as (old: VisibilityState) => VisibilityState)(
+              effectiveVisibilityState,
+            )
+          : updater;
       setInternalVisibilityState(next);
       onColumnVisibilityChange?.(next);
     },
@@ -200,16 +259,25 @@ export function DataTable<TData, TValue>({
   }, [onTable, table]);
 
   // Selected rows convenience
-  const selectedRows = table.getSelectedRowModel().rows.map(r => r.original as TData);
+  const selectedRows = table
+    .getSelectedRowModel()
+    .rows.map((r) => r.original as TData);
 
   // Safe action arrays to avoid array literal defaults in props
   const safeActions = React.useMemo(() => actions ?? [], [actions]);
-  const safeBatchActions = React.useMemo(() => batchActions ?? [], [batchActions]);
+  const safeBatchActions = React.useMemo(
+    () => batchActions ?? [],
+    [batchActions],
+  );
 
   // Skeleton row keys (avoid using array index as key)
   const skeletonRowKeys = React.useMemo(
-    () => Array.from({ length: Math.max(3, effectivePaginationState.pageSize ?? 10) }, () => Math.random().toString(36).slice(2)),
-    [effectivePaginationState.pageSize]
+    () =>
+      Array.from(
+        { length: Math.max(3, effectivePaginationState.pageSize ?? 10) },
+        () => Math.random().toString(36).slice(2),
+      ),
+    [effectivePaginationState.pageSize],
   );
 
   // Standard actions state
@@ -220,10 +288,17 @@ export function DataTable<TData, TValue>({
 
   // Render a button from action definition
   const renderActionButton = (action: DataTableAction, key: React.Key) => {
-    if (action.element) return <React.Fragment key={key}>{action.element}</React.Fragment>;
+    if (action.element)
+      return <React.Fragment key={key}>{action.element}</React.Fragment>;
     const content = (
       <div className="flex items-center gap-x-2">
-        {action.icon && <span className={cn(action.iconPosition === 'right' ? 'order-last' : '')}>{action.icon}</span>}
+        {action.icon && (
+          <span
+            className={cn(action.iconPosition === 'right' ? 'order-last' : '')}
+          >
+            {action.icon}
+          </span>
+        )}
         {action.label}
       </div>
     );
@@ -241,12 +316,26 @@ export function DataTable<TData, TValue>({
     );
   };
 
-  const renderBatchButton = (action: DataTableBatchAction<TData>, key: React.Key) => {
-    if (action.element) return <React.Fragment key={key}>{action.element}</React.Fragment>;
-    const onClick = () => action.onClick?.({ selectedRows, clearSelection: () => table.resetRowSelection() });
+  const renderBatchButton = (
+    action: DataTableBatchAction<TData>,
+    key: React.Key,
+  ) => {
+    if (action.element)
+      return <React.Fragment key={key}>{action.element}</React.Fragment>;
+    const onClick = () =>
+      action.onClick?.({
+        selectedRows,
+        clearSelection: () => table.resetRowSelection(),
+      });
     const content = (
       <div className="flex items-center gap-x-2">
-        {action.icon && <span className={cn(action.iconPosition === 'right' ? 'order-last' : '')}>{action.icon}</span>}
+        {action.icon && (
+          <span
+            className={cn(action.iconPosition === 'right' ? 'order-last' : '')}
+          >
+            {action.icon}
+          </span>
+        )}
         {action.label}
       </div>
     );
@@ -270,18 +359,27 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className={cn('space-y-3', className)}>
-      {formFilters && formFilters.length ? (
+      {formFilters?.length ? (
         effectiveFilterWrapper === 'accordion' ? (
           <div className="rounded-md border border-border">
-            <Accordion type="single" collapsible className="w-full" defaultValue="filters">
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full"
+              defaultValue="filters"
+            >
               <AccordionItem value="filters">
-                <AccordionTrigger className="px-4 py-3 border-b border-border text-md">{effectiveFilterTitle}</AccordionTrigger>
+                <AccordionTrigger className="px-4 py-3 border-b border-border text-md">
+                  {effectiveFilterTitle}
+                </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 pt-5">
                   <FormBuilder
                     key={JSON.stringify(formFilterValues ?? {})}
                     sections={formFilters as FormBuilderSectionConfig[]}
                     defaultValues={formFilterValues}
-                    onSubmit={data => onFormFilterChange?.(data as Record<string, unknown>)}
+                    onSubmit={(data) =>
+                      onFormFilterChange?.(data as Record<string, unknown>)
+                    }
                     onReset={() => onFormFilterChange?.({})}
                     showActions
                     submitLabel="Apply"
@@ -298,7 +396,9 @@ export function DataTable<TData, TValue>({
               key={JSON.stringify(formFilterValues ?? {})}
               sections={formFilters as FormBuilderSectionConfig[]}
               defaultValues={formFilterValues}
-              onSubmit={data => onFormFilterChange?.(data as Record<string, unknown>)}
+              onSubmit={(data) =>
+                onFormFilterChange?.(data as Record<string, unknown>)
+              }
               onReset={() => onFormFilterChange?.({})}
               showActions
               submitLabel="Apply"
@@ -311,7 +411,9 @@ export function DataTable<TData, TValue>({
             key={JSON.stringify(formFilterValues ?? {})}
             sections={formFilters as FormBuilderSectionConfig[]}
             defaultValues={formFilterValues}
-            onSubmit={data => onFormFilterChange?.(data as Record<string, unknown>)}
+            onSubmit={(data) =>
+              onFormFilterChange?.(data as Record<string, unknown>)
+            }
             onReset={() => onFormFilterChange?.({})}
             showActions
             submitLabel="Apply"
@@ -321,11 +423,17 @@ export function DataTable<TData, TValue>({
         )
       ) : null}
       {/* Actions Bar */}
-      {(safeActions.length || showStandardActions || (selectable && table.getSelectedRowModel().rows.length > 0 && safeBatchActions.length)) && (
+      {(safeActions.length ||
+        showStandardActions ||
+        (selectable &&
+          table.getSelectedRowModel().rows.length > 0 &&
+          safeBatchActions.length)) && (
         <div className="rounded-md p-2 mt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {selectable && table.getSelectedRowModel().rows.length > 0 && safeBatchActions.map((a) => renderBatchButton(a, a.key))}
+              {selectable &&
+                table.getSelectedRowModel().rows.length > 0 &&
+                safeBatchActions.map((a) => renderBatchButton(a, a.key))}
             </div>
             <div className="flex items-center gap-2">
               {showStandardActions && onRefresh && (
@@ -337,7 +445,10 @@ export function DataTable<TData, TValue>({
                   className="h-8"
                   title="Refresh"
                 >
-                  <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} /> Refresh
+                  <RefreshCw
+                    className={cn('h-4 w-4', loading && 'animate-spin')}
+                  />{' '}
+                  Refresh
                 </Button>
               )}
               {isColumnVisibilityEnabled ? (
@@ -348,7 +459,10 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
       )}
-      <div className="relative overflow-hidden rounded-md border border-border" aria-busy={loading || undefined}>
+      <div
+        className="relative overflow-hidden rounded-md border border-border"
+        aria-busy={loading || undefined}
+      >
         {loading && (
           <div className="pointer-events-none absolute inset-0 z-10 flex items-start justify-end p-2">
             <span className="inline-flex items-center gap-2 rounded bg-background/80 px-2 py-1 text-xs shadow-sm ring-1 ring-border">
@@ -358,13 +472,16 @@ export function DataTable<TData, TValue>({
         )}
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
+                {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
                       ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -382,23 +499,35 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map(row => (
+              table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className={cn(onRowClick && 'cursor-pointer hover:bg-muted/50')}
-                  onClick={onRowClick ? () => onRowClick(row.original as TData) : undefined}
+                  className={cn(
+                    onRowClick && 'cursor-pointer hover:bg-muted/50',
+                  )}
+                  onClick={
+                    onRowClick
+                      ? () => onRowClick(row.original as TData)
+                      : undefined
+                  }
                 >
-                  {row.getVisibleCells().map(cell => (
+                  {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={table.getVisibleLeafColumns().length} className="h-24 text-center">
+                <TableCell
+                  colSpan={table.getVisibleLeafColumns().length}
+                  className="h-24 text-center"
+                >
                   {emptyText}
                 </TableCell>
               </TableRow>
@@ -408,7 +537,10 @@ export function DataTable<TData, TValue>({
       </div>
 
       {isPaginationEnabled && (
-        <DataTablePagination table={table} paginationVariant={paginationVariant} />
+        <DataTablePagination
+          table={table}
+          paginationVariant={paginationVariant}
+        />
       )}
     </div>
   );

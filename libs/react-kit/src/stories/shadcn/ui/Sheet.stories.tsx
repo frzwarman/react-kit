@@ -33,7 +33,8 @@ export const Basic: Story = {
           </SheetDescription>
         </SheetHeader>
         <div className="p-4 text-sm text-muted-foreground">
-          Put any content here. This panel slides from the right and can be closed via the X button.
+          Put any content here. This panel slides from the right and can be
+          closed via the X button.
         </div>
         <SheetFooter>
           <div className="flex gap-2">

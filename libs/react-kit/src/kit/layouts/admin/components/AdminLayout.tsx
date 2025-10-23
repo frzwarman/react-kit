@@ -63,7 +63,10 @@ function AdminLayoutContent({
   // Function to check if menu item is active
   const isMenuItemActive = (itemUrl: string | undefined) => {
     if (!itemUrl) return false;
-    return location.pathname === itemUrl || location.pathname.startsWith(itemUrl + '/');
+    return (
+      location.pathname === itemUrl ||
+      location.pathname.startsWith(`${itemUrl}/`)
+    );
   };
 
   const setOpen = useCallback((id: string, val?: boolean) => {
@@ -72,19 +75,26 @@ function AdminLayoutContent({
 
   const hasActiveDescendant = (item: AdminMenuItem): boolean => {
     if (!item.children || item.children.length === 0) return false;
-    return item.children.some((c) => isMenuItemActive(c.url) || hasActiveDescendant(c));
+    return item.children.some(
+      (c) => isMenuItemActive(c.url) || hasActiveDescendant(c),
+    );
   };
 
   const renderItem = (item: AdminMenuItem, level = 0) => {
-    const hasChildren = Array.isArray(item.children) && item.children.length > 0;
+    const hasChildren =
+      Array.isArray(item.children) && item.children.length > 0;
     const isActive = isMenuItemActive(item.url);
-    const isOpen = openMap[item.id] ?? (hasChildren && hasActiveDescendant(item));
+    const isOpen =
+      openMap[item.id] ?? (hasChildren && hasActiveDescendant(item));
 
-    const indentClassMap = ['','pl-6','pl-10','pl-14'] as const;
+    const indentClassMap = ['', 'pl-6', 'pl-10', 'pl-14'] as const;
     const indent = indentClassMap[Math.min(level, 3)];
 
     const content = (
-      <SidebarMenuItem key={item.id} className={`mb-1 ${level > 0 ? 'ml-1' : ''}`}>
+      <SidebarMenuItem
+        key={item.id}
+        className={`mb-1 ${level > 0 ? 'ml-1' : ''}`}
+      >
         <SidebarMenuButton
           asChild={!!item.url && !hasChildren}
           isActive={isActive}
@@ -102,7 +112,11 @@ function AdminLayoutContent({
                   className={`h-4 w-4 transition-colors ${isActive ? 'text-primary-foreground' : 'text-sidebar-foreground group-hover:text-sidebar-accent-foreground'}`}
                 />
               )}
-              <span className={`font-medium transition-colors ${isActive ? 'text-primary-foreground' : 'text-sidebar-foreground group-hover:text-sidebar-accent-foreground'}`}>{item.title}</span>
+              <span
+                className={`font-medium transition-colors ${isActive ? 'text-primary-foreground' : 'text-sidebar-foreground group-hover:text-sidebar-accent-foreground'}`}
+              >
+                {item.title}
+              </span>
               {item.badge && (
                 <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                   {item.badge}
@@ -111,13 +125,12 @@ function AdminLayoutContent({
             </Link>
           ) : (
             <div className="flex items-center gap-3 px-3 py-2.5 w-full">
-              {hasChildren && (
-                isOpen ? (
+              {hasChildren &&
+                (isOpen ? (
                   <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                 ) : (
                   <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-                )
-              )}
+                ))}
               {item.icon ? (
                 <item.icon className="h-4 w-4 text-sidebar-foreground group-hover:text-sidebar-accent-foreground" />
               ) : (
@@ -125,10 +138,14 @@ function AdminLayoutContent({
               )}
               {item.url ? (
                 <Link to={item.url} className="flex-1 text-left">
-                  <span className="font-medium text-sidebar-foreground group-hover:text-sidebar-accent-foreground">{item.title}</span>
+                  <span className="font-medium text-sidebar-foreground group-hover:text-sidebar-accent-foreground">
+                    {item.title}
+                  </span>
                 </Link>
               ) : (
-                <span className="font-medium text-sidebar-foreground group-hover:text-sidebar-accent-foreground flex-1">{item.title}</span>
+                <span className="font-medium text-sidebar-foreground group-hover:text-sidebar-accent-foreground flex-1">
+                  {item.title}
+                </span>
               )}
               {item.badge && (
                 <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
@@ -140,7 +157,9 @@ function AdminLayoutContent({
         </SidebarMenuButton>
         {hasChildren && isOpen && (
           <div className="mt-1 flex flex-col">
-            {(item.children ?? []).map((child: AdminMenuItem) => renderItem(child, Math.min(level + 1, 3)))}
+            {(item.children ?? []).map((child: AdminMenuItem) =>
+              renderItem(child, Math.min(level + 1, 3)),
+            )}
           </div>
         )}
       </SidebarMenuItem>
@@ -150,8 +169,11 @@ function AdminLayoutContent({
   };
 
   return (
-      <div className="flex min-h-dvh w-full">
-      <Sidebar className="bg-sidebar border-r border-sidebar-border" collapsible={sidebarCollapsible ? "icon" : "none"}>
+    <div className="flex min-h-dvh w-full">
+      <Sidebar
+        className="bg-sidebar border-r border-sidebar-border"
+        collapsible={sidebarCollapsible ? 'icon' : 'none'}
+      >
         <SidebarHeader className="bg-sidebar border-b border-sidebar-border">
           {sidebarHeader ? (
             sidebarHeader
@@ -161,7 +183,9 @@ function AdminLayoutContent({
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                   <SidebarHeaderIcon className="h-4 w-4" />
                 </div>
-                <span className="font-semibold text-sidebar-foreground">{sidebarTitle}</span>
+                <span className="font-semibold text-sidebar-foreground">
+                  {sidebarTitle}
+                </span>
               </div>
             </div>
           )}
@@ -170,7 +194,9 @@ function AdminLayoutContent({
           {sidebarGroups.map((group, idx) => (
             <Fragment key={group.id}>
               <SidebarGroup>
-                <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2 group-data-[collapsible=icon]:hidden">{group.label}</SidebarGroupLabel>
+                <SidebarGroupLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2 group-data-[collapsible=icon]:hidden">
+                  {group.label}
+                </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu className="group-data-[collapsible=icon]:items-center">
                     {group.items.map((item) => renderItem(item, 0))}
@@ -178,7 +204,10 @@ function AdminLayoutContent({
                 </SidebarGroupContent>
               </SidebarGroup>
               {idx < sidebarGroups.length - 1 && (
-                <Separator orientation="horizontal" className="bg-sidebar-border group-data-[collapsible=icon]:hidden" />
+                <Separator
+                  orientation="horizontal"
+                  className="bg-sidebar-border group-data-[collapsible=icon]:hidden"
+                />
               )}
             </Fragment>
           ))}
@@ -192,7 +221,9 @@ function AdminLayoutContent({
               >
                 <div className="flex items-center gap-3 px-3 py-2.5 group-data-[collapsible=icon]:w-full group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!gap-0 group-data-[collapsible=icon]:!px-0">
                   <LogOut className="h-4 w-4 text-sidebar-foreground group-hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:mr-0" />
-                  <span className="font-medium text-sidebar-foreground group-hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden">Logout</span>
+                  <span className="font-medium text-sidebar-foreground group-hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden">
+                    Logout
+                  </span>
                 </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -212,11 +243,9 @@ function AdminLayoutContent({
             {headerAfterTheme}
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4">
-          {children}
-        </main>
+        <main className="flex flex-1 flex-col gap-4 p-4">{children}</main>
       </SidebarInset>
-      </div>
+    </div>
   );
 }
 

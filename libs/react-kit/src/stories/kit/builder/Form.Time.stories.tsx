@@ -1,5 +1,8 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { FormBuilder, type FormBuilderProps } from '../../../kit/builder/form/components/FormBuilder'
+import type { Meta, StoryObj } from '@storybook/react';
+import {
+  FormBuilder,
+  type FormBuilderProps,
+} from '../../../kit/builder/form/components/FormBuilder';
 
 const meta: Meta<typeof FormBuilder> = {
   title: 'Kit/Builder/Form',
@@ -8,11 +11,11 @@ const meta: Meta<typeof FormBuilder> = {
     controls: { expanded: true },
     backgrounds: { disable: true },
   },
-}
+};
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof FormBuilder>
+type Story = StoryObj<typeof FormBuilder>;
 
 export const TimeFields: Story = {
   name: 'Time fields (12/24h, precision)',
@@ -20,7 +23,8 @@ export const TimeFields: Story = {
     sections: [
       {
         title: 'Time',
-        description: 'TimePicker fields with different precisions and hour cycles',
+        description:
+          'TimePicker fields with different precisions and hour cycles',
         variant: 'card',
         layout: 'grid',
         grid: { cols: 1, mdCols: 2, gap: 'gap-4' },
@@ -52,7 +56,7 @@ export const TimeFields: Story = {
       },
     ],
     onSubmit: (data: unknown) => {
-      console.log('Submit (time):', data)
+      console.log('Submit (time):', data);
     },
     showActions: true,
   } satisfies Partial<FormBuilderProps>,
@@ -61,4 +65,4 @@ export const TimeFields: Story = {
       <FormBuilder {...(args as FormBuilderProps)} />
     </div>
   ),
-}
+};

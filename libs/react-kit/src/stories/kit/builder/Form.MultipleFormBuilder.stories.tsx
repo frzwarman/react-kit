@@ -1,31 +1,31 @@
-import { useMemo } from 'react'
-import type { Meta, StoryObj } from '@storybook/react'
-import { useForm } from 'react-hook-form'
-import { FormBuilder } from '../../../index'
-import type { FormBuilderSectionConfig } from '../../../kit/builder/form/types'
+import { useMemo } from 'react';
+import type { Meta, StoryObj } from '@storybook/react';
+import { useForm } from 'react-hook-form';
+import { FormBuilder } from '../../../index';
+import type { FormBuilderSectionConfig } from '../../../kit/builder/form/types';
 
 interface SplitFormValues {
-  userId: string
-  firstName: string
-  lastName: string
-  email: string
-  accountType: 'individual' | 'business'
-  companyName?: string
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  accountType: 'individual' | 'business';
+  companyName?: string;
   address: {
-    street: string
-    city: string
-    zip: string
-  }
-  marketingOptIn: boolean
-  preferredContactMethod: 'email' | 'phone'
-  phoneNumber?: string
-  newsletterTopics: string[]
-  complianceContactEmail?: string
-  eventsWebhookUrl?: string
-  smsOptIn: boolean
-  smsFrequency?: 'daily' | 'weekly' | 'monthly'
-  timezone: string
-  authorizedContacts: Array<{ contactId: string; contactName: string }>
+    street: string;
+    city: string;
+    zip: string;
+  };
+  marketingOptIn: boolean;
+  preferredContactMethod: 'email' | 'phone';
+  phoneNumber?: string;
+  newsletterTopics: string[];
+  complianceContactEmail?: string;
+  eventsWebhookUrl?: string;
+  smsOptIn: boolean;
+  smsFrequency?: 'daily' | 'weekly' | 'monthly';
+  timezone: string;
+  authorizedContacts: Array<{ contactId: string; contactName: string }>;
 }
 
 const generalInfoSections: FormBuilderSectionConfig<SplitFormValues>[] = [
@@ -113,7 +113,7 @@ const generalInfoSections: FormBuilderSectionConfig<SplitFormValues>[] = [
       },
     ],
   },
-]
+];
 
 const preferencesSections: FormBuilderSectionConfig<SplitFormValues>[] = [
   {
@@ -159,11 +159,13 @@ const preferencesSections: FormBuilderSectionConfig<SplitFormValues>[] = [
         label: 'Events webhook URL',
         type: 'text',
         placeholder: 'https://example.com/webhooks/events',
-        description: 'Provide a webhook to receive notifications about upcoming events.',
+        description:
+          'Provide a webhook to receive notifications about upcoming events.',
         dependencies: [
           {
             field: 'newsletterTopics',
-            condition: (value) => Array.isArray(value) && value.includes('events'),
+            condition: (value) =>
+              Array.isArray(value) && value.includes('events'),
             action: 'show',
           },
         ],
@@ -228,7 +230,8 @@ const preferencesSections: FormBuilderSectionConfig<SplitFormValues>[] = [
         label: 'Compliance contact email',
         type: 'email',
         placeholder: 'compliance@company.com',
-        description: 'Required for business accounts to receive compliance updates.',
+        description:
+          'Required for business accounts to receive compliance updates.',
         dependencies: [
           {
             field: 'accountType',
@@ -253,7 +256,8 @@ const preferencesSections: FormBuilderSectionConfig<SplitFormValues>[] = [
       {
         name: 'authorizedContacts',
         label: 'Authorized contacts',
-        description: 'Names remain editable while hidden IDs stay intact for submission.',
+        description:
+          'Names remain editable while hidden IDs stay intact for submission.',
         type: 'array',
         arrayLayout: 'table',
         defaultValue: [
@@ -278,7 +282,7 @@ const preferencesSections: FormBuilderSectionConfig<SplitFormValues>[] = [
       },
     ],
   },
-]
+];
 
 const SplitFormExample = () => {
   const form = useForm<SplitFormValues>({
@@ -309,15 +313,15 @@ const SplitFormExample = () => {
       ],
     },
     mode: 'onSubmit',
-  })
+  });
 
   const logSubmit = useMemo(
     () =>
       form.handleSubmit((values) => {
-        console.log('Story submit', values)
+        console.log('Story submit', values);
       }),
     [form],
-  )
+  );
 
   return (
     <div className="space-y-6">
@@ -336,7 +340,7 @@ const SplitFormExample = () => {
         onSubmit={async () => {
           /* handled by explicit button */
         }}
-        customActions={(
+        customActions={
           <button
             type="button"
             className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md"
@@ -344,11 +348,11 @@ const SplitFormExample = () => {
           >
             Save all sections
           </button>
-        )}
+        }
       />
     </div>
-  )
-}
+  );
+};
 
 const meta: Meta<typeof SplitFormExample> = {
   title: 'Kit/Builder/Form',
@@ -361,13 +365,13 @@ const meta: Meta<typeof SplitFormExample> = {
       },
     },
   },
-}
+};
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof SplitFormExample>
+type Story = StoryObj<typeof SplitFormExample>;
 
 export const SharedFormInstance: Story = {
   name: 'Shared form instance across sections',
   render: () => <SplitFormExample />,
-}
+};

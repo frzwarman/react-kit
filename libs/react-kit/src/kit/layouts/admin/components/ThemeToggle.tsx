@@ -40,19 +40,13 @@ export default function ThemeToggle({ className }: ThemeToggleProps) {
         <DropdownMenuLabel>Theme</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setTheme('light')}>
-          <Sun className="mr-2 h-4 w-4" />
-          {' '}
-          Light
+          <Sun className="mr-2 h-4 w-4" /> Light
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('dark')}>
-          <Moon className="mr-2 h-4 w-4" />
-          {' '}
-          Dark
+          <Moon className="mr-2 h-4 w-4" /> Dark
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('system')}>
-          <Laptop className="mr-2 h-4 w-4" />
-          {' '}
-          System
+          <Laptop className="mr-2 h-4 w-4" /> System
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

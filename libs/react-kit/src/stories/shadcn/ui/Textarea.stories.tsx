@@ -25,7 +25,9 @@ export const WithDescription: Story = {
     <div className="grid w-full max-w-sm gap-2">
       <Label htmlFor="bio">Bio</Label>
       <Textarea id="bio" placeholder="Tell us a little about yourself" />
-      <p className="text-sm text-muted-foreground">Your bio will be displayed on your profile.</p>
+      <p className="text-sm text-muted-foreground">
+        Your bio will be displayed on your profile.
+      </p>
     </div>
   ),
 };

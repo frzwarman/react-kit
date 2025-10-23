@@ -4,10 +4,15 @@ import * as React from 'react';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '../../../shadcn/lib/utils';
 import { Button } from '../../../shadcn/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '../../../shadcn/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../../../shadcn/ui/popover';
 import { MonthRangePicker } from './MonthRangePicker';
 
-export interface MonthRangeInputProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+export interface MonthRangeInputProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   value?: { start?: Date | null; end?: Date | null } | null;
   onChange?: (range: { start?: Date | null; end?: Date | null } | null) => void;
   placeholder?: string;
@@ -44,8 +49,12 @@ export function MonthRangeInput({
 }: MonthRangeInputProps) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const isOpen = typeof props.open === 'boolean' ? props.open : internalOpen;
-  const setOpen = (o: boolean) => (props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o));
-  const [draft, setDraft] = React.useState<{ start?: Date | null; end?: Date | null } | null>(value ?? null);
+  const setOpen = (o: boolean) =>
+    props.onOpenChange ? props.onOpenChange(o) : setInternalOpen(o);
+  const [draft, setDraft] = React.useState<{
+    start?: Date | null;
+    end?: Date | null;
+  } | null>(value ?? null);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -58,7 +67,8 @@ export function MonthRangeInput({
     const e = value?.end ?? null;
     if (format) return format(s, e);
     if (s && e) {
-      const fmt = (d: Date) => d.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
+      const fmt = (d: Date) =>
+        d.toLocaleDateString(undefined, { year: 'numeric', month: 'short' });
       return `${fmt(s)} – ${fmt(e)}`;
     }
     return placeholder;
@@ -72,15 +82,26 @@ export function MonthRangeInput({
             type="button"
             disabled={disabled}
             variant={buttonVariant}
-            className={cn('w-[280px] justify-start text-left font-normal', !value && 'text-muted-foreground')}
+            className={cn(
+              'w-[280px] justify-start text-left font-normal',
+              !value && 'text-muted-foreground',
+            )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {label}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-2 w-auto max-w-none" align="start" side={popoverSide}>
+        <PopoverContent
+          className="p-2 w-auto max-w-none"
+          align="start"
+          side={popoverSide}
+        >
           <MonthRangePicker
-            selectedMonthRange={draft?.start && draft?.end ? { start: draft.start, end: draft.end } : undefined}
+            selectedMonthRange={
+              draft?.start && draft?.end
+                ? { start: draft.start, end: draft.end }
+                : undefined
+            }
             onStartMonthSelect={(d) => {
               if (disabled) return;
               setDraft({ start: d, end: d });

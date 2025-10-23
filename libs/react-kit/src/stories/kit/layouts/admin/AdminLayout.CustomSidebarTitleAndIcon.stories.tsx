@@ -23,11 +23,17 @@ type Story = StoryObj<typeof AdminLayout>;
 type AdminLayoutStoryProps = React.ComponentProps<typeof AdminLayout>;
 
 function RegisterMenus() {
-  const { registerGroup, registerItem, clear } = useAdminSidebarMenuRegistration();
+  const { registerGroup, registerItem, clear } =
+    useAdminSidebarMenuRegistration();
   useEffect(() => {
     clear();
     registerGroup({ id: 'overview', label: 'Overview' });
-    registerItem('overview', { id: 'home', title: 'Home', url: '/', icon: Home });
+    registerItem('overview', {
+      id: 'home',
+      title: 'Home',
+      url: '/',
+      icon: Home,
+    });
   }, [registerGroup, registerItem, clear]);
   return null;
 }
@@ -43,7 +49,11 @@ function App(props: AdminLayoutStoryProps) {
       </ThemeProvider>
     ),
   });
-  const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: () => <div className="p-6">Home</div> });
+  const indexRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/',
+    component: () => <div className="p-6">Home</div>,
+  });
   const routeTree = rootRoute.addChildren([indexRoute]);
   const router = createRouter({ routeTree, basepath: '/iframe.html' });
   return <RouterProvider router={router} />;
@@ -52,6 +62,9 @@ function App(props: AdminLayoutStoryProps) {
 export const CustomSidebarTitleAndIcon: Story = {
   name: 'Custom sidebar title and icon',
   render: () => (
-    <App sidebarHeaderIcon={BarChart3} sidebarHeaderTitle={<span>Custom Title</span>} />
+    <App
+      sidebarHeaderIcon={BarChart3}
+      sidebarHeaderTitle={<span>Custom Title</span>}
+    />
   ),
 };

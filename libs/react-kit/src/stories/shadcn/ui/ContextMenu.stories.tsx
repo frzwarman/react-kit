@@ -33,9 +33,15 @@ export const Basic: Story = {
         </div>
       </ContextMenuTrigger>
       <ContextMenuContent className="w-64">
-        <ContextMenuItem>Back <ContextMenuShortcut>⌘[</ContextMenuShortcut></ContextMenuItem>
-        <ContextMenuItem disabled>Forward <ContextMenuShortcut>⌘]</ContextMenuShortcut></ContextMenuItem>
-        <ContextMenuItem>Reload <ContextMenuShortcut>⌘R</ContextMenuShortcut></ContextMenuItem>
+        <ContextMenuItem>
+          Back <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem disabled>
+          Forward <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem>
+          Reload <ContextMenuShortcut>⌘R</ContextMenuShortcut>
+        </ContextMenuItem>
         <ContextMenuSub>
           <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
           <ContextMenuSubContent>
@@ -45,7 +51,9 @@ export const Basic: Story = {
         </ContextMenuSub>
         <ContextMenuSeparator />
         <ContextMenuLabel>Appearance</ContextMenuLabel>
-        <ContextMenuCheckboxItem checked>Always Show Bookmarks Bar</ContextMenuCheckboxItem>
+        <ContextMenuCheckboxItem checked>
+          Always Show Bookmarks Bar
+        </ContextMenuCheckboxItem>
         <ContextMenuCheckboxItem>Show Full URLs</ContextMenuCheckboxItem>
         <ContextMenuSeparator />
         <ContextMenuLabel>Search Engine</ContextMenuLabel>
