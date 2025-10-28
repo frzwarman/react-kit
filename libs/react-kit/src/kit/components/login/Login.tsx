@@ -57,17 +57,15 @@ export function Login({
   return (
     <div
       className={[
-        'mx-auto grid min-h-dvh w-full max-w-[1920px] grid-cols-1 lg:min-h-[768px]',
-        shouldRenderRightColumn
-          ? 'lg:grid-cols-[minmax(0,_1fr)_minmax(384px,_1fr)]'
-          : null,
+        'mx-auto grid min-h-screen w-full grid-cols-1',
+        shouldRenderRightColumn ? 'lg:grid-cols-2' : null,
         className,
       ]
         .filter(Boolean)
         .join(' ')}
     >
       {/* Left column: form section */}
-      <div className="flex min-h-0 items-center justify-center p-6 sm:p-8 lg:p-12">
+      <div className="flex items-center justify-center p-6 sm:p-8 lg:p-12">
         <div className="w-full max-w-md">
           {/* Title */}
           <div className="mb-6 text-center">
@@ -123,7 +121,7 @@ export function Login({
 
       {/* Right column: image */}
       {shouldRenderRightColumn ? (
-        <div className="hidden max-h-[1280px] lg:block">
+        <div className="hidden lg:block">
           {rightImageSrc ? (
             <img
               src={rightImageSrc}
