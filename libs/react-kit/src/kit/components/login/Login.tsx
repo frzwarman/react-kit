@@ -16,6 +16,8 @@ export type LoginProps = {
   // Right-side image URL and alt
   rightImageSrc?: string;
   rightImageAlt?: string;
+  // Explicit toggle to show/hide the right-side visual column
+  showRightImage?: boolean;
   // Optional className for the outer container
   className?: string;
   // Optional continue-with slot (renders below the submit action area)
@@ -45,18 +47,27 @@ export function Login({
   forgotPasswordHref,
   rightImageSrc,
   rightImageAlt = 'Login image',
+  showRightImage = true,
   className,
   continueWith,
   children,
 }: LoginProps) {
+  const shouldRenderRightColumn = showRightImage;
+
   return (
     <div
-      className={['grid min-h-dvh grid-cols-1 md:grid-cols-2', className]
+      className={[
+        'mx-auto grid min-h-dvh w-full max-w-[1920px] grid-cols-1 lg:min-h-[768px]',
+        shouldRenderRightColumn
+          ? 'lg:grid-cols-[minmax(0,_1fr)_minmax(384px,_1fr)]'
+          : null,
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
     >
       {/* Left column: form section */}
-      <div className="flex items-center justify-center p-6 md:p-10">
+      <div className="flex min-h-0 items-center justify-center p-6 sm:p-8 lg:p-12">
         <div className="w-full max-w-md">
           {/* Title */}
           <div className="mb-6 text-center">
@@ -111,18 +122,20 @@ export function Login({
       </div>
 
       {/* Right column: image */}
-      <div className="hidden md:block">
-        {rightImageSrc ? (
-          <img
-            src={rightImageSrc}
-            alt={rightImageAlt}
-            className="h-full w-full object-cover"
-            loading="lazy"
-          />
-        ) : (
-          <div className="h-full w-full bg-muted" />
-        )}
-      </div>
+      {shouldRenderRightColumn ? (
+        <div className="hidden max-h-[1280px] lg:block">
+          {rightImageSrc ? (
+            <img
+              src={rightImageSrc}
+              alt={rightImageAlt}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="h-full w-full bg-muted" />
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }
