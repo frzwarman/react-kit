@@ -141,7 +141,7 @@ export function Autocomplete<T = unknown>({
 
   // Clear input in multiple mode after selection
   useEffect(() => {
-    if (clearCounter > 0) {
+    if (clearCounter >= 0) {
       setSearchInput('');
     }
   }, [clearCounter]);
@@ -340,7 +340,7 @@ export function Autocomplete<T = unknown>({
 
         // Skip if already selected (don't toggle), but still clear the search
         if (exists) {
-          setClearCounter((c) => c + 1);
+          setClearCounter((c) => (c + 1));
           return;
         }
 
@@ -358,7 +358,7 @@ export function Autocomplete<T = unknown>({
         onChange?.(newValues, newOptions, raws);
 
         // Trigger input clear
-        setClearCounter((c) => c + 1);
+        setClearCounter((c) => (c + 1));
       } else {
         if (!isControlled) setInternalValue(item.value);
         onChange?.(item.value, item, item.raw ?? null);
@@ -392,6 +392,7 @@ export function Autocomplete<T = unknown>({
     const newValue = isMultiple ? [] : null;
     if (!isControlled) setInternalValue(newValue);
     onChange?.(newValue, isMultiple ? [] : null, isMultiple ? [] : null);
+    setSearchInput('');
   }, [isMultiple, isControlled, onChange]);
 
   // Handle custom value creation
