@@ -1,3 +1,13 @@
+## 0.0.33 (2025-11-19)
+
+### 🩹 Fixes
+
+- autocomplete search keyword did not cleared when field is cleared
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+
 ## 0.0.32 (2025-10-28)
 
 This was a version bump only, there were no code changes.
