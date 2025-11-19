@@ -1,19 +1,29 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCombobox } from 'downshift';
+import { Check, ChevronsUpDown, Loader2, X } from 'lucide-react';
+import {
+  forwardRef,
+  ReactElement,
+  RefAttributes,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { useDebounce } from 'use-debounce';
 import { cn } from '../../../shadcn/lib/utils';
+import { Badge } from '../../../shadcn/ui/badge';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '../../../shadcn/ui/popover';
-import { Badge } from '../../../shadcn/ui/badge';
-import { ChevronsUpDown, X, Check, Loader2 } from 'lucide-react';
 import type {
   AutocompleteFetcher,
+  AutocompleteFetchResult,
   AutocompleteMode,
   AutocompleteOption,
-  AutocompleteFetchResult,
 } from './types';
 
 export type AutocompleteProps<T = unknown> = {
@@ -73,7 +83,7 @@ export function Autocomplete<T = unknown>({
   clearable = true,
   initialSelectedOptions,
   loadSelected,
-}: AutocompleteProps<T>) {
+}: AutocompleteProps<T>, ref?: any) {
   const isMultiple = !!multiple;
   const isControlled = controlledValue !== undefined;
 
@@ -175,8 +185,8 @@ export function Autocomplete<T = unknown>({
         // Client mode
         const filtered = search
           ? options.filter((o) =>
-              o.label.toLowerCase().includes(search.toLowerCase()),
-            )
+            o.label.toLowerCase().includes(search.toLowerCase()),
+          )
           : options;
         options.forEach(storeOption);
         const start = (pageNum - 1) * pageSize;
@@ -267,7 +277,7 @@ export function Autocomplete<T = unknown>({
         }
         // eslint-disable-next-line @typescript-eslint/no-empty-function
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       cancelled = true;
     };
@@ -291,7 +301,7 @@ export function Autocomplete<T = unknown>({
         if (!cancelled) opts.forEach(storeOption);
         // eslint-disable-next-line @typescript-eslint/no-empty-function
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       cancelled = true;
     };
@@ -486,6 +496,14 @@ export function Autocomplete<T = unknown>({
     return () => element.removeEventListener('scroll', handleScroll);
   }, [handleScroll]);
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      reset: handleClear,
+    }),
+    []
+  );
+
   const showClearButton =
     clearable &&
     ((isMultiple && selectedItems.length > 0) ||
@@ -597,7 +615,7 @@ export function Autocomplete<T = unknown>({
             items.map((item, index) => {
               const isSelected = isMultiple
                 ? Array.isArray(currentValue) &&
-                  currentValue.includes(item.value)
+                currentValue.includes(item.value)
                 : currentValue === item.value;
               const isHighlighted = highlightedIndex === index;
 
@@ -640,5 +658,7 @@ export function Autocomplete<T = unknown>({
     </Popover>
   );
 }
+
+export const ForwardedRefAutocomplete = forwardRef(Autocomplete) as <T>(props: AutocompleteProps<T> & RefAttributes<any>) => (ReactElement | null);
 
 export default Autocomplete;
