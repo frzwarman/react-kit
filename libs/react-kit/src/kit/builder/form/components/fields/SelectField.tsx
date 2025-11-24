@@ -26,7 +26,7 @@ export function SelectField({
     <Select
       value={toUiValue(value)}
       onValueChange={(val) => onChange(fromUiValue(val))}
-      disabled={field.disabled}
+      disabled={field.disabled || field.readOnly}
     >
       <SelectTrigger className={className}>
         <SelectValue placeholder={field.placeholder} />

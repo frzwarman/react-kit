@@ -14,7 +14,8 @@ export function TextField({
     <Input
       id={fieldPath}
       className={className}
-      disabled={field.disabled}
+      disabled={field.disabled || field.readOnly}
+      readOnly={field.readOnly}
       placeholder={field.placeholder}
       type={type}
       value={(value as string) || ''}

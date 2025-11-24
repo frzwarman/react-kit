@@ -81,7 +81,7 @@ export function AutocompleteField({
       onChange={(val, option, raw) => onChange(val, option, raw)}
       placeholder={field.placeholder}
       renderOption={field.renderOption}
-      disabled={field.disabled}
+      disabled={field.disabled || field.readOnly}
       className={className}
     />
   );

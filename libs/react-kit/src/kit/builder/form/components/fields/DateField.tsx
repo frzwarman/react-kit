@@ -10,7 +10,7 @@ export function DateField({
   return (
     <Input
       className={className}
-      disabled={field.disabled}
+      disabled={field.disabled || field.readOnly}
       placeholder={field.placeholder}
       type="date"
       value={

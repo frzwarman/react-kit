@@ -10,7 +10,7 @@ export function TextareaField({
   return (
     <Textarea
       className={className}
-      disabled={field.disabled}
+      disabled={field.disabled || field.readOnly}
       placeholder={field.placeholder}
       value={(value as string) || ''}
       onChange={(e) => onChange(e.target.value)}

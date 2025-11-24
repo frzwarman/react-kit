@@ -25,7 +25,7 @@ export function CheckboxField({
           id={fieldPath}
           checked={(value as boolean) || false}
           onCheckedChange={onChange as (val: boolean) => void}
-          disabled={field.disabled}
+          disabled={field.disabled || field.readOnly}
           className={cn(className)}
         />
       </div>

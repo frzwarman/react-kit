@@ -71,6 +71,7 @@ export interface FormBuilderFieldConfig<
   description?: string;
   required?: boolean;
   disabled?: boolean;
+  readOnly?: boolean;
   options?: { label: string; value: string | number | boolean | null }[];
   autocompleteMode?: 'client' | 'server';
   fetcher?: AutocompleteFetcher;

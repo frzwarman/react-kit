@@ -11,7 +11,7 @@ export function FileField({
   return (
     <FileUploader
       className={className}
-      disabled={field.disabled}
+      disabled={field.disabled || field.readOnly}
       placeholder={field.placeholder}
       value={files}
       onChange={(files) => onChange(files)}

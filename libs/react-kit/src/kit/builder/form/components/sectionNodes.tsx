@@ -63,6 +63,7 @@ export function buildSectionNodes<TFieldValues extends FieldValues>(
           span: isHiddenType ? undefined : { base: 1, md: spanMd },
           className: cn(
             field.wrapperClassName,
+            field.readOnly ? 'select-none pointer-events-none opacity-50' : '',
             isHiddenType ? 'hidden' : undefined,
           ),
           hidden: isHiddenType ? false : field.hidden,

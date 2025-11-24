@@ -10,7 +10,7 @@ export function NumberField({
   return (
     <Input
       className={className}
-      disabled={field.disabled}
+      disabled={field.disabled || field.readOnly}
       placeholder={field.placeholder}
       type="number"
       value={(value as number | string) ?? ''}

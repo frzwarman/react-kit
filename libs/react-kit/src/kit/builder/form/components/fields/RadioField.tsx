@@ -25,7 +25,7 @@ export function RadioField({
     <RadioGroup
       value={toUiValue(value)}
       onValueChange={(val) => onChange(fromUiValue(val))}
-      disabled={field.disabled}
+      disabled={field.disabled || field.readOnly}
       className={className}
     >
       {field.options?.map((option) => (
