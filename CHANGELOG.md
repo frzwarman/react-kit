@@ -1,3 +1,13 @@
+## 0.0.34 (2025-11-24)
+
+### 🩹 Fixes
+
+- set pagination button type to avoid accidentally submitting form when placed inside forms
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+
 ## 0.0.33 (2025-11-19)
 
 ### 🩹 Fixes
