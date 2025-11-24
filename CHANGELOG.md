@@ -1,3 +1,7 @@
+## 0.0.35 (2025-11-24)
+
+This was a version bump only, there were no code changes.
+
 ## 0.0.34 (2025-11-24)
 
 ### 🩹 Fixes
