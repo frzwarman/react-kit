@@ -275,6 +275,9 @@ export function useFormBuilder<TFieldValues extends FieldValues = FieldValues>(
         case 'custom_field':
           fieldSchema = z.any();
           break;
+        case 'hidden':
+          fieldSchema = z.any();
+          break;
         default:
           // Default to string for text, textarea, password, etc.
           fieldSchema = z.string();
