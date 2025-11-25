@@ -1,3 +1,13 @@
+## 0.0.36 (2025-11-25)
+
+### 🩹 Fixes
+
+- set hidden field validation to any
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+
 ## 0.0.35 (2025-11-24)
 
 This was a version bump only, there were no code changes.
