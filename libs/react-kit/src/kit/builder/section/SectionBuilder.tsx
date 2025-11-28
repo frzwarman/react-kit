@@ -226,9 +226,28 @@ function shallowEqualSpan(a?: SectionLeaf['span'], b?: SectionLeaf['span']) {
   );
 }
 
+function isReactElement(value: unknown): boolean {
+  return (
+    value !== null &&
+    typeof value === 'object' &&
+    '$$typeof' in (value as object)
+  );
+}
+
 function shallowEqualLeaf(a: SectionLeaf, b: SectionLeaf) {
-  // Use renderKey when provided to force updates; otherwise ignore content ref equality
-  const renderKeyEqual = (a.renderKey ?? null) === (b.renderKey ?? null);
+  // If renderKey is provided, use it for comparison
+  if (a.renderKey !== undefined || b.renderKey !== undefined) {
+    if ((a.renderKey ?? null) !== (b.renderKey ?? null)) return false;
+  } else {
+    // No renderKey: if content is a ReactElement, always re-render
+    // (JSX creates new object refs each render, so we can't reliably compare)
+    if (isReactElement(a.content) || isReactElement(b.content)) {
+      return false;
+    }
+    // For primitives (string, number, null, undefined), compare directly
+    if (a.content !== b.content) return false;
+  }
+
   return (
     a.key === b.key &&
     a.hidden === b.hidden &&
@@ -237,8 +256,7 @@ function shallowEqualLeaf(a: SectionLeaf, b: SectionLeaf) {
     a.labelClassName === b.labelClassName &&
     a.valueClassName === b.valueClassName &&
     a.inlineLabelWidthClass === b.inlineLabelWidthClass &&
-    shallowEqualSpan(a.span, b.span) &&
-    renderKeyEqual
+    shallowEqualSpan(a.span, b.span)
   );
 }
 
