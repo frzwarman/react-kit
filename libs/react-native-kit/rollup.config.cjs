@@ -8,20 +8,28 @@ module.exports = withNx(
     outputPath: './dist',
     tsConfig: './tsconfig.lib.json',
     compiler: 'babel',
-    external: ["react/jsx-runtime","react-native","react","react-dom"],
-    format: ["cjs","esm"],
-    assets:[{ input: '.', output: '.', glob: 'README.md'}],
-  }, {
-    // Provide additional rollup configuration here. See: https://rollupjs.org/configuration-options
-    plugins: [
-      svg({
-        svgo: false,
-        titleProp: true,
-        ref: true,
-      }),
-      url({
-        limit: 10000, // 10kB
-      }),
+    external: [
+      'react/jsx-runtime',
+      'react-native',
+      'react',
+      'react-dom',
+      '@gluestack-ui/core',
+      '@gluestack-ui/utils',
+      'nativewind',
     ],
-  }
+    format: ["cjs", "esm"],
+    assets: [{ input: '.', output: '.', glob: 'README.md' }],
+  }, {
+  // Provide additional rollup configuration here. See: https://rollupjs.org/configuration-options
+  plugins: [
+    svg({
+      svgo: false,
+      titleProp: true,
+      ref: true,
+    }),
+    url({
+      limit: 10000, // 10kB
+    }),
+  ],
+}
 );
