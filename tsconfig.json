@@ -5,6 +5,9 @@
   "references": [
     {
       "path": "./libs/react-kit"
+    },
+    {
+      "path": "./libs/react-native-kit"
     }
   ],
   "ts-node": {
