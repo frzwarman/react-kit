@@ -1,3 +1,17 @@
+## 0.0.37 (2025-11-28)
+
+### 🩹 Fixes
+
+- autocomplete search keyword did not cleared when field is cleared
+- set pagination button type to avoid accidentally submitting form when placed inside forms
+- set hidden field validation to any
+- SectionBuilder without renderKey should always re-render
+
+### ❤️ Thank You
+
+- Ilyas Ilmana
+- Labib
+
 ## 0.0.36 (2025-11-25)
 
 ### 🩹 Fixes
