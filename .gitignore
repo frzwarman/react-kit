@@ -63,3 +63,4 @@ npm-debug.*
 web-build/
 cache/
 test-output
+*.tgz

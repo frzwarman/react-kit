@@ -6,5 +6,8 @@ onlyBuiltDependencies:
   - '@biomejs/biome'
   - '@swc/core'
   - '@tailwindcss/oxide'
+  - detox
+  - dtrace-provider
   - esbuild
   - nx
+  - unrs-resolver
