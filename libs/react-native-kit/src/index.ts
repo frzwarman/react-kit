@@ -1,7 +1,9 @@
+// Gluestack Theme & Provider
+export { GluestackUIProvider, type ModeType } from "./gluestack/gluestack-ui-provider";
+export { config as gluestackThemeConfig } from "./gluestack/gluestack-ui-provider/config";
 
-// Gluestack
+// Gluestack Components
 export * from "./gluestack/button";
-export * from "./gluestack/gluestack-ui-provider";
 export * from "./gluestack/hstack/index";
 export * from "./gluestack/card/index";
 export * from "./gluestack/text/index";
@@ -37,7 +39,6 @@ export * from './gluestack/pressable';
 export * from './gluestack/progress';
 export * from './gluestack/radio';
 export * from './gluestack/refresh-control';
-export * from './gluestack/safe-area-view';
 export * from './gluestack/scroll-view';
 export * from './gluestack/section-list';
 export * from './gluestack/select';

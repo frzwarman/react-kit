@@ -7,6 +7,7 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
+      "react-native": "./src/index.ts",
       "development": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.esm.js",
@@ -15,26 +16,25 @@
   },
   "files": [
     "dist",
+    "src",
     "!**/*.tsbuildinfo"
   ],
   "peerDependencies": {
-    "@gluestack-ui/core": "^3.0.12",
-    "@gluestack-ui/utils": "^3.0.13",
-    "nativewind": "^4.2.1",
-    "react": "19.0.0",
-    "react-native": "0.79.3"
-  },
-  "devDependencies": {
-    "@gluestack-ui/core": "^3.0.12",
-    "@gluestack-ui/utils": "^3.0.13",
-    "nativewind": "^4.2.1"
+    "@gluestack-ui/core": "~3.0.12",
+    "@gluestack-ui/utils": "~3.0.13",
+    "nativewind": "~4.2.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "~0.81.5",
+    "react-native-reanimated": "4.1.6",
+    "@legendapp/motion": "^2.5.3",
+    "react-native-svg": "^15.12.1",
+    "lucide-react-native": "^0.555.0",
+    "react-native-safe-area-context": "^5.6.2",
+    "react-native-css-interop": "0.2.1",
+    "@gorhom/bottom-sheet": "^5.2.7"
   },
   "dependencies": {
-    "@expo/html-elements": "^0.12.5",
-    "@gorhom/bottom-sheet": "^5.2.7",
-    "@legendapp/motion": "^2.5.3",
-    "lucide-react-native": "^0.510.0",
-    "react-native-safe-area-context": "^5.6.2",
-    "react-native-svg": "^15.15.1"
+    "@expo/html-elements": "^0.12.5"
   }
 }
