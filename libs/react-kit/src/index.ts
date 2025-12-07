@@ -20,6 +20,8 @@ export * from './kit/components/forminfo';
 // Ensure default export for Login at root
 export { default as Login } from './kit/components/login/Login';
 export * from './kit/components/fileuploader';
+export * from './kit/components/numpad';
+export * from './kit/components/keyboard';
 
 // -----------------------------
 // KIT: layouts (admin)
