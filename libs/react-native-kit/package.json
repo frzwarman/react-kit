@@ -1,6 +1,6 @@
 {
   "name": "@k3-universe/react-native-kit",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
   "types": "./dist/index.esm.d.ts",
@@ -19,6 +19,9 @@
     "src",
     "!**/*.tsbuildinfo"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@gluestack-ui/core": "~3.0.12",
     "@gluestack-ui/utils": "~3.0.13",

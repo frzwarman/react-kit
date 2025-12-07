@@ -133,8 +133,10 @@
   },
   "release": {
     "projects": [
-      "@k3-universe/react-kit"
+      "@k3-universe/react-kit",
+      "@k3-universe/react-native-kit"
     ],
+    "projectsRelationship": "independent",
     "changelog": {
       "automaticFromRef": true
     }

@@ -4,12 +4,12 @@
   "license": "MIT",
   "scripts": {
     "react-kit:build": "nx build @k3-universe/react-kit",
-    "react-kit:publish": "nx release",
+    "react-kit:publish": "nx release -p @k3-universe/react-kit",
     "react-kit:release": "pnpm react-kit:build && pnpm react-kit:publish",
     "react-kit:storybook:run": "nx run @k3-universe/react-kit:storybook",
     "react-kit:storybook:build": "nx run @k3-universe/react-kit:build-storybook",
     "react-native-kit:build": "nx build @k3-universe/react-native-kit",
-    "react-native-kit:publish": "nx release",
+    "react-native-kit:publish": "nx release -p @k3-universe/react-native-kit",
     "react-native-kit:release": "pnpm react-native-kit:build && pnpm react-native-kit:publish",
     "react-native-kit:pack": "pnpm react-native-kit:build && pnpm pack --filter @k3-universe/react-native-kit --out k3-universe-react-native-kit.tgz"
   },
