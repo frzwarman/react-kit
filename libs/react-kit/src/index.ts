@@ -15,6 +15,7 @@ export { default as Page } from './kit/builder/page/Page';
 // KIT: components
 // -----------------------------
 export * from './kit/components/autocomplete';
+export * from './kit/components/datepicker';
 export * from './kit/components/login';
 export * from './kit/components/forminfo';
 // Ensure default export for Login at root
