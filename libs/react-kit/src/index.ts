@@ -16,6 +16,7 @@ export { default as Page } from './kit/builder/page/Page';
 // -----------------------------
 export * from './kit/components/autocomplete';
 export * from './kit/components/datepicker';
+export * from './kit/components/datetimepicker';
 export * from './kit/components/login';
 export * from './kit/components/forminfo';
 // Ensure default export for Login at root
@@ -23,6 +24,7 @@ export { default as Login } from './kit/components/login/Login';
 export * from './kit/components/fileuploader';
 export * from './kit/components/numpad';
 export * from './kit/components/keyboard';
+export * from './kit/components/timepicker';
 
 // -----------------------------
 // KIT: layouts (admin)
