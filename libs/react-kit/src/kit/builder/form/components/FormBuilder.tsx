@@ -95,7 +95,7 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
     ) => {
       if (!hasDependencies || !field.dependencies) return {};
 
-      const result: { disabled?: boolean; hidden?: boolean } = {};
+      const result: { disabled?: boolean; hidden?: boolean, required?: boolean } = {};
 
       for (const dep of field.dependencies) {
         const dependentValue = watchedValues[dep.field];
@@ -113,6 +113,12 @@ export function FormBuilder<TFieldValues extends FieldValues = FieldValues>({
             break;
           case 'disable':
             if (conditionMet) result.disabled = true;
+            break;
+          case 'required': 
+            if (conditionMet) result.required = true;
+            break;
+          case 'optional':
+            if (conditionMet) result.required = false;
             break;
           case 'setValue':
             if (conditionMet && dep.value !== undefined) {

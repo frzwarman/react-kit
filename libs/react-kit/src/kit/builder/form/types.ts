@@ -55,7 +55,7 @@ export type FieldType =
 export interface Dependency<TFieldValues extends FieldValues> {
   field: Path<TFieldValues>;
   condition: (value: unknown) => boolean;
-  action: 'show' | 'hide' | 'enable' | 'disable' | 'setValue';
+  action: 'show' | 'hide' | 'enable' | 'disable' | 'required' | 'optional' | 'setValue';
   value?: unknown;
 }
 

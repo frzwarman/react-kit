@@ -17,7 +17,7 @@ interface BuildSectionNodesOptions<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
   handleFieldDependencies: (
     field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>,
-  ) => { disabled?: boolean; hidden?: boolean } | Record<string, never>;
+  ) => { disabled?: boolean; hidden?: boolean, required?: boolean } | Record<string, never>;
   handleFieldChange: (
     field: FormBuilderFieldConfig<TFieldValues, string | Path<TFieldValues>>,
     value: unknown,
@@ -73,6 +73,9 @@ export function buildSectionNodes<TFieldValues extends FieldValues>(
               field={{
                 ...field,
                 disabled: field.disabled || fieldState.disabled,
+                required: typeof fieldState.required === 'boolean'
+                  ? !!fieldState.required
+                  : field.required,
               }}
               control={control}
               onChange={(value, ...extras) => {
