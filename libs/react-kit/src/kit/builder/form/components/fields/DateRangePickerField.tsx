@@ -44,6 +44,7 @@ export function DateRangePickerField({
       maxDate={field.maxDate}
       disabledDates={field.disabledDates}
       format={field.dateFormat ? dateFormat : undefined}
+      placeholder={field.placeholder}
       numberOfMonths={field.numberOfMonths ?? 2}
       popoverSide={field.popoverSide}
       showFooter={field.showFooter}

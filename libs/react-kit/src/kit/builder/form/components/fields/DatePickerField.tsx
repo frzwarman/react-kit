@@ -24,6 +24,7 @@ export function DatePickerField({
       maxDate={field.maxDate}
       disabledDates={field.disabledDates}
       format={field.dateFormat}
+      placeholder={field.placeholder}
       buttonVariant="outline"
     />
   );
