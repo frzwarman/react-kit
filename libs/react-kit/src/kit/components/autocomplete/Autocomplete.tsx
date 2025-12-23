@@ -42,6 +42,7 @@ export type AutocompleteProps<T = unknown> = {
   disabled?: boolean;
   multiple?: boolean;
   className?: string;
+  width?: string | number;
   chipVariant?: 'default' | 'secondary' | 'destructive' | 'outline';
   chipClassName?: string;
   emptyText?: string;
@@ -73,6 +74,7 @@ export function Autocomplete<T = unknown>({
   disabled = false,
   multiple = false,
   className,
+  width,
   chipVariant = 'secondary',
   chipClassName,
   emptyText = 'No results found',
@@ -501,7 +503,7 @@ export function Autocomplete<T = unknown>({
     () => ({
       reset: handleClear,
     }),
-    []
+    [handleClear]
   );
 
   const showClearButton =
@@ -517,12 +519,14 @@ export function Autocomplete<T = unknown>({
       <PopoverTrigger asChild>
         <div
           className={cn(
-            'flex min-h-10 w-full items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm',
+            'flex min-h-10 items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm',
             'ring-offset-background',
             'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
             disabled && 'cursor-not-allowed opacity-50',
+            width != null ? '' : 'w-full',
             className,
           )}
+          style={{ width }}
         >
           {isMultiple && (
             <div className="flex flex-wrap gap-1">
@@ -567,7 +571,10 @@ export function Autocomplete<T = unknown>({
                 }
               },
             })}
-            className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground min-w-[120px]"
+            className={cn(
+              'flex-1 bg-transparent outline-none placeholder:text-muted-foreground',
+              width ? 'w-full' : 'min-w-[120px]'
+            )}
           />
           <div className="flex items-center gap-2 shrink-0">
             {showClearButton && (
