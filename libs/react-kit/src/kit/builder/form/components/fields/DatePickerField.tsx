@@ -23,6 +23,7 @@ export function DatePickerField({
       minDate={field.minDate}
       maxDate={field.maxDate}
       disabledDates={field.disabledDates}
+      format={field.dateFormat}
       buttonVariant="outline"
     />
   );

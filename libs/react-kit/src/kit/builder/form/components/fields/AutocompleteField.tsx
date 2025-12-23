@@ -71,6 +71,7 @@ export function AutocompleteField({
       defaultValue={defaultValueShaped}
       initialSelectedOptions={field.initialSelectedOptions ?? undefined}
       loadSelected={field.loadSelected}
+      width={field.autocompleteWidth}
       value={
         field.multiple
           ? ((Array.isArray(value) ? value : value ? [value] : []) as Array<

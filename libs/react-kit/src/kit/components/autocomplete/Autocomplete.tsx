@@ -519,7 +519,7 @@ export function Autocomplete<T = unknown>({
       <PopoverTrigger asChild>
         <div
           className={cn(
-            'flex min-h-10 items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm',
+            'flex min-h-10 items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm',
             'ring-offset-background',
             'focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
             disabled && 'cursor-not-allowed opacity-50',
@@ -536,7 +536,7 @@ export function Autocomplete<T = unknown>({
                   variant={chipVariant}
                   className={cn('gap-1', chipClassName)}
                 >
-                  <span className="max-w-[150px] truncate">{item.label}</span>
+                  <span className="max-w-[100px] truncate">{item.label}</span>
                   <button
                     type="button"
                     onClick={(e) => {

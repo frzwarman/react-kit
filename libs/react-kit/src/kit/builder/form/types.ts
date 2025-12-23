@@ -101,6 +101,7 @@ export interface FormBuilderFieldConfig<
         minItems?: { value: number; message: string };
         maxItems?: { value: number; message: string };
       };
+  autocompleteWidth?: string | number;
   // Accept any for defaultValue to support relative string names for nested fields
   defaultValue?: unknown;
   // For nested object/array fields, use relative names (eg. 'uomName')
@@ -143,6 +144,7 @@ export interface FormBuilderFieldConfig<
   minDate?: Date;
   maxDate?: Date;
   disabledDates?: Array<Date | { from: Date; to: Date }>;
+  dateFormat?: (date: Date) => string;
   numberOfMonths?: number;
   popoverSide?: 'top' | 'right' | 'bottom' | 'left';
   showFooter?: boolean;

@@ -376,7 +376,7 @@ export function DateRangePicker({
           <div className="flex gap-6 min-w-[900px]">
             <div className="flex-1 pr-2">
               {/* Inputs */}
-              <div className="flex items-center justify-center gap-2 mb-4 rounded-md border border-input bg-background/50 px-2 py-1 w-fit mx-auto">
+              <div className="flex items-center justify-center gap-2 mb-4 rounded-md border border-border bg-background/50 px-2 py-1 w-fit mx-auto">
                 <input
                   type="text"
                   inputMode="numeric"
@@ -388,7 +388,7 @@ export function DateRangePicker({
                     'h-9 w-40 rounded-md border bg-background px-3 text-sm shadow-xs outline-hidden',
                     fromInvalid
                       ? 'border-destructive ring-1 ring-destructive/50'
-                      : 'border-input',
+                      : 'border-border',
                   )}
                 />
                 <span className="text-muted-foreground">–</span>
@@ -403,7 +403,7 @@ export function DateRangePicker({
                     'h-9 w-40 rounded-md border bg-background px-3 text-sm shadow-xs outline-hidden',
                     toInvalid
                       ? 'border-destructive ring-1 ring-destructive/50'
-                      : 'border-input',
+                      : 'border-border',
                   )}
                 />
               </div>

@@ -28,6 +28,13 @@ export function DateRangePickerField({
     return null;
   }, [value]);
 
+  const dateFormat = (from?: Date, to?: Date) => {
+    if (!to) {
+      return `${field.dateFormat?.(from!)} \t– …`;
+    }
+    return `${field.dateFormat?.(from!)} \t– ${field.dateFormat?.(to!)}`;
+  }
+
   return (
     <DateRangePicker
       className={className}
@@ -36,6 +43,7 @@ export function DateRangePickerField({
       minDate={field.minDate}
       maxDate={field.maxDate}
       disabledDates={field.disabledDates}
+      format={field.dateFormat ? dateFormat : undefined}
       numberOfMonths={field.numberOfMonths ?? 2}
       popoverSide={field.popoverSide}
       showFooter={field.showFooter}

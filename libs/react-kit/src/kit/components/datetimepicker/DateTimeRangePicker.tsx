@@ -484,7 +484,7 @@ export function DateTimeRangePicker({
         >
           <div className={cn('w-fit min-w-0', contentClassName)}>
             {/* Header row: date inputs with inline time selectors beside each */}
-            <div className="mb-3 rounded-md border border-input bg-background/50 px-3 py-2">
+            <div className="mb-3 rounded-md border border-border bg-background/50 px-3 py-2">
               <div className="flex flex-wrap items-end gap-3">
                 <div className="flex items-end gap-2">
                   <input
