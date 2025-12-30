@@ -502,8 +502,13 @@ export function Autocomplete<T = unknown>({
     ref,
     () => ({
       reset: handleClear,
+      experimental_injectInternalOptions: (options: AutocompleteOption[]) => {
+        if(Array.isArray(options)) {
+          options.forEach(opt => { storeOption(opt as never); })
+        }
+      },
     }),
-    [handleClear]
+    [handleClear, storeOption]
   );
 
   const showClearButton =
@@ -518,6 +523,7 @@ export function Autocomplete<T = unknown>({
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <div
+          inert={disabled}
           className={cn(
             'flex min-h-10 items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm',
             'ring-offset-background',
