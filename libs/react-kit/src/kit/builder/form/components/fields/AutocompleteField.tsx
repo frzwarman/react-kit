@@ -1,4 +1,5 @@
-import { Autocomplete } from '../../../../../kit/components/autocomplete/Autocomplete';
+import { useEffect, useRef } from 'react';
+import { ForwardedRefAutocomplete } from '../../../../../kit/components/autocomplete/Autocomplete';
 import type { AutocompleteOption } from '../../../../../kit/components/autocomplete/types';
 import type { FieldRenderProps } from './types';
 
@@ -8,6 +9,8 @@ export function AutocompleteField({
   onChange,
   className,
 }: FieldRenderProps) {
+  const acRef = useRef<any>(null);
+
   const options: AutocompleteOption[] = (field.options ?? [])
     .filter(
       (o): o is { label: string; value: string | number } =>
@@ -56,8 +59,15 @@ export function AutocompleteField({
     }
   }
 
+  useEffect(() => {
+    if (value == null || value === "") {
+      acRef.current?.reset();
+    }
+  }, [value]);
+
   return (
-    <Autocomplete
+    <ForwardedRefAutocomplete
+      ref={acRef}
       mode={field.autocompleteMode ?? 'client'}
       options={options}
       fetcher={field.fetcher}
