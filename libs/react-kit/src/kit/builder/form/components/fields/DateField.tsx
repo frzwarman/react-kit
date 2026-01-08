@@ -7,22 +7,28 @@ export function DateField({
   onChange,
   className,
 }: FieldRenderProps) {
+  const parseDateValueForInput = (date: unknown) => {
+    if (date instanceof Date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    if (typeof date === 'string') {
+      return parseDateValueForInput(new Date(date));
+    }
+
+    return '';
+  }
+
   return (
     <Input
       className={className}
       disabled={field.disabled || field.readOnly}
       placeholder={field.placeholder}
       type="date"
-      defaultValue={
-        value
-          ? new Date(value as Date | string).toISOString().split('T')[0]
-          : ''
-      }
-      value={
-        value
-          ? new Date(value as Date | string).toISOString().split('T')[0]
-          : ''
-      }
+      value={parseDateValueForInput(value)}
+      defaultValue={parseDateValueForInput(value)}
+      min={parseDateValueForInput(field.minDate)}
+      max={parseDateValueForInput(field.maxDate)}
       onChange={(e) =>
         onChange(e.target.value ? new Date(e.target.value) : null)
       }
