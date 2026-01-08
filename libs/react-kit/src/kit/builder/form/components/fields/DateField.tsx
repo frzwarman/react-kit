@@ -13,6 +13,11 @@ export function DateField({
       disabled={field.disabled || field.readOnly}
       placeholder={field.placeholder}
       type="date"
+      defaultValue={
+        value
+          ? new Date(value as Date | string).toISOString().split('T')[0]
+          : ''
+      }
       value={
         value
           ? new Date(value as Date | string).toISOString().split('T')[0]
