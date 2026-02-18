@@ -169,7 +169,7 @@ export function TimePicker({
             disabled={disabled}
             variant={buttonVariant}
             className={cn(
-              'w-[240px] justify-start text-left font-normal',
+              'w-full justify-start text-left font-normal',
               !value && 'text-muted-foreground',
             )}
           >

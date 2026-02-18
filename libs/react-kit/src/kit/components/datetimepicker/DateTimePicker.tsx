@@ -312,7 +312,7 @@ export function DateTimePicker({
             disabled={disabled}
             variant={buttonVariant}
             className={cn(
-              'w-[280px] justify-start text-left font-normal',
+              'w-full flex justify-start text-left font-normal',
               !value && 'text-muted-foreground',
             )}
           >
