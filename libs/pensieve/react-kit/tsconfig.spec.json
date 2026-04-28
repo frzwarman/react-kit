@@ -1,6 +1,7 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
+    "composite": true,
     "outDir": "./out-tsc/vitest",
     "types": [
       "vitest/globals",
@@ -9,11 +10,7 @@
       "node",
       "vitest"
     ],
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "jsx": "react-jsx"
   },
   "include": [
     "vite.config.ts",

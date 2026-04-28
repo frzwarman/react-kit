@@ -1,4 +1,5 @@
 {
+  "extends": "../../../tsconfig.base.json",
   "files": [],
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts"],
   "references": [
@@ -10,11 +11,6 @@
     }
   ],
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "extends": "../../tsconfig.base.json"
+    "jsx": "react-jsx"
+  }
 }

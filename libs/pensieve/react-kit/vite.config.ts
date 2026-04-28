@@ -27,7 +27,7 @@ export default defineConfig(() => {
 
   return {
     root: __dirname,
-    cacheDir: '../../node_modules/.vite/libs/react-kit',
+    cacheDir: '../../../node_modules/.vite/libs/pensieve/react-kit',
     plugins: [
       react(),
       tailwindcss() as never,
@@ -63,7 +63,10 @@ export default defineConfig(() => {
       // Use Rollup multi-entry: library index + each theme CSS
       rollupOptions: {
         // External packages that should not be bundled into your library.
-        external: ['react', 'react-dom', 'react/jsx-runtime', '@tanstack/react-router'],
+        external: (id: string) => {
+          // Externalize all dependencies and peer dependencies
+          return !id.startsWith('.') && !id.startsWith('/') && !id.startsWith('\0');
+        },
         input,
         output: {
           // Preserve entry-relative paths; our CSS entries are named 'kit/themes/<name>'
@@ -78,7 +81,7 @@ export default defineConfig(() => {
       cssCodeSplit: true,
     },
     test: {
-      name: '@k3-universe/react-kit',
+      name: 'pensieve-react-kit',
       watch: false,
       globals: true,
       environment: 'jsdom',

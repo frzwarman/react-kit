@@ -1,6 +1,7 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
+    "composite": true,
     "outDir": "dist",
     "types": [
       "node",
@@ -11,11 +12,7 @@
     "rootDir": "src",
     "jsx": "react-jsx",
     "lib": ["es2022", "dom"],
-    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo"
   },
   "exclude": [
     "out-tsc",

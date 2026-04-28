@@ -4,7 +4,7 @@
   "files": [],
   "references": [
     {
-      "path": "./libs/react-kit"
+      "path": "./libs/pensieve/react-kit"
     },
     {
       "path": "./libs/react-native-kit"
