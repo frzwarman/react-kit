@@ -133,7 +133,7 @@
   },
   "release": {
     "projects": [
-      "@k3-universe/react-native-kit",
+      "@pensieve-react-kit/react-native-kit",
       "pensieve-react-kit"
     ],
     "projectsRelationship": "independent",

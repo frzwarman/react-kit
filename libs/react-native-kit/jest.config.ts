@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: '@k3-universe/react-native-kit',
+  displayName: '@pensieve-react-kit/react-native-kit',
   resolver: require.resolve('./jest.resolver.js'),
   preset: 'jest-expo',
   moduleFileExtensions: ['ts', 'js', 'html', 'tsx', 'jsx'],

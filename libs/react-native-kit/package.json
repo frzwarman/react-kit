@@ -1,5 +1,5 @@
 {
-  "name": "@k3-universe/react-native-kit",
+  "name": "@pensieve-react-kit/react-native-kit",
   "version": "0.0.2",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
