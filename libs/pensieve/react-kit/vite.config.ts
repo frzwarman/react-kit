@@ -27,7 +27,7 @@ export default defineConfig(() => {
 
   return {
     root: __dirname,
-    cacheDir: '../../../node_modules/.vite/libs/pensieve/react-kit',
+    cacheDir: '../../../node_modules/.vite/libs/universe/react-kit',
     plugins: [
       react(),
       tailwindcss() as never,
@@ -81,7 +81,7 @@ export default defineConfig(() => {
       cssCodeSplit: true,
     },
     test: {
-      name: 'pensieve-react-kit',
+      name: 'universe-react-kit',
       watch: false,
       globals: true,
       environment: 'jsdom',

@@ -31,7 +31,7 @@ variables:
 detect:affected:
   stage: build
   tags:
-    - pensieve-runner-1
+    - universe-runner-1
   needs: []
   <<: *default_pnpm_setup
   variables:
@@ -64,7 +64,7 @@ detect:affected:
 build:affected:
   stage: build
   tags:
-    - pensieve-runner-1
+    - universe-runner-1
   needs:
     - job: detect:affected
   <<: *default_pnpm_setup
@@ -91,11 +91,11 @@ build:affected:
 # build:storybook:
 #   stage: build
 #   tags:
-#     - pensieve-runner-1
+#     - universe-runner-1
 #   needs: []
 #   <<: *default_pnpm_setup
 #   script:
-#     - pnpm nx run @pensieve-react-kit/react-kit:build-storybook
+#     - pnpm nx run @universe-react-kit/react-kit:build-storybook
 #   artifacts:
 #     expire_in: 1 week
 #     paths:
@@ -111,7 +111,7 @@ build:affected:
 release:affected:
   stage: publish
   tags:
-    - pensieve-runner-1
+    - universe-runner-1
   needs:
     - job: build:affected
       artifacts: true
@@ -147,7 +147,7 @@ release:affected:
 # storybook:docker-image:
 #   stage: docker
 #   tags:
-#     - pensieve-runner-1
+#     - universe-runner-1
 #   needs:
 #     - job: build:storybook
 #       artifacts: true

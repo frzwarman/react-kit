@@ -133,8 +133,8 @@
   },
   "release": {
     "projects": [
-      "@pensieve-react-kit/react-native-kit",
-      "pensieve-react-kit"
+      "@universe-react-kit/react-native-kit",
+      "universe-react-kit"
     ],
     "projectsRelationship": "independent",
     "changelog": {

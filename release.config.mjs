@@ -15,13 +15,13 @@ export default {
       "@semantic-release/npm",
       {
         npmPublish: true,
-        pkgRoot: "libs/pensieve/react-kit",
+        pkgRoot: "libs/universe/react-kit",
       },
     ],
     [
       "@semantic-release/git",
       {
-        assets: ["CHANGELOG.md", "libs/pensieve/react-kit/package.json"],
+        assets: ["CHANGELOG.md", "libs/universe/react-kit/package.json"],
         message:
           "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}",
       },

@@ -1,7 +1,7 @@
 {
-  "name": "pensieve-react-kit",
+  "name": "universe-react-kit",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/pensieve/react-kit/src",
+  "sourceRoot": "libs/universe/react-kit/src",
   "projectType": "library",
   "tags": [],
   "targets": {
