@@ -2,18 +2,14 @@
   "name": "pensieve-react-kit",
   "version": "0.0.0",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "pensieve-react-kit:build": "nx build pensieve-react-kit",
     "pensieve-react-kit:publish": "nx release -p pensieve-react-kit",
     "pensieve-react-kit:release": "pnpm pensieve-react-kit:build && pnpm pensieve-react-kit:publish",
     "pensieve-react-kit:storybook:run": "nx run pensieve-react-kit:storybook",
-    "pensieve-react-kit:storybook:build": "nx run pensieve-react-kit:build-storybook",
-    "react-native-kit:build": "nx build @pensieve-react-kit/react-native-kit",
-    "react-native-kit:publish": "nx release -p @pensieve-react-kit/react-native-kit",
-    "react-native-kit:release": "pnpm react-native-kit:build && pnpm react-native-kit:publish",
-    "react-native-kit:pack": "pnpm react-native-kit:build && pnpm pack --filter @pensieve-react-kit/react-native-kit --out pensieve-react-kit-react-native-kit.tgz"
-  },
-  "private": true,
+    "pensieve-react-kit:storybook:build": "nx run pensieve-react-kit:build-storybook"
+},
   "dependencies": {
     "@expo/metro-config": "~0.20.14",
     "@expo/metro-runtime": "~5.0.4",
